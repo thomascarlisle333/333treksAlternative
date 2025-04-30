@@ -20,6 +20,12 @@
 # production
 /build
 
+# images
+public/Final/
+
+# .idea/
+.idea/
+
 # misc
 .DS_Store
 *.pem
