@@ -16,18 +16,19 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative h-screen">
         {/* Background Image with overlay */}
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-10">
           <div className="relative w-full h-full">
             <Image
-              src="/Final/Vatican_City/Vatican_City/Vatican_City_Vatican City_Vatican City_1_011122.jpg" // Replace with path to your preferred hero image
+              src="/Final/Vatican_City/Vatican_City/Vatican_City_Vatican_City_Vatican_City_1_011122.jpg"
               alt="Travel photography hero"
               fill
               style={{ objectFit: 'cover' }}
               priority
             />
-            <div className="absolute inset-0 bg-black bg-opacity-40"></div>
           </div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-transparent"></div>
         </div>
+
 
         {/* Content */}
         <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4 text-white">
@@ -77,7 +78,7 @@ export default function HomePage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="relative h-64 rounded-lg overflow-hidden shadow-lg">
                 <Image
-                  src="/Final/Spain/Barcelona/Barcelona_Barcelona_Spain_1_093022.jpg" // Replace with path to your image
+                  src="/Final/Spain/Barcelona/Barcelona_Barcelona_Spain_2_093022.jpg" // Replace with path to your image
                   alt="Photography journey"
                   fill
                   style={{ objectFit: 'cover' }}
@@ -93,7 +94,7 @@ export default function HomePage() {
               </div>
               <div className="relative h-64 rounded-lg overflow-hidden shadow-lg">
                 <Image
-                  src="/Final/Norway/Bergen/Bergen_Vestland_Norway_4_041023.jpg" // Replace with path to your image
+                  src="/Final/Norway/Bergen/Bergen_Vestland_Norway_5_041023.jpg" // Replace with path to your image
                   alt="Photography journey"
                   fill
                   style={{ objectFit: 'cover' }}
@@ -131,7 +132,7 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="py-8 px-4 bg-gray-800 text-white">
         <div className="max-w-6xl mx-auto text-center">
-          <p>© {new Date().getFullYear()} My Travel Photography. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} 333Treks. All rights reserved.</p>
         </div>
       </footer>
 

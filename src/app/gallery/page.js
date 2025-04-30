@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 export default function GalleryPage() {
   const [countries, setCountries] = useState([]);
@@ -61,8 +62,18 @@ export default function GalleryPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-center">My Travel Photography</h1>
+    <div className="container mx-auto px-4 py-8 relative">
+      {/* Home button in the upper left */}
+      <div className="absolute top-4 left-4">
+        <Link href="/">
+          <button className="mr-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors">
+
+            Home
+          </button>
+        </Link>
+      </div>
+
+      <h1 className="text-3xl font-bold mb-8 text-center pt-12">My Travel Photography</h1>
 
       {/* Display countries grid */}
       {!selectedCountry && (
