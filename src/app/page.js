@@ -1,103 +1,150 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import React from 'react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+
+export default function HomePage() {
+  const router = useRouter();
+
+  const navigateToGallery = () => {
+    router.push('/gallery');
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      {/* Hero Section */}
+      <section className="relative h-screen">
+        {/* Background Image with overlay */}
+        <div className="absolute inset-0 z-0">
+          <div className="relative w-full h-full">
             <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+              src="/Final/Vatican_City/Vatican_City/Vatican_City_Vatican City_Vatican City_1_011122.jpg" // Replace with path to your preferred hero image
+              alt="Travel photography hero"
+              fill
+              style={{ objectFit: 'cover' }}
+              priority
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            <div className="absolute inset-0 bg-black bg-opacity-40"></div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+
+        {/* Content */}
+        <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4 text-white">
+          <h1 className="text-4xl md:text-6xl font-bold mb-4 animate-fade-in">
+            Capturing the World, One Frame at a Time
+          </h1>
+          <div className="w-24 h-1 bg-white mb-8"></div>
+          <p className="text-lg md:text-xl max-w-2xl mb-12 leading-relaxed">
+            Welcome to my personal journey around the globe. Through my lens,
+            I've documented breathtaking landscapes, vibrant cultures, and intimate
+            moments that tell the story of our beautiful planet.
+          </p>
+          <button
+            onClick={navigateToGallery}
+            className={"px-8 py-4 bg-white text-gray-900 rounded-lg font-medium text-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg"}
+          >
+            Explore Gallery
+          </button>
+        </div>
+      </section>
+
+      {/* About Section */}
+      <section className="py-20 px-4">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">My Photographic Journey</h2>
+            <div className="w-24 h-1 bg-gray-800 mx-auto mb-8"></div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div>
+              <p className="text-lg leading-relaxed mb-6">
+                Photography allows me to freeze moments in time, preserving the beauty
+                and emotion of places I've been fortunate enough to visit. From bustling
+                city streets to remote wilderness, each location has its own story to tell.
+              </p>
+              <p className="text-lg leading-relaxed mb-6">
+                My camera has taken me across continents, through diverse cultures, and into
+                the lives of extraordinary people. This gallery is a collection of those experiences,
+                organized by the countries and cities that have left their mark on me.
+              </p>
+              <p className="text-lg leading-relaxed">
+                I hope these images inspire you to see the world through a different lens and
+                perhaps embark on your own journey of discovery.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="relative h-64 rounded-lg overflow-hidden shadow-lg">
+                <Image
+                  src="/Final/Spain/Barcelona/Barcelona_Barcelona_Spain_1_093022.jpg" // Replace with path to your image
+                  alt="Photography journey"
+                  fill
+                  style={{ objectFit: 'cover' }}
+                />
+              </div>
+              <div className="relative h-64 rounded-lg overflow-hidden shadow-lg mt-8">
+                <Image
+                  src="/Final/Portugal/Lisbon/Lisbon_Lisbon_Portugal_5_020323.jpg" // Replace with path to your image
+                  alt="Photography journey"
+                  fill
+                  style={{ objectFit: 'cover' }}
+                />
+              </div>
+              <div className="relative h-64 rounded-lg overflow-hidden shadow-lg">
+                <Image
+                  src="/Final/Norway/Bergen/Bergen_Vestland_Norway_4_041023.jpg" // Replace with path to your image
+                  alt="Photography journey"
+                  fill
+                  style={{ objectFit: 'cover' }}
+                />
+              </div>
+              <div className="relative h-64 rounded-lg overflow-hidden shadow-lg mt-8">
+                <Image
+                  src="/Final/Hungary/Budapest/Budapest_Budapest_Hungary_8_021323.jpg" // Replace with path to your image
+                  alt="Photography journey"
+                  fill
+                  style={{ objectFit: 'cover' }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-16 px-4 bg-gray-900 text-white">
+        <div className="max-w-4xl mx-auto text-center">
+          <h2 className="text-3xl font-bold mb-6">Ready to Explore?</h2>
+          <p className="text-lg mb-8">
+            Browse my collection of images from around the world, organized by country and city.
+          </p>
+          <button
+            onClick={navigateToGallery}
+            className="px-8 py-4 bg-white text-gray-900 rounded-lg font-medium text-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+          >
+            View Gallery
+          </button>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-8 px-4 bg-gray-800 text-white">
+        <div className="max-w-6xl mx-auto text-center">
+          <p>© {new Date().getFullYear()} My Travel Photography. All rights reserved.</p>
+        </div>
       </footer>
+
+      {/* CSS for animations */}
+      <style jsx global>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+          animation: fadeIn 1s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 }
