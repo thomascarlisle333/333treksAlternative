@@ -119,7 +119,7 @@ export default function MapPage() {
                                             <h3 className="font-bold">{location.city}, {location.country}</h3>
                                             <p className="my-2">{location.photoCount} photos</p>
                                             <Link
-                                                href={`/photos/${location.country}/${location.city}`}
+                                                href={`/gallery/${encodeURIComponent(location.country)}/${encodeURIComponent(location.city)}`}
                                                 className="inline-block px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700 transform transition-all duration-300 hover:scale-105"
                                             >
                                                 View Photos
@@ -140,7 +140,7 @@ export default function MapPage() {
                         {photoLocations.map((location, index) => (
                             <Link
                                 key={index}
-                                href={`/photos/${location.country}/${location.city}`}
+                                href={`/gallery/${encodeURIComponent(location.country)}/${encodeURIComponent(location.city)}`}
                                 className="block p-6 border rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 transform bg-white"
                             >
                                 <h2 className="text-xl font-semibold mb-2">{location.city}, {location.country}</h2>
