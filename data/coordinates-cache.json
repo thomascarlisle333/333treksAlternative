@@ -1,0 +1,314 @@
+{
+  "Austria-Vienna": {
+    "latitude": 48.199075,
+    "longitude": 16.371283
+  },
+  "Belgium-Brussels": {
+    "latitude": 50.846931,
+    "longitude": 4.352228
+  },
+  "Belgium-Dinant": {
+    "latitude": 50.26104375333333,
+    "longitude": 4.91217896
+  },
+  "Croatia-Dubrovnik": {
+    "latitude": 42.642342,
+    "longitude": 18.122283
+  },
+  "Czech Republic-Prague": {
+    "latitude": 50.08683424,
+    "longitude": 14.39738834
+  },
+  "Denmark-Copenhagen": {
+    "latitude": 55.685838,
+    "longitude": 12.578734
+  },
+  "France-Amboise": {
+    "latitude": 47.412614,
+    "longitude": 0.987119
+  },
+  "France-Azay-le-Rideau": {
+    "latitude": 47.258969,
+    "longitude": 0.46525299999999997
+  },
+  "France-Bordeaux": {
+    "latitude": 44.837789,
+    "longitude": -0.577992
+  },
+  "France-Chambord": {
+    "latitude": 47.632019,
+    "longitude": 1.480631
+  },
+  "France-Cheillé": {
+    "latitude": 47.258533,
+    "longitude": 0.46524699999999997
+  },
+  "France-Chenonceaux": {
+    "latitude": 47.325444,
+    "longitude": 1.070731
+  },
+  "France-Cussac-Fort-Médoc": {
+    "latitude": 45.121228,
+    "longitude": -0.724975
+  },
+  "France-Labarde": {
+    "latitude": 45.020297,
+    "longitude": -0.6261810000000001
+  },
+  "France-Lamarque": {
+    "latitude": 45.088336,
+    "longitude": -0.716247
+  },
+  "France-Le Mont-Saint-Michel": {
+    "latitude": 48.6353,
+    "longitude": -1.510967
+  },
+  "France-Normandy": {
+    "latitude": 49.3404133,
+    "longitude": -0.59861483
+  },
+  "France-Paris": {
+    "latitude": 48.860632,
+    "longitude": 2.337644
+  },
+  "France-Pauilac": {
+    "latitude": 45.198906,
+    "longitude": -0.745981
+  },
+  "France-Saint-Goazec": {
+    "latitude": 48.158553,
+    "longitude": -3.787114
+  },
+  "France-Soussans": {
+    "latitude": 45.050161323333334,
+    "longitude": -0.6896731616666667
+  },
+  "France-Étretat": {
+    "latitude": 49.707786,
+    "longitude": 0.204592
+  },
+  "Germany-Berlin": {
+    "latitude": 52.516403,
+    "longitude": 13.378506
+  },
+  "Germany-Bremen": {
+    "latitude": 53.074375,
+    "longitude": 8.809991
+  },
+  "Germany-Cologne": {
+    "latitude": 50.937274,
+    "longitude": 6.962896
+  },
+  "Germany-Dortmund": {
+    "latitude": 51.492281,
+    "longitude": 7.45176
+  },
+  "Germany-Garrel": {
+    "latitude": 52.915297,
+    "longitude": 7.9470030000000005
+  },
+  "Germany-Hamburg": {
+    "latitude": 53.54383,
+    "longitude": 9.989108
+  },
+  "Germany-Hanover": {
+    "latitude": 52.365254,
+    "longitude": 9.736389
+  },
+  "Germany-Munich": {
+    "latitude": 48.137011,
+    "longitude": 11.576186
+  },
+  "Germany-Osnabrück": {
+    "latitude": 52.277652,
+    "longitude": 8.044027
+  },
+  "Germany-Pattensen": {
+    "latitude": 52.17284,
+    "longitude": 9.766082
+  },
+  "Germany-Potsdam": {
+    "latitude": 52.402619,
+    "longitude": 13.038576
+  },
+  "Germany-Schwangau": {
+    "latitude": 47.557486,
+    "longitude": 10.750027
+  },
+  "Greece-Athens": {
+    "latitude": 37.975389,
+    "longitude": 23.736161
+  },
+  "Hungary-Budapest": {
+    "latitude": 47.495456,
+    "longitude": 19.040953
+  },
+  "Iceland-Mývatn": {
+    "latitude": 65.630714,
+    "longitude": -16.847719
+  },
+  "Italy-Milan": {
+    "latitude": 45.464775,
+    "longitude": 9.19015
+  },
+  "Italy-Rome": {
+    "latitude": 41.890702,
+    "longitude": 12.48594
+  },
+  "Luxembourg-Luxembourg": {
+    "latitude": 49.611636,
+    "longitude": 6.137056
+  },
+  "Luxembourg-Vianden": {
+    "latitude": 49.61135,
+    "longitude": 6.136164
+  },
+  "Malta-Sliema": {
+    "latitude": 35.90796958,
+    "longitude": 14.509575566666667
+  },
+  "Netherlands-Amsterdam": {
+    "latitude": 52.374364,
+    "longitude": 4.896689
+  },
+  "Norway-Aurland Municipality": {
+    "latitude": 60.908664,
+    "longitude": 7.2118079999999996
+  },
+  "Norway-Bergen": {
+    "latitude": 60.405247,
+    "longitude": 5.321358
+  },
+  "Norway-Flam": {
+    "latitude": 60.862831,
+    "longitude": 7.115086
+  },
+  "Norway-Gudvangen": {
+    "latitude": 60.97445,
+    "longitude": 7.015536
+  },
+  "Norway-Skulestadmo": {
+    "latitude": 60.725833,
+    "longitude": 6.487489
+  },
+  "Norway-Undredal": {
+    "latitude": 60.954767,
+    "longitude": 7.119392
+  },
+  "Poland-Auschwitz": {
+    "latitude": 50.027436,
+    "longitude": 19.203461
+  },
+  "Poland-Krakow": {
+    "latitude": 50.055289,
+    "longitude": 19.93585
+  },
+  "Poland-Wieliczka": {
+    "latitude": 49.983322,
+    "longitude": 20.055761
+  },
+  "Portugal-Lisbon": {
+    "latitude": 38.720842,
+    "longitude": -9.1342
+  },
+  "Spain-Barcelona": {
+    "latitude": 41.414689,
+    "longitude": 2.153975
+  },
+  "Switzerland-Uetliberg": {
+    "latitude": 47.349567,
+    "longitude": 8.492078
+  },
+  "Switzerland-Zurich": {
+    "latitude": 47.371269,
+    "longitude": 8.542889
+  },
+  "United_Kingdom-Edinburgh": {
+    "latitude": 55.951631,
+    "longitude": -3.195369
+  },
+  "United_Kingdom-London": {
+    "latitude": 51.50455,
+    "longitude": -0.086532
+  },
+  "United_States-Arco": {
+    "latitude": 43.442475,
+    "longitude": -113.529914
+  },
+  "United_States-Baton Rouge": {
+    "latitude": 30.412669,
+    "longitude": -91.184478
+  },
+  "United_States-Bellvue": {
+    "latitude": 43.478390935,
+    "longitude": -114.27349097333334
+  },
+  "United_States-Boise": {
+    "latitude": 43.649497,
+    "longitude": -116.148064
+  },
+  "United_States-Bruneau": {
+    "latitude": 42.902994596666666,
+    "longitude": -115.70132520666667
+  },
+  "United_States-Cambridge": {
+    "latitude": 44.659592,
+    "longitude": -72.874847
+  },
+  "United_States-Garden Valley": {
+    "latitude": 44.068972,
+    "longitude": -115.713219
+  },
+  "United_States-Gibson": {
+    "latitude": 29.622503000000002,
+    "longitude": -90.934844
+  },
+  "United_States-Jerome": {
+    "latitude": 42.602272,
+    "longitude": -114.452736
+  },
+  "United_States-Ketchum": {
+    "latitude": 43.872872,
+    "longitude": -114.729644
+  },
+  "United_States-Lowman": {
+    "latitude": 44.060478,
+    "longitude": -115.688417
+  },
+  "United_States-Michigamme": {
+    "latitude": 46.518395,
+    "longitude": -88.188773
+  },
+  "United_States-Middletown": {
+    "latitude": 41.516036,
+    "longitude": -72.678917
+  },
+  "United_States-New Orleans": {
+    "latitude": 29.957078,
+    "longitude": -90.062286
+  },
+  "United_States-Orlando": {
+    "latitude": 28.403508,
+    "longitude": -81.428825
+  },
+  "United_States-Rochester Hills": {
+    "latitude": 42.649375,
+    "longitude": -83.209786
+  },
+  "United_States-Stanely": {
+    "latitude": 44.282464,
+    "longitude": -115.027581
+  },
+  "United_States-Vacherie": {
+    "latitude": 30.005753,
+    "longitude": -90.776367
+  },
+  "United_States-Wappingers Falls": {
+    "latitude": 41.593183296666666,
+    "longitude": -73.91202158
+  },
+  "Vatican_City-Vatican_City": {
+    "latitude": 41.902233,
+    "longitude": 12.454761
+  }
+}
