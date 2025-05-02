@@ -8,11 +8,70 @@ export async function GET() {
         // Sample trip data - in a real application, this would come from a database
         const tripRoutes = [
             {
+                id: 5,
+                name: "Japan Spring 2025",
+                description: "Exploring Japan's main islands and cultural landmarks",
+                region: "Asia",
+                date: "2025-05",
+                duration: 11,
+                segments: [
+                    {
+                        from: { name: "Tokyo, Japan", lat: 35.6762, lng: 139.6503 },
+                        to: { name: "Kyoto, Japan", lat: 35.0116, lng: 135.7681 },
+                        transport: "train",
+                        color: "#3498db", // blue for train
+                        description: "Shinkansen bullet train"
+                    },
+                    {
+                        from: { name: "Kyoto, Japan", lat: 35.0116, lng: 135.7681 },
+                        to: { name: "Osaka, Japan", lat: 34.6937, lng: 135.5023 },
+                        transport: "train",
+                        color: "#3498db", // blue for train
+                        description: "Local train through urban Japan"
+                    },
+                    {
+                        from: { name: "Osaka, Japan", lat: 34.6937, lng: 135.5023 },
+                        to: { name: "Hiroshima, Japan", lat: 34.3853, lng: 132.4553 },
+                        transport: "train",
+                        color: "#3498db", // blue for train
+                        description: "Bullet train along the coast"
+                    },
+                    {
+                        from: { name: "Hiroshima, Japan", lat: 34.3853, lng: 132.4553 },
+                        to: { name: "Miyajima Island, Japan", lat: 34.2971, lng: 132.3197 },
+                        transport: "boat",
+                        color: "#1abc9c", // teal for boat
+                        description: "Ferry to the sacred island"
+                    },
+                    {
+                        from: { name: "Miyajima Island, Japan", lat: 34.2971, lng: 132.3197 },
+                        to: { name: "Fukuoka, Japan", lat: 33.5902, lng: 130.4017 },
+                        transport: "train",
+                        color: "#3498db", // blue for train
+                        description: "Train to Kyushu Island"
+                    },
+                    {
+                        from: { name: "Fukuoka, Japan", lat: 33.5902, lng: 130.4017 },
+                        to: { name: "Nagasaki, Japan", lat: 32.7503, lng: 129.8779 },
+                        transport: "train",
+                        color: "#3498db", // blue for train
+                        description: "Coastal train through southern Japan"
+                    },
+                    {
+                        from: { name: "Nagasaki, Japan", lat: 32.7503, lng: 129.8779 },
+                        to: { name: "Sapporo, Japan", lat: 43.0618, lng: 141.3545 },
+                        transport: "plane",
+                        color: "#9b59b6", // purple for plane
+                        description: "Flight to Hokkaido Island"
+                    }
+                ]
+            },
+            {
                 id: 1,
-                name: "France 2024",
+                name: "Northern France Summer 2024",
                 description: "A 3 week work trip with lots of site seeing!",
                 region: "Europe",
-                date: "2024-06",
+                date: "2024-07",
                 duration: 21,
                 segments: [
                     {
@@ -33,7 +92,7 @@ export async function GET() {
                         from: { name: "Bordeaux, France", lat: 44.8416, lng: -0.5811 },
                         to: { name: "Pauillac, France", lat: 45.1996, lng: -.7462 },
                         transport: "car",
-                        color: "#e74c3c", // red for car
+                        color: "#e74c3c", // red for a car ride
                         description: "Drive up and down the left bank of Bordeaux wine region"
                     },
                     {
@@ -112,123 +171,264 @@ export async function GET() {
                         transport: "car",
                         color: "#e74c3c", // red for car
                         description: "Return rental car to Rennes"
+                    },
+                    {
+                        from: { name: "Rennes, France", lat: 48.1173, lng: -1.6778},
+                        to: { name: "Paris, France", lat: 48.8566, lng: 2.3522 },
+                        transport: "car",
+                        color: "#3498db", // blue for train
+                        description: "Return to Paris by TVG bullet train"
                     }
                 ]
             },
             {
                 id: 2,
-                name: "Southeast Asia Tour",
-                description: "Exploring the cultural heritage and natural beauty of Southeast Asia",
+                name: "South Korea Spring 2025",
+                description: "Exploring the cultural heritage and natural beauty of South Korea",
                 region: "Asia",
-                date: "2024-02",
-                duration: 14,
+                date: "2025-03",
+                duration: 3,
                 segments: [
                     {
-                        from: { name: "Bangkok, Thailand", lat: 13.7563, lng: 100.5018 },
-                        to: { name: "Chiang Mai, Thailand", lat: 18.7883, lng: 98.9853 },
-                        transport: "train",
-                        color: "#3498db", // blue for train
-                        description: "Overnight sleeper train through the Thai countryside"
-                    },
-                    {
-                        from: { name: "Chiang Mai, Thailand", lat: 18.7883, lng: 98.9853 },
-                        to: { name: "Luang Prabang, Laos", lat: 19.8563, lng: 102.1347 },
+                        from: { name: "Seoul, South Korea", lat: 37.5503, lng: 126.9970 },
+                        to: { name: "DMZ, South Korea", lat: 37.7596, lng: 126.7778 },
                         transport: "bus",
                         color: "#2ecc71", // green for bus
                         description: "Scenic mountain bus journey"
                     },
                     {
-                        from: { name: "Luang Prabang, Laos", lat: 19.8563, lng: 102.1347 },
-                        to: { name: "Hanoi, Vietnam", lat: 21.0285, lng: 105.8542 },
-                        transport: "plane",
-                        color: "#9b59b6", // purple for plane
-                        description: "Short regional flight"
+                        from: { name: "DMZ, South Korea", lat: 37.7596, lng: 126.7778 },
+                        to: { name: "Seoul, South Korea", lat: 37.5503, lng: 126.9970 },
+                        transport: "bus",
+                        color: "#2ecc71", // green for bus
+                        description: "Return journey from DMZ"
                     },
                     {
-                        from: { name: "Hanoi, Vietnam", lat: 21.0285, lng: 105.8542 },
-                        to: { name: "Ha Long Bay, Vietnam", lat: 20.9101, lng: 107.1839 },
-                        transport: "car",
-                        color: "#e74c3c", // red for car
-                        description: "Private transfer to the coast"
+                        from: { name: "Seoul, South Korea", lat: 37.5503, lng: 126.9970 },
+                        to: { name: "Busan, South Korea", lat: 35.1731, lng: 129.0714 },
+                        transport: "train",
+                        color: "#3498db", // blue for train
+                        description: "KTX high-speed train to coastal Busan"
+                    },
+                    {
+                        from: { name: "Busan, South Korea", lat: 35.1731, lng: 129.0714 },
+                        to: { name: "Seoul, South Korea", lat: 37.5503, lng: 126.9970 },
+                        transport: "train",
+                        color: "#3498db", // blue for train
+                        description: "KTX high-speed train to coastal Busan"
+                    },
+                    {
+                        from: { name: "Seoul, South Korea", lat: 37.5503, lng: 126.9970 },
+                        to: { name: "Beijing, China", lat: 40.0799, lng: 116.6031 },
+                        transport: "train",
+                        color: "#3498db", // blue for train
+                        description: "KTX high-speed train to coastal Busan"
                     }
                 ]
             },
             {
                 id: 3,
-                name: "USA Road Trip",
-                description: "From East Coast to West Coast across the United States",
-                region: "North America",
-                date: "2023-07",
-                duration: 18,
+                name: "China Spring 2025",
+                description: "Work trip in the north, site seeing in the south!",
+                region: "Asia",
+                date: "2025-03",
+                duration: 22,
                 segments: [
                     {
-                        from: { name: "New York, NY", lat: 40.7128, lng: -74.0060 },
-                        to: { name: "Washington DC", lat: 38.9072, lng: -77.0369 },
+                        from: { name: "Seoul, South Korea", lat: 37.5503, lng: 126.9970 },
+                        to: { name: "Beijing, China", lat: 40.0799, lng: 116.6031 },
                         transport: "car",
                         color: "#e74c3c", // red for car
                         description: "Drive down the I-95 corridor"
                     },
                     {
-                        from: { name: "Washington DC", lat: 38.9072, lng: -77.0369 },
-                        to: { name: "Nashville, TN", lat: 36.1627, lng: -86.7816 },
+                        from: { name: "Beijing, China", lat: 40.0799, lng: 116.6031 },
+                        to: { name: "Changchun, China", lat: 43.8160, lng: 125.3236 },
                         transport: "car",
                         color: "#e74c3c", // red for car
                         description: "Journey through the Appalachian region"
                     },
                     {
-                        from: { name: "Nashville, TN", lat: 36.1627, lng: -86.7816 },
-                        to: { name: "New Orleans, LA", lat: 29.9511, lng: -90.0715 },
+                        from: { name: "Changchun, China", lat: 43.8160, lng: 125.3236 },
+                        to: { name: "Gongzhuling, China", lat: 43.5047, lng: 124.8228 },
                         transport: "car",
                         color: "#e74c3c", // red for car
                         description: "Southern road trip with blues music stops"
                     },
                     {
-                        from: { name: "New Orleans, LA", lat: 29.9511, lng: -90.0715 },
-                        to: { name: "Austin, TX", lat: 30.2672, lng: -97.7431 },
+                        from: { name: "Gongzhuling, China", lat: 43.5047, lng: 124.8228 },
+                        to: { name: "Chengde, China", lat: 40.9515, lng: 117.9634 },
                         transport: "car",
                         color: "#e74c3c", // red for car
                         description: "Gulf Coast drive through Louisiana and Texas"
                     },
                     {
-                        from: { name: "Austin, TX", lat: 30.2672, lng: -97.7431 },
-                        to: { name: "Santa Fe, NM", lat: 35.6870, lng: -105.9378 },
+                        from: { name: "Chengde, China", lat: 40.9515, lng: 117.9634 },
+                        to: { name: "Beijing, China", lat: 40.0799, lng: 116.6031 },
                         transport: "train",
                         color: "#3498db", // blue for train
                         description: "Amtrak journey through the Southwest"
                     },
                     {
-                        from: { name: "Santa Fe, NM", lat: 35.6870, lng: -105.9378 },
-                        to: { name: "Grand Canyon, AZ", lat: 36.0544, lng: -112.2225 },
+                        from: { name: "Beijing, China", lat: 40.0799, lng: 116.6031 },
+                        to: { name: "The Great Wall, China", lat: 40.4327, lng: 116.5640 },
                         transport: "car",
                         color: "#e74c3c", // red for car
                         description: "Desert drive with stunning landscapes"
                     },
                     {
-                        from: { name: "Grand Canyon, AZ", lat: 36.0544, lng: -112.2225 },
-                        to: { name: "Las Vegas, NV", lat: 36.1699, lng: -115.1398 },
+                        from: { name: "The Great Wall, China", lat: 40.4327, lng: 116.5640 },
+                        to: { name: "Beijing, China", lat: 40.0799, lng: 116.6031 },
+                        transport: "car",
+                        color: "#e74c3c", // red for car
+                        description: "Desert drive with stunning landscapes"
+                    },
+                    {
+                        from: { name: "Beijing, China", lat: 40.0799, lng: 116.6031 },
+                        to: { name: "Tiananmen Square, China", lat: 39.9055, lng: 116.3976 },
+                        transport: "car",
+                        color: "#e74c3c", // red for car
+                        description: "Desert drive with stunning landscapes"
+                    },
+                    {
+                        from: { name: "Tiananmen Square, China", lat: 39.9055, lng: 116.3976 },
+                        to: { name: "Temple of Heaven, China", lat: 39.8822, lng: 116.4066 },
                         transport: "car",
                         color: "#e74c3c", // red for car
                         description: "Scenic route through northern Arizona"
                     },
                     {
-                        from: { name: "Las Vegas, NV", lat: 36.1699, lng: -115.1398 },
-                        to: { name: "Los Angeles, CA", lat: 34.0522, lng: -118.2437 },
+                        from: { name: "Temple of Heaven, China", lat: 39.8822, lng: 116.4066 },
+                        to: { name: "Summer Palace, China", lat: 40.0000, lng: 116.2755 },
                         transport: "car",
                         color: "#e74c3c", // red for car
                         description: "Desert crossing to the Pacific coast"
+                    },
+                    {
+                        from: { name: "Summer Palace, China", lat: 40.0000, lng: 116.2755 },
+                        to: { name: "Beijing, China", lat: 40.0799, lng: 116.6031 },
+                        transport: "car",
+                        color: "#e74c3c", // red for car
+                        description: "Desert crossing to the Pacific coast"
+                    },
+                    {
+                        from: { name: "Beijing, China", lat: 40.0799, lng: 116.6031 },
+                        to: { name: "Zhangjiajie, China", lat: 29.1167, lng: 110.4784 },
+                        transport: "plane",
+                        color: "#9b59b6", // purple for plane
+                        description: "Desert crossing to the Pacific coast"
+                    },
+                    {
+                        from: { name: "Zhangjiajie, China", lat: 29.1167, lng: 110.4784 },
+                        to: { name: "Wulingyuan, China", lat: 29.3459, lng: 110.5504 },
+                        transport: "car",
+                        color: "#e74c3c", // red for car
+                        description: "Desert crossing to the Pacific coast"
+                    },
+                    {
+                        from: { name: "Wulingyuan, China", lat: 29.3459, lng: 110.5504 },
+                        to: { name: "Zhangjiajie Glass Bridge, China", lat: 29.3982, lng: 110.6962 },
+                        transport: "bus",
+                        color: "#2ecc71", // green for bus
+                        description: "Desert crossing to the Pacific coast"
+                    },
+                    {
+                        from: { name: "Zhangjiajie Glass Bridge, China", lat: 29.3982, lng: 110.6962 },
+                        to: { name: "Tianmen Mountain, China", lat: 29.0468, lng: 110.4821 },
+                        transport: "bus",
+                        color: "#2ecc71", // green for bus
+                        description: "Desert crossing to the Pacific coast"
+                    },
+                    {
+                        from: { name: "Tianmen Mountain, China", lat: 29.0468, lng: 110.4821 },
+                        to: { name: "Zhangjiajiebei Railway Station, China", lat: 29.1046, lng: 110.4870 },
+                        transport: "bus",
+                        color: "#2ecc71", // green for bus
+                        description: "Desert crossing to the Pacific coast"
+                    },
+                    {
+                        from: { name: "Zhangjiajiebei Railway Station, China", lat: 29.1046, lng: 110.4870 },
+                        to: { name: "Furong Ancient Town, China", lat: 28.7673, lng: 109.9748 },
+                        transport: "train",
+                        color: "#3498db", // blue for train
+                        description: "Desert crossing to the Pacific coast"
+                    },
+                    {
+                        from: { name: "Furong Ancient Town, China", lat: 28.7673, lng: 109.9748 },
+                        to: { name: "Fenghuang Ancient Town, China", lat: 27.9484, lng: 109.5983 },
+                        transport: "train",
+                        color: "#3498db", // blue for train
+                        description: "Desert crossing to the Pacific coast"
+                    },
+                    {
+                        from: { name: "Fenghuang Ancient Town, China", lat: 27.9484, lng: 109.5983 },
+                        to: { name: "Zhangjiajiebei Railway Station, China", lat: 29.1046, lng: 110.4870 },
+                        transport: "train",
+                        color: "#3498db", // blue for train
+                        description: "Desert crossing to the Pacific coast"
+                    },
+                    {
+                        from: { name: "Zhangjiajiebei Railway Station, China", lat: 29.1046, lng: 110.4870 },
+                        to: { name: "72 Qilou Wonder Towers, China", lat: 29.1448, lng: 110.4558 },
+                        transport: "car",
+                        color: "#e74c3c", // red for train
+                        description: "Desert crossing to the Pacific coast"
+                    },
+                    {
+                        from: { name: "72 Qilou Wonder Towers, China", lat: 29.1448, lng: 110.4558 },
+                        to: { name: "Zhangjiajie Airport, China", lat: 29.1036, lng: 110.4506 },
+                        transport: "car",
+                        color: "#e74c3c", // red for train
+                        description: "Desert crossing to the Pacific coast"
+                    },
+                    {
+                        from: { name: "Zhangjiajie Airport, China", lat: 29.1036, lng: 110.4506 },
+                        to: { name: "Shanghai, China", lat: 31.1443, lng: 121.8083 },
+                        transport: "plane",
+                        color: "#9b59b6", // purple for plane
+                        description: "Desert crossing to the Pacific coast"
+                    },
+                    {
+                        from: { name: "Shanghai Pudong Airport, China", lat: 31.1443, lng: 121.8083 },
+                        to: { name: "Nanjing Street, China", lat: 31.2342, lng: 121.4748 },
+                        transport: "plane",
+                        color: "#9b59b6", // purple for plane
+                        description: "Desert crossing to the Pacific coast"
+                    },
+                    {
+                        from: { name: "Nanjing Street, China", lat: 31.2342, lng: 121.4748 },
+                        to: { name: "The Bund, China", lat: 31.2363, lng: 121.4911 },
+                        transport: "plane",
+                        color: "#9b59b6", // purple for plane
+                        description: "Desert crossing to the Pacific coast"
+                    },
+                    {
+                        from: { name: "The Bund, China", lat: 31.2363, lng: 121.4911 },
+                        to: { name: "Shanghai Tower, China", lat: 31.2335, lng: 121.5056 },
+                        transport: "plane",
+                        color: "#9b59b6", // purple for plane
+                        description: "Desert crossing to the Pacific coast"
+                    },
+                    {
+                        from: { name: "Shanghai Tower, China", lat: 31.2335, lng: 121.5056 },
+                        to: { name: "Shanghai Pudong Airport, China", lat: 31.1443, lng: 121.8083 },
+                        transport: "plane",
+                        color: "#9b59b6", // purple for plane
+                        description: "Desert crossing to the Pacific coast"
                     }
+
                 ]
             },
             {
                 id: 4,
-                name: "Scandinavian Adventure",
+                name: "Europe Fall 2022",
                 description: "Exploring the stunning landscapes and cities of Scandinavia",
                 region: "Europe",
-                date: "2023-12",
-                duration: 12,
+                date: "2022-10",
+                duration: 21,
                 segments: [
                     {
-                        from: { name: "Copenhagen, Denmark", lat: 55.6761, lng: 12.5683 },
+                        from: { name: "New York City, US", lat: 40.6446, lng: -73.7797 },
                         to: { name: "Odense, Denmark", lat: 55.4038, lng: 10.4024 },
                         transport: "train",
                         color: "#3498db", // blue for train
@@ -272,71 +472,12 @@ export async function GET() {
                 ]
             },
             {
-                id: 5,
-                name: "Japanese Island Hopping",
-                description: "Exploring Japan's main islands and cultural landmarks",
-                region: "Asia",
-                date: "2024-04",
-                duration: 16,
-                segments: [
-                    {
-                        from: { name: "Tokyo, Japan", lat: 35.6762, lng: 139.6503 },
-                        to: { name: "Kyoto, Japan", lat: 35.0116, lng: 135.7681 },
-                        transport: "train",
-                        color: "#3498db", // blue for train
-                        description: "Shinkansen bullet train"
-                    },
-                    {
-                        from: { name: "Kyoto, Japan", lat: 35.0116, lng: 135.7681 },
-                        to: { name: "Osaka, Japan", lat: 34.6937, lng: 135.5023 },
-                        transport: "train",
-                        color: "#3498db", // blue for train
-                        description: "Local train through urban Japan"
-                    },
-                    {
-                        from: { name: "Osaka, Japan", lat: 34.6937, lng: 135.5023 },
-                        to: { name: "Hiroshima, Japan", lat: 34.3853, lng: 132.4553 },
-                        transport: "train",
-                        color: "#3498db", // blue for train
-                        description: "Bullet train along the coast"
-                    },
-                    {
-                        from: { name: "Hiroshima, Japan", lat: 34.3853, lng: 132.4553 },
-                        to: { name: "Miyajima Island, Japan", lat: 34.2971, lng: 132.3197 },
-                        transport: "boat",
-                        color: "#1abc9c", // teal for boat
-                        description: "Ferry to the sacred island"
-                    },
-                    {
-                        from: { name: "Miyajima Island, Japan", lat: 34.2971, lng: 132.3197 },
-                        to: { name: "Fukuoka, Japan", lat: 33.5902, lng: 130.4017 },
-                        transport: "train",
-                        color: "#3498db", // blue for train
-                        description: "Train to Kyushu Island"
-                    },
-                    {
-                        from: { name: "Fukuoka, Japan", lat: 33.5902, lng: 130.4017 },
-                        to: { name: "Nagasaki, Japan", lat: 32.7503, lng: 129.8779 },
-                        transport: "train",
-                        color: "#3498db", // blue for train
-                        description: "Coastal train through southern Japan"
-                    },
-                    {
-                        from: { name: "Nagasaki, Japan", lat: 32.7503, lng: 129.8779 },
-                        to: { name: "Sapporo, Japan", lat: 43.0618, lng: 141.3545 },
-                        transport: "plane",
-                        color: "#9b59b6", // purple for plane
-                        description: "Flight to Hokkaido Island"
-                    }
-                ]
-            },
-            {
                 id: 6,
-                name: "South American Expedition",
+                name: "Iceland Spring 2024 ",
                 description: "Journey through the diverse landscapes of South America",
-                region: "South America",
-                date: "2023-11",
-                duration: 22,
+                region: "Europe",
+                date: "2024-04",
+                duration: 7,
                 segments: [
                     {
                         from: { name: "Buenos Aires, Argentina", lat: -34.6037, lng: -58.3816 },
@@ -391,11 +532,56 @@ export async function GET() {
             },
             {
                 id: 7,
-                name: "African Safari",
-                description: "Wildlife expedition across Eastern Africa",
-                region: "Africa",
-                date: "2025-01",
+                name: "Europe Winter 2023",
+                description: "A quick trip to Portugal, Italy, France, Germany, Scotland, and Hungary!",
+                region: "Europe",
+                date: "2023-02",
                 duration: 15,
+                segments: [
+                    {
+                        from: { name: "New York City, US", lat: 40.6446, lng: -73.7797 },
+                        to: { name: "Maasai Mara, Kenya", lat: -1.5942, lng: 35.1506 },
+                        transport: "plane",
+                        color: "#9b59b6", // purple for plane
+                        description: "Small aircraft to the savanna"
+                    },
+                    {
+                        from: { name: "Maasai Mara, Kenya", lat: -1.5942, lng: 35.1506 },
+                        to: { name: "Serengeti, Tanzania", lat: -2.3333, lng: 34.8333 },
+                        transport: "car",
+                        color: "#e74c3c", // red for car
+                        description: "4x4 safari drive across the border"
+                    },
+                    {
+                        from: { name: "Serengeti, Tanzania", lat: -2.3333, lng: 34.8333 },
+                        to: { name: "Ngorongoro Crater, Tanzania", lat: -3.1657, lng: 35.6319 },
+                        transport: "car",
+                        color: "#e74c3c", // red for car
+                        description: "Wildlife spotting drive"
+                    },
+                    {
+                        from: { name: "Ngorongoro Crater, Tanzania", lat: -3.1657, lng: 35.6319 },
+                        to: { name: "Lake Manyara, Tanzania", lat: -3.3942, lng: 35.8000 },
+                        transport: "car",
+                        color: "#e74c3c", // red for car
+                        description: "Scenic drive through national parks"
+                    },
+                    {
+                        from: { name: "Lake Manyara, Tanzania", lat: -3.3942, lng: 35.8000 },
+                        to: { name: "Zanzibar, Tanzania", lat: -6.1659, lng: 39.2026 },
+                        transport: "plane",
+                        color: "#9b59b6", // purple for plane
+                        description: "Flight to the spice island"
+                    }
+                ]
+            },
+            {
+                id: 8,
+                name: "Europe Spring 2023",
+                description: "Quick Trip to Norway, Sweden, Poland, and Greece!",
+                region: "Europe",
+                date: "2023-04",
+                duration: 10,
                 segments: [
                     {
                         from: { name: "Nairobi, Kenya", lat: -1.2921, lng: 36.8219 },
@@ -433,6 +619,55 @@ export async function GET() {
                         description: "Flight to the spice island"
                     }
                 ]
+
+
+            },
+            {
+                id: 9,
+                name: "Idaho Summer 2022",
+                description: "Quick Trip to Norway, Sweden, Poland, and Greece!",
+                region: "North America",
+                date: "2022-09",
+                duration: 3,
+                segments: [
+                    {
+                        from: { name: "Nairobi, Kenya", lat: -1.2921, lng: 36.8219 },
+                        to: { name: "Maasai Mara, Kenya", lat: -1.5942, lng: 35.1506 },
+                        transport: "plane",
+                        color: "#9b59b6", // purple for plane
+                        description: "Small aircraft to the savanna"
+                    },
+                    {
+                        from: { name: "Maasai Mara, Kenya", lat: -1.5942, lng: 35.1506 },
+                        to: { name: "Serengeti, Tanzania", lat: -2.3333, lng: 34.8333 },
+                        transport: "car",
+                        color: "#e74c3c", // red for car
+                        description: "4x4 safari drive across the border"
+                    },
+                    {
+                        from: { name: "Serengeti, Tanzania", lat: -2.3333, lng: 34.8333 },
+                        to: { name: "Ngorongoro Crater, Tanzania", lat: -3.1657, lng: 35.6319 },
+                        transport: "car",
+                        color: "#e74c3c", // red for car
+                        description: "Wildlife spotting drive"
+                    },
+                    {
+                        from: { name: "Ngorongoro Crater, Tanzania", lat: -3.1657, lng: 35.6319 },
+                        to: { name: "Lake Manyara, Tanzania", lat: -3.3942, lng: 35.8000 },
+                        transport: "car",
+                        color: "#e74c3c", // red for car
+                        description: "Scenic drive through national parks"
+                    },
+                    {
+                        from: { name: "Lake Manyara, Tanzania", lat: -3.3942, lng: 35.8000 },
+                        to: { name: "Zanzibar, Tanzania", lat: -6.1659, lng: 39.2026 },
+                        transport: "plane",
+                        color: "#9b59b6", // purple for plane
+                        description: "Flight to the spice island"
+                    }
+                ]
+
+
             }
         ];
 
