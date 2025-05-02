@@ -66,7 +66,7 @@ export default function HomePage() {
                   onClick={navigateToTrip}
                   className="px-8 py-4 bg-gray-600 text-white rounded-lg font-medium text-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
               >
-                Plan Your Trip
+                Explore My Trips
               </button>
             </div>
           </div>
@@ -158,9 +158,9 @@ export default function HomePage() {
               </button>
               <button
                   onClick={navigateToTrip}
-                  className="px-8 py-4 bg-amber-600 text-white rounded-lg font-medium text-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                  className="px-8 py-4 bg-gray-600 text-white rounded-lg font-medium text-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
               >
-                Plan Your Trip
+                Explore My Trips
               </button>
             </div>
           </div>

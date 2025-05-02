@@ -9,36 +9,50 @@ export async function GET() {
         const tripRoutes = [
             {
                 id: 1,
-                name: "European Adventure 2024",
-                description: "A month-long journey through Western Europe",
+                name: "France 2024",
+                description: "A 3 week work trip with lots of site seeing!",
                 segments: [
                     {
-                        from: { name: "London, UK", lat: 51.5074, lng: -0.1278 },
+                        from: { name: "New York City, US", lat: 40.6446, lng: -73.7797 },
                         to: { name: "Paris, France", lat: 48.8566, lng: 2.3522 },
-                        transport: "train",
-                        color: "#3498db", // blue for train
-                        description: "Eurostar high-speed train through the Channel Tunnel"
+                        transport: "plane",
+                        color: "#9b59b6", // purple for plane
+                        description: "Delta Flight from JFK to CDG"
                     },
                     {
                         from: { name: "Paris, France", lat: 48.8566, lng: 2.3522 },
-                        to: { name: "Geneva, Switzerland", lat: 46.2044, lng: 6.1432 },
+                        to: { name: "Bordeaux, France", lat: 44.8416, lng: -0.5811 },
+                        transport: "train",
+                        color: "#3498db", // blue for train, red for car #e74c3c
+                        description: "TVG bullet train through the French Countryside"
+                    },
+                    {
+                        from: { name: "Bordeaux, France", lat: 44.8416, lng: -0.5811 },
+                        to: { name: "Pauillac, France", lat: 45.1996, lng: -.7462 },
                         transport: "car",
                         color: "#e74c3c", // red for car
-                        description: "Scenic drive through the French countryside"
+                        description: "Drive up and down the left bank of Bordeaux wine region"
                     },
                     {
-                        from: { name: "Geneva, Switzerland", lat: 46.2044, lng: 6.1432 },
-                        to: { name: "Milan, Italy", lat: 45.4642, lng: 9.1900 },
+                        from: { name: "Paris, France", lat: 48.8566, lng: 2.3522 },
+                        to: { name: "Rennes, France", lat: 48.1173, lng: -1.6778 },
                         transport: "train",
                         color: "#3498db", // blue for train
-                        description: "Train journey through the Alps"
+                        description: "TVG bullet train to get out of Paris"
                     },
                     {
-                        from: { name: "Milan, Italy", lat: 45.4642, lng: 9.1900 },
-                        to: { name: "Rome, Italy", lat: 41.9028, lng: 12.4964 },
-                        transport: "plane",
-                        color: "#9b59b6", // purple for plane
-                        description: "Short domestic flight"
+                        from: { name: "Rennes, France", lat: 48.1173, lng: -1.6778 },
+                        to: { name: "Mont Saint-Michel, France", lat: 48.6361, lng: -1.5115 },
+                        transport: "car",
+                        color: "#e74c3c", // red for car
+                        description: "Rural drive through Brittany"
+                    },
+                    {
+                        from: { name: "Mont Saint-Michel, France", lat: 48.6361, lng: -1.5115 },
+                        to: { name: "Saint-Goazec, France", lat: 48.1624, lng: -3.7841 },
+                        transport: "car",
+                        color: "#e74c3c", // red for car
+                        description: "Drive to work Chateau"
                     }
                 ]
             },

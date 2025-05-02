@@ -1,7 +1,7 @@
 'use client';
 
-import React from 'react';
-import { MapContainer, TileLayer, Polyline, Marker, Popup, Tooltip } from 'react-leaflet';
+import React, { useEffect, useState, useRef } from 'react';
+import { MapContainer, TileLayer, Polyline, Marker, Popup, Tooltip, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -30,8 +30,49 @@ const transportIcons = {
     "walking": "🚶"
 };
 
+// Component to handle zoom level changes and control label visibility
+function ZoomHandler({ setShowLabels }) {
+    const map = useMapEvents({
+        zoomend: () => {
+            const currentZoom = map.getZoom();
+            // Only show labels when zoomed in past level 7 (adjust this threshold as needed)
+            setShowLabels(currentZoom > 7);
+        },
+    });
+
+    // Set initial label visibility based on starting zoom
+    useEffect(() => {
+        setShowLabels(map.getZoom() > 7);
+    }, [map, setShowLabels]);
+
+    return null;
+}
+
+// Component to set bounds only when trip changes, not on zoom
+function TripBoundsSetter({ bounds, tripId }) {
+    const map = useMap();
+    const prevTripIdRef = useRef(null); // Start with null to ensure first trip is framed
+
+    useEffect(() => {
+        // Always frame on first load (when prevTripIdRef.current is null)
+        // OR when the trip ID changes
+        if (bounds && (prevTripIdRef.current === null || tripId !== prevTripIdRef.current)) {
+            map.fitBounds(bounds, { padding: [50, 50] });
+            prevTripIdRef.current = tripId;
+        }
+    }, [map, bounds, tripId]);
+
+    return null;
+}
+
 const TripMap = ({ selectedTrip }) => {
+    const [showLabels, setShowLabels] = useState(false);
+    const prevTripRef = useRef(null);
+
     if (!selectedTrip) return null;
+
+    // Extract trip ID to detect when trip changes
+    const tripId = selectedTrip.id;
 
     // Calculate bounds to fit all markers for the selected trip
     const getBounds = () => {
@@ -55,15 +96,21 @@ const TripMap = ({ selectedTrip }) => {
 
     return (
         <MapContainer
-            bounds={bounds}
             style={{ height: '100%', width: '100%' }}
             zoom={5}
-            boundsOptions={{ padding: [50, 50] }}
+            minZoom={2} // Prevent zooming out too far
+            worldCopyJump={true} // Better handling of world wrapping
         >
             <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             />
+
+            {/* Zoom handler component to control label visibility */}
+            <ZoomHandler setShowLabels={setShowLabels} />
+
+            {/* Set bounds on initial render AND when the selected trip changes */}
+            <TripBoundsSetter bounds={bounds} tripId={tripId} />
 
             {/* Starting point marker */}
             <Marker
@@ -75,7 +122,9 @@ const TripMap = ({ selectedTrip }) => {
                         <p>Starting point of the journey</p>
                     </div>
                 </Popup>
-                <Tooltip permanent>{selectedTrip.segments[0].from.name}</Tooltip>
+                {showLabels && (
+                    <Tooltip permanent>{selectedTrip.segments[0].from.name}</Tooltip>
+                )}
             </Marker>
 
             {/* Draw lines for each segment and add markers for destinations */}
@@ -103,7 +152,9 @@ const TripMap = ({ selectedTrip }) => {
                                 <p>{segment.description}</p>
                             </div>
                         </Popup>
-                        <Tooltip permanent>{segment.to.name}</Tooltip>
+                        {showLabels && (
+                            <Tooltip permanent>{segment.to.name}</Tooltip>
+                        )}
                     </Marker>
                 </React.Fragment>
             ))}
