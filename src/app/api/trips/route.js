@@ -14,7 +14,6 @@ const transportColors = {
 
 export async function GET() {
     try {
-        // Sample trip data - in a real application, this would come from a database
         const tripRoutes = [
             {
                 id: 5,
@@ -83,13 +82,6 @@ export async function GET() {
                 date: "2024-07",
                 duration: 21,
                 segments: [
-                    {
-                        from: { name: "New York City, US", lat: 40.6446, lng: -73.7797 },
-                        to: { name: "Paris, France", lat: 48.8566, lng: 2.3522 },
-                        transport: "plane",
-                        color: transportColors.plane,
-                        description: "Delta Flight from JFK to CDG"
-                    },
                     {
                         from: { name: "Paris, France", lat: 48.8566, lng: 2.3522 },
                         to: { name: "Bordeaux, France", lat: 44.8416, lng: -0.5811 },
@@ -278,7 +270,6 @@ export async function GET() {
                         color: transportColors.train,
                         description: "Bullet train to Beijing"
                     },
-                    // Continue with the rest of the segments ensuring proper color assignment
                     {
                         from: { name: "Beijing, China", lat: 40.0799, lng: 116.6031 },
                         to: { name: "The Great Wall, China", lat: 40.4327, lng: 116.5640 },
@@ -429,23 +420,14 @@ export async function GET() {
                     }
                 ]
             },
-            // Add the remaining trips here with consistent color assignments
             {
                 id: 4,
                 name: "Europe Fall 2022",
-                description: "Quick trip to Spain, Czech Republic, Malta, France, Germany, Austria, Croatia, and the Netherlands",
+                description: "Quick trip to Spain, Czech Republic, Malta, France, Germany, Belgium, Luxembourg, Austria, Croatia, and the Netherlands",
                 region: "Europe",
                 date: "2022-10",
                 duration: 21,
-                // COMPLETELY REPLACE ALL SEGMENTS
                 segments: [
-                    {
-                        from: { name: "New York City, US", lat: 40.6446, lng: -73.7797 },
-                        to: { name: "Barcelona, Spain", lat: 41.3874, lng: 2.1686 },
-                        transport: "plane",
-                        color: transportColors.plane, // #9b59b6
-                        description: "Transatlantic flight from JFK to Barcelona"
-                    },
                     {
                         from: { name: "Barcelona, Spain", lat: 41.3874, lng: 2.1686 },
                         to: { name: "Prague, Czech Republic", lat: 50.0755, lng: 14.4378 },
@@ -480,10 +462,114 @@ export async function GET() {
                         transport: "plane",
                         color: transportColors.plane, // #3498db
                         description: "Quick flight from southern to northern Germany"
+                    },
+                    {
+                        from: { name: "Hamburg, Germany", lat: 53.6319, lng: 9.9958 },
+                        to: { name: "Cloppenburg, Germany", lat: 52.8453, lng: 8.0473 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Drive south to work location"
+                    },
+                    {
+                        from: { name: "Cloppenburg, Germany", lat: 52.8453, lng: 8.0473 },
+                        to: { name: "Brussels, Belgium", lat: 50.8477, lng: 4.3572 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Weekended drive to Brussels"
+                    },
+                    {
+                        from: { name: "Brussels, Belgium", lat: 50.8477, lng: 4.3572 },
+                        to: { name: "Dinant, Belgium", lat: 50.2627, lng: 4.9106 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Short drive through Belgian countryside"
+                    },
+                    {
+                        from: { name: "Dinant, Belgium", lat: 50.2627, lng: 4.9106 },
+                        to: { name: "Luxembourg, Luxembourg", lat: 49.81537, lng: 6.1296 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Drive through Luxembourg"
+                    },
+                    {
+                        from: { name: "Luxembourg, Luxembourg", lat: 49.81537, lng: 6.1296 },
+                        to: { name: "Vianden, Luxembourg", lat: 49.9340, lng: 6.2092 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "A scenic spin through Luxembourg's backroads"
+                    },
+                    {
+                        from: { name: "Vianden, Luxembourg", lat: 49.9340, lng: 6.2092 },
+                        to: { name: "Emstek, Germany", lat: 52.8343, lng: 8.1555 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Joy ride through the German countryside"
+                    },
+                    {
+                        from: { name: "Vianden, Luxembourg", lat: 49.9340, lng: 6.2092 },
+                        to: { name: "Emstek, Germany", lat: 52.8343, lng: 8.1555 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Joy ride through the German countryside"
+                    },
+                    {
+                        from: { name: "Emstek, Germany", lat: 52.8343, lng: 8.1555 },
+                        to: { name: "Garrel, Germany", lat: 52.9531, lng: 8.0256 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Drive to hotel"
+                    },
+                    {
+                        from: { name: "Garrel, Germany", lat: 52.9531, lng: 8.0256  },
+                        to: { name: "Hamburg, Germany", lat: 53.6319, lng: 9.9958 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Speeding on the autobahn back to catch a flight"
+                    },
+                    {
+                        from: { name: "Hamburg, Germany", lat: 53.6319, lng: 9.9958  },
+                        to: { name: "Vienna, Austria", lat: 48.2081, lng: 16.3713 },
+                        transport: "plane",
+                        color: transportColors.plane, // #3498db
+                        description: "Jetting off to Vienna"
+                    },
+                    {
+                        from: { name: "Vienna, Austria", lat: 48.2081, lng: 16.3713  },
+                        to: { name: "Dubrovnik Airport, Croatia", lat: 42.5606, lng: 18.2618 },
+                        transport: "plane",
+                        color: transportColors.plane, // #3498db
+                        description: "Long haul to Dubrovnik Airport"
+                    },
+                    {
+                        from: { name: "Dubrovnik Airport, Croatia", lat: 42.5606, lng: 18.2618  },
+                        to: { name: "Dubrovnik Old Town, Croatia", lat: 42.6410, lng: 18.1104 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Taxi to Old Town"
+                    },
+                    {
+                        from: { name: "Dubrovnik Old Town, Croatia", lat: 42.6410, lng: 18.1104  },
+                        to: { name: "Dubrovnik Airport, Croatia", lat: 42.5606, lng: 18.2618 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Taxi to Airport"
+                    },
+                    {
+                        from: { name: "Dubrovnik Airport, Croatia", lat: 42.5606, lng: 18.2618  },
+                        to: { name: "Amsterdam Airport, Netherlands", lat: 52.3169, lng: 4.7459 },
+                        transport: "plane",
+                        color: transportColors.plane, // #3498db
+                        description: "Long haul flight to Amsterdam"
+                    },
+                    {
+                        from: { name: "Amsterdam Airport, Netherlands", lat: 52.3169, lng: 4.7459  },
+                        to: { name: "Red Light District, Netherlands", lat: 52.3719, lng: 4.8959 },
+                        transport: "train",
+                        color: transportColors.train, // #3498db
+                        description: "Short train ride to Red Light District"
                     }
                 ]
             },
-            // Continue with the rest of your trips...
             {
                 id: 6,
                 name: "Iceland Spring 2024 ",
@@ -492,13 +578,75 @@ export async function GET() {
                 date: "2024-04",
                 duration: 7,
                 segments: [
-                    // Similar pattern of consistent color assignment for all segments
                     {
-                        from: { name: "Buenos Aires, Argentina", lat: -34.6037, lng: -58.3816 },
-                        to: { name: "Mendoza, Argentina", lat: -32.8908, lng: -68.8272 },
-                        transport: "plane",
-                        color: transportColors.plane,
-                        description: "Flight over the Pampas to wine country"
+                        from: { name: "Keflavik Airport, Iceland", lat: 63.9845, lng: -22.6266 },
+                        to: { name: "Blue Lagoon, Iceland", lat: 63.8807, lng: -22.4473 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Blue Lagoon, Iceland", lat: 63.8807, lng: -22.4473 },
+                        to: { name: "Harpa Concert Hall, Iceland", lat: 64.1502, lng: -21.9323 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Harpa Concert Hall, Iceland", lat: 64.1502, lng: -21.9323 },
+                        to: { name: "Hallgrimskirkja, Iceland", lat: 64.1420, lng: -21.9265 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Hallgrimskirkja, Iceland", lat: 64.1420, lng: -21.9265 },
+                        to: { name: "Helgufoss, Iceland", lat: 64.1750, lng: -21.5317 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Helgufoss, Iceland", lat: 64.1750, lng: -21.5317 },
+                        to: { name: "Þórufoss, Iceland", lat: 64.2630, lng: -21.3738 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Þórufoss, Iceland", lat: 64.2630, lng: -21.3738 },
+                        to: { name: "Öxarárfoss, Iceland", lat: 64.2659, lng: -21.1171 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Öxarárfoss, Iceland", lat: 64.2659, lng: -21.1171 },
+                        to: { name: "Silfra Fissure, Iceland", lat: 64.2563, lng: -21.1161 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Silfra Fissure, Iceland", lat: 64.2563, lng: -21.1161 },
+                        to: { name: "Brúarfoss, Iceland", lat: 64.2643, lng: -20.5157 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Brúarfoss, Iceland", lat: 64.2643, lng: -20.5157 },
+                        to: { name: "Hotel Geysir, Iceland", lat: 64.3102, lng: -20.3007 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Hotel Geysir, Iceland", lat: 64.3102, lng: -20.3007 },
+                        to: { name: "Gullfoss Falls, Iceland", lat: 64.3271, lng: -20.1199 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
                     },
                     {
                         from: { name: "Mendoza, Argentina", lat: -32.8908, lng: -68.8272 },
@@ -507,7 +655,20 @@ export async function GET() {
                         color: transportColors.bus,
                         description: "Bus through the Andes mountain pass"
                     },
-                    // ... other segments
+                    {
+                        from: { name: "Mendoza, Argentina", lat: -32.8908, lng: -68.8272 },
+                        to: { name: "Santiago, Chile", lat: -33.4489, lng: -70.6693 },
+                        transport: "bus",
+                        color: transportColors.bus,
+                        description: "Bus through the Andes mountain pass"
+                    },
+                    {
+                        from: { name: "Mendoza, Argentina", lat: -32.8908, lng: -68.8272 },
+                        to: { name: "Santiago, Chile", lat: -33.4489, lng: -70.6693 },
+                        transport: "bus",
+                        color: transportColors.bus,
+                        description: "Bus through the Andes mountain pass"
+                    },
                 ]
             },
             // ... more trips
@@ -518,14 +679,6 @@ export async function GET() {
             trip.segments.forEach(segment => {
                 // Force the color to match the transport type
                 segment.color = transportColors[segment.transport] || "#000000";
-
-                // Special handling for Europe Fall 2022 trip
-                if (trip.id === 4) {
-                    // Double check that plane segments have the purple color
-                    if (segment.transport === "plane") {
-                        segment.color = "#9b59b6";
-                    }
-                }
             });
         });
 
