@@ -15,6 +15,10 @@ export default function HomePage() {
     router.push('/map');
   };
 
+  const navigateToTrip = () => {
+    router.push('/trip');
+  };
+
   return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
         {/* Hero Section */}
@@ -57,6 +61,12 @@ export default function HomePage() {
                   className="px-8 py-4 bg-gray-800 text-white rounded-lg font-medium text-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
               >
                 View Photo Map
+              </button>
+              <button
+                  onClick={navigateToTrip}
+                  className="px-8 py-4 bg-gray-600 text-white rounded-lg font-medium text-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              >
+                Plan Your Trip
               </button>
             </div>
           </div>
@@ -145,6 +155,12 @@ export default function HomePage() {
                   className="px-8 py-4 bg-gray-800 text-white border border-white rounded-lg font-medium text-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
               >
                 Explore Map
+              </button>
+              <button
+                  onClick={navigateToTrip}
+                  className="px-8 py-4 bg-amber-600 text-white rounded-lg font-medium text-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+              >
+                Plan Your Trip
               </button>
             </div>
           </div>
