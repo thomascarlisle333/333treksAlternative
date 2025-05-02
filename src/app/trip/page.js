@@ -6,6 +6,45 @@ import Link from 'next/link';
 import dynamic from 'next/dynamic';
 import React from 'react';
 
+// DEFINITIVE COLOR MAPPING - These must match TripMap.js exactly
+const COLORS = {
+    PLANE: "#9b59b6", // Purple for planes
+    TRAIN: "#3498db", // Blue for trains
+    CAR: "#e74c3c",   // Red for cars
+    BUS: "#2ecc71",   // Green for buses
+    BOAT: "#1abc9c",  // Teal for boats
+    DEFAULT: "#000000" // Black for unknown transport types
+};
+
+// Transport type to icon mapping (using emoji for simplicity)
+const TRANSPORT_ICONS = {
+    "plane": "✈️",
+    "train": "🚆",
+    "car": "🚗",
+    "bus": "🚌",
+    "boat": "⛴️",
+    "bicycle": "🚲",
+    "walking": "🚶"
+};
+
+// Use this function to get colors consistently
+function getColorForTransport(transportType) {
+    switch (transportType.toLowerCase()) {
+        case 'plane':
+            return COLORS.PLANE;
+        case 'train':
+            return COLORS.TRAIN;
+        case 'car':
+            return COLORS.CAR;
+        case 'bus':
+            return COLORS.BUS;
+        case 'boat':
+            return COLORS.BOAT;
+        default:
+            return COLORS.DEFAULT;
+    }
+}
+
 // Import these components dynamically with no SSR to avoid hydration issues
 const MapWithNoSSR = dynamic(
     () => import('../../components/TripMap'),
@@ -35,6 +74,9 @@ export default function TripPage() {
                 const response = await fetch('/api/trips');
                 if (!response.ok) throw new Error('Failed to fetch trips');
                 const data = await response.json();
+
+                // No longer need to modify colors here since we'll use getColorForTransport
+                // instead of relying on colors from the API
                 setTrips(data);
 
                 // Extract unique regions and years for filters
@@ -147,17 +189,6 @@ export default function TripPage() {
         setSortBy('date-desc');
     };
 
-    // Transport type to icon mapping (using emoji for simplicity)
-    const transportIcons = {
-        "train": "🚆",
-        "plane": "✈️",
-        "car": "🚗",
-        "bus": "🚌",
-        "boat": "⛴️",
-        "bicycle": "🚲",
-        "walking": "🚶"
-    };
-
     // Function to format date from YYYY-MM to Month Year
     const formatDate = (dateString) => {
         if (!dateString) return '';
@@ -166,7 +197,7 @@ export default function TripPage() {
         return date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
     };
 
-    // Render filter components - MOVED THIS FUNCTION UP BEFORE IT'S USED
+    // Render filter components
     const renderFilters = () => {
         return (
             <div className="bg-white p-6 rounded-lg shadow-md mb-8">
@@ -372,7 +403,7 @@ export default function TripPage() {
                             </div>
                         </div>
 
-                        {/* Legend */}
+                        {/* UPDATED Legend with new color function */}
                         <div className="bg-white p-4 rounded-lg shadow-md mb-6">
                             <h3 className="font-semibold mb-2">Transportation Methods:</h3>
                             <div className="flex flex-wrap gap-4">
@@ -380,12 +411,10 @@ export default function TripPage() {
                                     <div key={transport} className="flex items-center">
                                         <div
                                             className="w-6 h-2 mr-2"
-                                            style={{
-                                                backgroundColor: selectedTrip.segments.find(s => s.transport === transport).color
-                                            }}
+                                            style={{ backgroundColor: getColorForTransport(transport) }}
                                         ></div>
                                         <span>
-                                            {transportIcons[transport] || ''} {transport.charAt(0).toUpperCase() + transport.slice(1)}
+                                            {TRANSPORT_ICONS[transport.toLowerCase()] || ''} {transport.charAt(0).toUpperCase() + transport.slice(1)}
                                         </span>
                                     </div>
                                 ))}
@@ -397,14 +426,16 @@ export default function TripPage() {
                             <MapWithNoSSR selectedTrip={selectedTrip} />
                         </div>
 
-                        {/* Trip details */}
+                        {/* UPDATED Trip details with new color function */}
                         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
                             <h3 className="text-xl font-semibold mb-4">Journey Details</h3>
                             <div className="space-y-4">
                                 {selectedTrip.segments.map((segment, index) => (
-                                    <div key={index} className="border-l-4 pl-4" style={{ borderColor: segment.color }}>
+                                    <div key={index}
+                                         className="border-l-4 pl-4"
+                                         style={{ borderColor: getColorForTransport(segment.transport) }}>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-xl">{transportIcons[segment.transport] || ''}</span>
+                                            <span className="text-xl">{TRANSPORT_ICONS[segment.transport.toLowerCase()] || ''}</span>
                                             <h4 className="font-medium">{segment.from.name} to {segment.to.name}</h4>
                                         </div>
                                         <p className="text-gray-600 mt-1">{segment.description}</p>
@@ -418,6 +449,7 @@ export default function TripPage() {
                 {/* Trip Stats Section */}
                 {selectedTrip && (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                        {/* UPDATED Transportation Breakdown with new color function */}
                         <div className="bg-white rounded-lg shadow-md p-6">
                             <h3 className="font-semibold mb-3 text-lg">Transportation Breakdown</h3>
                             <div className="space-y-3">
@@ -429,7 +461,7 @@ export default function TripPage() {
                                 ).sort((a, b) => b[1] - a[1]).map(([transport, count]) => (
                                     <div key={transport} className="flex justify-between items-center">
                                         <div className="flex items-center">
-                                            <span className="mr-2">{transportIcons[transport] || ''}</span>
+                                            <span className="mr-2">{TRANSPORT_ICONS[transport.toLowerCase()] || ''}</span>
                                             <span>{transport.charAt(0).toUpperCase() + transport.slice(1)}</span>
                                         </div>
                                         <div className="flex items-center gap-2">
@@ -438,7 +470,7 @@ export default function TripPage() {
                                                     className="h-2.5 rounded-full"
                                                     style={{
                                                         width: `${(count / selectedTrip.segments.length) * 100}%`,
-                                                        backgroundColor: selectedTrip.segments.find(s => s.transport === transport).color
+                                                        backgroundColor: getColorForTransport(transport)
                                                     }}
                                                 ></div>
                                             </div>
