@@ -34,6 +34,13 @@ export async function GET() {
                         description: "Drive up and down the left bank of Bordeaux wine region"
                     },
                     {
+                        from: { name: "Bordeaux, France", lat: 44.8416, lng: -0.5811 },
+                        to: { name: "Paris, France", lat: 48.8566, lng: 2.3522 },
+                        transport: "train",
+                        color: "#3498db", // blue for train, red for car #e74c3c
+                        description: "TVG bullet train through the French Countryside"
+                    },
+                    {
                         from: { name: "Paris, France", lat: 48.8566, lng: 2.3522 },
                         to: { name: "Rennes, France", lat: 48.1173, lng: -1.6778 },
                         transport: "train",
@@ -53,6 +60,55 @@ export async function GET() {
                         transport: "car",
                         color: "#e74c3c", // red for car
                         description: "Drive to work Chateau"
+                    },
+                    {
+                        from: { name: "Saint-Goazec, France", lat: 48.1624, lng: -3.7841 },
+                        to: { name: "Chateau d'Azay-le-Rideau, France", lat: 47.2590, lng: -0.4657 },
+                        transport: "car",
+                        color: "#e74c3c", // red for car
+                        description: "Drive to Loire Valley"
+                    },
+                    {
+                        from: { name: "Azay-le-Rideau, France", lat: 47.2590, lng: -0.4657 },
+                        to: { name: "Chenonceaux, France", lat: 47.3249, lng: 1.0703 },
+                        transport: "car",
+                        color: "#e74c3c", // red for car
+                        description: "Scenic drive through the Loire Valley"
+                    },
+                    {
+                        from: { name: "Chenonceaux, France", lat: 47.3249, lng: 1.0703 },
+                        to: { name: "Amboise, France", lat: 47.4137, lng: .9861 },
+                        transport: "car",
+                        color: "#e74c3c", // red for car
+                        description: "Castle hopping!"
+                    },
+                    {
+                        from: { name: "Amboise, France", lat: 47.4137, lng: .9861 },
+                        to: { name: "Chambord, France", lat: 47.6158, lng: 1.5169 },
+                        transport: "car",
+                        color: "#e74c3c", // red for car
+                        description: "Drive to Chambord"
+                    },
+                    {
+                        from: { name: "Chambord, France", lat: 47.6158, lng: 1.5169 },
+                        to: { name: "Etretat, France", lat: 49.7070, lng: .2056 },
+                        transport: "car",
+                        color: "#e74c3c", // red for car
+                        description: "Long drive to the northern coast!"
+                    },
+                    {
+                        from: { name: "Etretat, France", lat: 49.7070, lng: .2056 },
+                        to: { name: "Normandy D-Day Beach, France", lat: 49.3585, lng: -0.8545 },
+                        transport: "car",
+                        color: "#e74c3c", // red for car
+                        description: "Drive along the coast of Normandy"
+                    },
+                    {
+                        from: { name: "Normandy D-Day Beach, France", lat: 49.3585, lng: -0.8545 },
+                        to: { name: "Rennes, France", lat: 48.1173, lng: -1.6778 },
+                        transport: "car",
+                        color: "#e74c3c", // red for car
+                        description: "Return rental car to Rennes"
                     }
                 ]
             },
