@@ -535,39 +535,201 @@ export async function GET() {
                     },
                     {
                         from: { name: "Cloppenburg, Germany", lat: 52.8453, lng: 8.0473  },
-                        to: { name: "Signal Iduna Park, Germany", lat: 51.4926, lng: 7.4519 },
+                        to: { name: "Deutsches Fußballmuseum, Germany", lat: 51.516358448275774, lng: 7.458471 },
                         transport: "car",
                         color: transportColors.car, // #3498db
                         description: "Speeding down the Autobahn, getting tickets"
                     },
                     {
-                        from: { name: "Signal Iduna Park, Germany", lat: 51.4926, lng: 7.4519  },
-                        to: { name: "Deutsches Fußballmuseum, Germany", lat: 50.51625, lng: 7.458556 },
+                        from: { name: "Deutsches Fußballmuseum, Germany", lat: 51.516358448275774, lng: 7.458471  },
+                        to: { name: "Signal Iduna Park, Germany", lat: 51.4926, lng: 7.4519 },
                         transport: "car",
                         color: transportColors.car, // #3498db
                         description: "Taxi to Old Town"
                     },
                     {
-                        from: { name: "Dubrovnik Old Town, Croatia", lat: 42.6410, lng: 18.1104  },
+                        from: { name: "Signal Iduna Park, Germany", lat: 51.4926, lng: 7.4519  },
                         to: { name:"Cologne Cathedral, Germany", lat: 50.9413, lng: 6.9583 },
                         transport: "car",
                         color: transportColors.car, // #3498db
-                        description: "Taxi to Airport"
+                        description: "Drive on the Autobahn"
                     },
                     {
-                        from: { name: "Dubrovnik Airport, Croatia", lat: 42.5606, lng: 18.2618  },
-                        to: { name: "Amsterdam Airport, Netherlands", lat: 52.3169, lng: 4.7459 },
+                        from: { name: "Cologne Cathedral, Germany", lat: 50.9413, lng: 6.9583  },
+                        to: { name: "Düsseldorf, Germany", lat: 51.2230, lng: 6.7825 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Drive on the Autobahn"
+                    },
+                    {
+                        from: { name: "Düsseldorf, Germany", lat: 51.2230, lng: 6.7825  },
+                        to: { name: "Osnabrück, Germany", lat: 52.2799, lng: 8.0472 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Drive on the Autobahn"
+                    },
+                    {
+                        from: { name: "Osnabrück, Germany", lat: 52.2799, lng: 8.0472 },
+                        to: { name: "Cloppenburg, Germany", lat: 52.8453, lng: 8.0473 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Drive on the Autobahn"
+                    },
+                    {
+                        from: { name: "Cloppenburg, Germany", lat: 52.8453, lng: 8.0473 },
+                        to: { name: "Hamburg, Germany", lat: 53.6319, lng: 9.9958 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Drive to the airport"
+                    },
+                    {
+                        from: { name: "Hamburg, Germany", lat: 53.6319, lng: 9.9958 },
+                        to: { name: "Munich International Airport, Germany", lat: 48.3540, lng: 11.7884 },
                         transport: "plane",
                         color: transportColors.plane, // #3498db
-                        description: "Long haul flight to Amsterdam"
+                        description: "Short domestic flight to Bavaria"
                     },
                     {
-                        from: { name: "Amsterdam Airport, Netherlands", lat: 52.3169, lng: 4.7459  },
-                        to: { name: "Red Light District, Netherlands", lat: 52.3719, lng: 4.8959 },
+                        from: { name: "Munich International Airport, Germany", lat: 48.3540, lng: 11.7884 },
+                        to: { name: "Munich Hotel, Germany", lat: 48.1289, lng: 11.5856 },
                         transport: "train",
                         color: transportColors.train, // #3498db
-                        description: "Short train ride to Red Light District"
+                        description: "Train ride to center of Munich"
+                    },
+                    {
+                        from: { name: "Munich Hotel, Germany", lat: 48.1289, lng: 11.5856 },
+                        to: { name: "Hofbräuhaus München, Germany", lat: 48.1376, lng: 11.5797 },
+                        transport: "walking",
+                        color: transportColors.walking, // #3498db
+                        description: "Stroll through the streets of Munich"
+                    },
+                    {
+                        from: { name: "Hofbräuhaus München, Germany", lat: 48.1376, lng: 11.5797 },
+                        to: { name: "Marienplatz, Germany", lat: 48.1374, lng: 11.5754 },
+                        transport: "walking",
+                        color: transportColors.walking, // #3498db
+                        description: "Stroll through the streets of Munich"
+                    },
+                    {
+                        from: { name: "Marienplatz, Germany", lat: 48.1374, lng: 11.5754 },
+                        to: { name: "Munich Residenz, Germany", lat: 48.1418, lng: 11.5795 },
+                        transport: "walking",
+                        color: transportColors.walking, // #3498db
+                        description: "Stroll through the streets of Munich"
+                    },
+                    {
+                        from: { name: "Munich Residenz, Germany", lat: 48.1418, lng: 11.5795 },
+                        to: { name: "Karlsplatz, Germany", lat: 48.1392, lng: 11.5660 },
+                        transport: "walking",
+                        color: transportColors.walking, // #3498db
+                        description: "Stroll through the streets of Munich"
+                    },
+                    {
+                        from: { name: "Karlsplatz, Germany", lat: 48.1392, lng: 11.5660 },
+                        to: { name: "Munich Hotel, Germany", lat: 48.1289, lng: 11.5856 },
+                        transport: "walking",
+                        color: transportColors.walking, // #3498db
+                        description: "Stroll through the streets of Munich"
+                    },
+                    {
+                        from: { name: "Munich Hotel, Germany", lat: 48.1289, lng: 11.5856 },
+                        to: { name: "Oberammergau, Germany", lat: 47.5981, lng: 11.0642 },
+                        transport: "bus",
+                        color: transportColors.bus, // #3498db
+                        description: "Bus tour through Southern Bavaria"
+                    },
+                    {
+                        from: { name: "Oberammergau, Germany", lat: 47.5981, lng: 11.0642 },
+                        to: { name: "Linderhof Palace, Germany", lat: 47.5716, lng: 10.9608 },
+                        transport: "bus",
+                        color: transportColors.bus, // #3498db
+                        description: "Bus tour through Southern Bavaria"
+                    },
+                    {
+                        from: { name: "Linderhof Palace, Germany", lat: 47.5716, lng: 10.9608 },
+                        to: { name: "Neuschwanstein Castle, Germany", lat: 47.5576, lng: 10.7498 },
+                        transport: "bus",
+                        color: transportColors.bus, // #3498db
+                        description: "Bus tour through Southern Bavaria"
+                    },
+                    {
+                        from: { name: "Neuschwanstein Castle, Germany", lat: 47.5576, lng: 10.7498 },
+                        to: { name: "Munich Hotel, Germany", lat: 48.1289, lng: 11.5856 },
+                        transport: "bus",
+                        color: transportColors.bus, // #3498db
+                        description: "Bus tour through Southern Bavaria"
+                    },
+                    {
+                        from: { name: "Munich Hotel, Germany", lat: 48.1289, lng: 11.5856 },
+                        to: { name: "Munich International Airport, Germany", lat: 48.3540, lng: 11.7884 },
+                        transport: "train",
+                        color: transportColors.train, // #3498db
+                        description: "Train ride back to Airport"
+                    },
+                    {
+                        from: { name: "Munich International Airport, Germany", lat: 48.3540, lng: 11.7884 },
+                        to: { name: "Copenhagen Airport, Denmark", lat: 55.6120, lng: 12.6477 },
+                        transport: "plane",
+                        color: transportColors.plane, // #3498db
+                        description: "Flight to Denmark"
+                    },
+                    {
+                        from: { name: "Copenhagen Airport, Denmark", lat: 55.6120, lng: 12.6477 },
+                        to: { name: "Copenhagen Central Station, Denmark", lat: 55.6728, lng: 12.5649 },
+                        transport: "train",
+                        color: transportColors.train, // #3498db
+                        description: "Train ride to City Centre"
+                    },
+                    {
+                        from: { name: "Copenhagen Central Station, Denmark", lat: 55.6728, lng: 12.5649 },
+                        to: { name: "Rosenborg Castle, Denmark", lat: 55.6858, lng: 12.5773 },
+                        transport: "walking",
+                        color: transportColors.walking, // #3498db
+                        description: "Stroll through the streets of Copenhagen"
+                    },
+                    {
+                        from: { name: "Rosenborg Castle, Denmark", lat: 55.6858, lng: 12.5773 },
+                        to: { name: "Kastellet, Denmark", lat: 55.6914, lng: 12.5943 },
+                        transport: "walking",
+                        color: transportColors.walking, // #3498db
+                        description: "Stroll through the streets of Copenhagen"
+                    },
+                    {
+                        from: { name: "Kastellet, Denmark", lat: 55.6914, lng: 12.5943 },
+                        to: { name: "The Little Mermaid, Denmark", lat: 55.6929, lng: 12.5993 },
+                        transport: "walking",
+                        color: transportColors.walking, // #3498db
+                        description: "Stroll through the streets of Copenhagen"
+                    },
+                    {
+                        from: { name: "The Little Mermaid, Denmark", lat: 55.6929, lng: 12.5993 },
+                        to: { name: "Amalienborg Palace, Denmark", lat: 55.6841, lng: 12.5930 },
+                        transport: "walking",
+                        color: transportColors.walking, // #3498db
+                        description: "Stroll through the streets of Copenhagen"
+                    },
+                    {
+                        from: { name: "Amalienborg Palace, Denmark", lat: 55.6841, lng: 12.5930 },
+                        to: { name: "Tivoli Gardens, Denmark", lat: 55.6737, lng: 12.5681 },
+                        transport: "walking",
+                        color: transportColors.walking, // #3498db
+                        description: "Stroll through the streets of Copenhagen"
+                    },
+                    {
+                        from: { name: "Tivoli Gardens, Denmark", lat: 55.6737, lng: 12.5681 },
+                        to: { name: "Copenhagen Central Station, Denmark", lat: 55.6728, lng: 12.5649 },
+                        transport: "walking",
+                        color: transportColors.walking, // #3498db
+                        description: "Stroll through the streets of Copenhagen"
+                    },
+                    {
+                        from: { name: "Copenhagen Central Station, Denmark", lat: 55.6728, lng: 12.5649 },
+                        to: { name: "Copenhagen Airport, Denmark", lat: 55.6120, lng: 12.6477 },
+                        transport: "train",
+                        color: transportColors.train, // #3498db
+                        description: "Train ride back to Airport"
                     }
+
                 ]
             },
             {
