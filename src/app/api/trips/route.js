@@ -732,6 +732,153 @@ export async function GET() {
                         color: transportColors.car,
                         description: "Road tripping..."
                     },
+                    {
+                        from: { name: "Jökulsárlón, Iceland", lat: 64.0484, lng: -16.1791 },
+                        to: { name: "Diamond Beach, Iceland", lat: 64.0443, lng: -16.1777 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Diamond Beach, Iceland", lat: 64.0443, lng: -16.1777 },
+                        to: { name: "Höfn, Iceland", lat: 64.2551, lng: -15.2088 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Höfn, Iceland", lat: 64.2551, lng: -15.2088 },
+                        to: { name: "Möðrudalur/Fjalladýrð, Iceland", lat: 65.3741, lng: -15.8833 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Möðrudalur/Fjalladýrð, Iceland", lat: 65.3741, lng: -15.8833 },
+                        to: { name: "Dettifoss, Iceland", lat: 65.8147, lng: -16.3846 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Dettifoss, Iceland", lat: 65.8147, lng: -16.3846 },
+                        to: { name: "Námaskarð, Iceland", lat: 65.6472, lng: -16.8267 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Námaskarð, Iceland", lat: 65.6472, lng: -16.8267 },
+                        to: { name: "Víti Explosion Crater, Iceland", lat: 65.0111, lng: -16.7485 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Víti Explosion Crater, Iceland", lat: 65.0111, lng: -16.7485 },
+                        to: { name: "Mývatn Nature Baths, Iceland", lat: 65.6309, lng: -16.8476 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Mývatn Nature Baths, Iceland", lat: 65.6309, lng: -16.8476 },
+                        to: { name: "Goðafoss Waterfall, Iceland", lat: 65.6828, lng: -17.5502 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Goðafoss Waterfall, Iceland", lat: 65.6828, lng: -17.5502 },
+                        to: { name: "Akureyri, Iceland", lat: 65.6826, lng: -18.0907 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Akureyri, Iceland", lat: 65.6826, lng: -18.0907 },
+                        to: { name: "Skardsviti Lighthouse, Iceland", lat: 65.4855, lng: -20.9882 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Skardsviti Lighthouse, Iceland", lat: 65.4855, lng: -20.9882 },
+                        to: { name: "Hvitserkur, Iceland", lat: 65.6064, lng: -20.6352 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Hvitserkur, Iceland", lat: 65.6064, lng: -20.6352 },
+                        to: { name: "Kolugljúfur Canyon, Iceland", lat: 65.3334, lng: -20.5713 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Kolugljúfur Canyon, Iceland", lat: 65.3334, lng: -20.5713 },
+                        to: { name: "Kirkjufell, Iceland", lat: 64.9417, lng: -23.3069 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Kirkjufell, Iceland", lat: 64.9417, lng: -23.3069 },
+                        to: { name: "Öndverðarnes lighthouse, Iceland", lat: 64.8851, lng: -24.0445 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Öndverðarnes lighthouse, Iceland", lat: 64.8851, lng: -24.0445 },
+                        to: { name: "Lóndrangar, Iceland", lat: 64.7325, lng: -23.7846 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Lóndrangar, Iceland", lat: 64.7325, lng: -23.7846 },
+                        to: { name: "Gatklettur, Iceland", lat: 64.7654, lng: -23.6221 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Gatklettur, Iceland", lat: 64.7654, lng: -23.6221 },
+                        to: { name: "Bjarnafoss, Iceland", lat: 64.8481, lng: -23.4036 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Bjarnafoss, Iceland", lat: 64.8481, lng: -23.4036 },
+                        to: { name: "Ytri Tunga, Iceland", lat: 64.8027, lng: -23.0803 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Ytri Tunga, Iceland", lat: 64.8027, lng: -23.0803 },
+                        to: { name: "Gerðuberg Cliffs, Iceland", lat: 64.8607, lng: -22.3589 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Gerðuberg Cliffs, Iceland", lat: 64.8607, lng: -22.3589 },
+                        to: { name: "Reykjavík, Iceland", lat: 64.1470, lng: -21.9408 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Reykjavík, Iceland", lat: 64.1470, lng: -21.9408 },
+                        to: { name: "Keflavik Airport, Iceland", lat: 63.9845, lng: -22.6266 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
 
                 ]
             },
