@@ -649,26 +649,69 @@ export async function GET() {
                         description: "Road tripping..."
                     },
                     {
-                        from: { name: "Mendoza, Argentina", lat: -32.8908, lng: -68.8272 },
-                        to: { name: "Santiago, Chile", lat: -33.4489, lng: -70.6693 },
-                        transport: "bus",
-                        color: transportColors.bus,
-                        description: "Bus through the Andes mountain pass"
+                        from: { name: "Gullfoss Falls, Iceland", lat: 64.3271, lng: -20.1199 },
+                        to: { name: "Hjálparfoss, Iceland", lat: 64.1160, lng: -19.8495 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
                     },
                     {
-                        from: { name: "Mendoza, Argentina", lat: -32.8908, lng: -68.8272 },
-                        to: { name: "Santiago, Chile", lat: -33.4489, lng: -70.6693 },
-                        transport: "bus",
-                        color: transportColors.bus,
-                        description: "Bus through the Andes mountain pass"
+                        from: { name: "Hjálparfoss, Iceland", lat: 64.1160, lng: -19.8495 },
+                        to: { name: "Háifoss, Iceland", lat: 64.2079, lng: -19.6869 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
                     },
                     {
-                        from: { name: "Mendoza, Argentina", lat: -32.8908, lng: -68.8272 },
-                        to: { name: "Santiago, Chile", lat: -33.4489, lng: -70.6693 },
-                        transport: "bus",
-                        color: transportColors.bus,
-                        description: "Bus through the Andes mountain pass"
+                        from: { name: "Háifoss, Iceland", lat: 64.2079, lng: -19.6869 },
+                        to: { name: "Granni, Iceland", lat: 64.2098, lng: -19.6830 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
                     },
+                    {
+                        from: { name: "Granni, Iceland", lat: 64.2098, lng: -19.6830 },
+                        to: { name: "Seljalandsfoss, Iceland", lat: 63.6156, lng: -19.9886 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Seljalandsfoss, Iceland", lat: 63.6156, lng: -19.9886 },
+                        to: { name: "Gljúfrabúi, Iceland", lat: 63.6209, lng: -19.9864 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Gljúfrabúi, Iceland", lat: 63.6209, lng: -19.9864 },
+                        to: { name: "Skógafoss, Iceland", lat: 63.5321, lng: -19.5114 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Skógafoss, Iceland", lat: 63.5321, lng: -19.5114 },
+                        to: { name: "Dyrhólaey Viewpoint, Iceland", lat: 63.4015, lng: -19.1284 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Dyrhólaey Viewpoint, Iceland", lat: 63.4015, lng: -19.1284 },
+                        to: { name: "Reynisfjara Beach, Iceland", lat: 63.4057, lng: -19.0716 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Reynisfjara Beach, Iceland", lat: 63.4057, lng: -19.0716 },
+                        to: { name: "Víkurfjara Black Sand Beach, Iceland", lat: 63.4143, lng: -19.0104 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+
                 ]
             },
             // ... more trips

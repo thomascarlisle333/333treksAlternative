@@ -45,7 +45,7 @@ const TRANSPORT_ICONS = {
 function ZoomHandler({ setShowLabels }) {
     useMapEvents({
         zoomend: (e) => {
-            setShowLabels(e.target.getZoom() > 5);
+            setShowLabels(e.target.getZoom() > 7);
         }
     });
     return null;
