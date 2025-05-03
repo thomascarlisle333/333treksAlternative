@@ -16,7 +16,7 @@ export async function GET() {
     try {
         const tripRoutes = [
             {
-                id: 5,
+                id: 1,
                 name: "Japan Spring 2025",
                 description: "Exploring Japan's main islands and cultural landmarks",
                 region: "Asia",
@@ -75,7 +75,7 @@ export async function GET() {
                 ]
             },
             {
-                id: 1,
+                id: 2,
                 name: "Northern France Summer 2024",
                 description: "A 3 week work trip with lots of site seeing!",
                 region: "Europe",
@@ -183,7 +183,7 @@ export async function GET() {
                 ]
             },
             {
-                id: 2,
+                id: 3,
                 name: "South Korea Spring 2025",
                 description: "Exploring the cultural heritage and natural beauty of South Korea",
                 region: "Asia",
@@ -228,7 +228,7 @@ export async function GET() {
                 ]
             },
             {
-                id: 3,
+                id: 4,
                 name: "China Spring 2025",
                 description: "Work trip in the north, site seeing in the south!",
                 region: "Asia",
@@ -421,7 +421,157 @@ export async function GET() {
                 ]
             },
             {
-                id: 4,
+                id: 5,
+                name: "Europe Winter 2021",
+                description: "Quick trip to France, Germany, and Denmark",
+                region: "Europe",
+                date: "2021-11",
+                duration: 28,
+                segments: [
+                    {
+                        from: { name: "Paris Charles de Gaulle Airport, France", lat: 49.0079, lng: 2.5508 },
+                        to: { name: "Louvre Museum, France", lat: 48.8606, lng: 2.3376 },
+                        transport: "train",
+                        color: transportColors.train, // #9b59b6
+                        description: "1 hr train ride to the center of Paris"
+                    },
+                    {
+                        from: { name: "Louvre Museum, France", lat: 48.8606, lng: 2.3376 },
+                        to: { name: "Eiffel Tower, France", lat: 48.8584, lng: 2.2945 },
+                        transport: "walking",
+                        color: transportColors.walking,
+                        description: "Meandering down the Seine"
+                    },
+                    {
+                        from: { name: "Eiffel Tower, France", lat: 48.8584, lng: 2.2945 },
+                        to: { name: "Arc de Triomphe, France", lat: 48.8738, lng: 2.2950 },
+                        transport: "walking",
+                        color: transportColors.walking, // #9b59b6
+                        description: "Stroll down Champs-Élysées"
+                    },
+                    {
+                        from: { name: "Arc de Triomphe, France", lat: 48.8738, lng: 2.2950 },
+                        to: { name: "Notre-Dame Cathedral, Germany", lat: 48.8530, lng: 2.3499 },
+                        transport: "walking",
+                        color: transportColors.walking, // #9b59b6
+                        description: "Hike back to Notre-Dame"
+                    },
+                    {
+                        from: { name: "Notre-Dame Cathedral, Germany", lat: 48.8530, lng: 2.3499 },
+                        to: { name: "Paris Charles de Gaulle Airport, France", lat: 49.0079, lng: 2.5508 },
+                        transport: "train",
+                        color: transportColors.train, // #3498db
+                        description: "Train ride back to the airport"
+                    },
+                    {
+                        from: { name: "Paris Charles de Gaulle Airport, France", lat: 49.0079, lng: 2.5508 },
+                        to: { name: "Hamburg, Germany", lat: 53.6319, lng: 9.9958 },
+                        transport: "plane",
+                        color: transportColors.plane, // #3498db
+                        description: "Short flight to Deutschland"
+                    },
+                    {
+                        from: { name: "Hamburg, Germany", lat: 53.6319, lng: 9.9958 },
+                        to: { name: "Cloppenburg, Germany", lat: 52.8453, lng: 8.0473 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Speeding down the Autobahn"
+                    },
+                    {
+                        from: { name: "Cloppenburg, Germany", lat: 52.8453, lng: 8.0473 },
+                        to: { name: "Garrel, Germany", lat: 52.9531, lng: 8.0256 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Drive to work"
+                    },
+                    {
+                        from: { name: "Garrel, Germany", lat: 52.9531, lng: 8.0256 },
+                        to: { name: "Cloppenburg, Germany", lat: 52.8453, lng: 8.0473 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Drive to hotel"
+                    },
+                    {
+                        from: { name: "Cloppenburg, Germany", lat: 52.8453, lng: 8.0473 },
+                        to: { name: "Bremen, Germany", lat: 53.0793, lng: 8.8017 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "More speeding on the Autobahn"
+                    },
+                    {
+                        from: { name: "Bremen, Germany", lat: 53.0793, lng: 8.8017 },
+                        to: { name: "Cloppenburg, Germany", lat: 52.8453, lng: 8.0473 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Joy ride through the German countryside"
+                    },
+                    {
+                        from: { name: "Cloppenburg, Germany", lat: 52.8453, lng: 8.0473 },
+                        to: { name: "Emstek, Germany", lat: 52.8343, lng: 8.1555 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Joy ride through the German countryside"
+                    },
+                    {
+                        from: { name: "Emstek, Germany", lat: 52.8343, lng: 8.1555 },
+                        to: { name: "Cloppenburg, Germany", lat: 52.8453, lng: 8.0473 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Drive to hotel"
+                    },
+                    {
+                        from: { name: "Cloppenburg, Germany", lat: 52.8453, lng: 8.0473  },
+                        to: { name: "Hanover, Germany", lat: 52.3759, lng: 9.7320 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Long haul drive on the autobahn"
+                    },
+                    {
+                        from: { name: "Hanover, Germany", lat: 52.3759, lng: 9.7320  },
+                        to: { name: "Cloppenburg, Germany", lat: 52.8453, lng: 8.0473 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "More speeding on the Autobahn"
+                    },
+                    {
+                        from: { name: "Cloppenburg, Germany", lat: 52.8453, lng: 8.0473  },
+                        to: { name: "Signal Iduna Park, Germany", lat: 51.4926, lng: 7.4519 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Speeding down the Autobahn, getting tickets"
+                    },
+                    {
+                        from: { name: "Signal Iduna Park, Germany", lat: 51.4926, lng: 7.4519  },
+                        to: { name: "Deutsches Fußballmuseum, Germany", lat: 50.51625, lng: 7.458556 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Taxi to Old Town"
+                    },
+                    {
+                        from: { name: "Dubrovnik Old Town, Croatia", lat: 42.6410, lng: 18.1104  },
+                        to: { name:"Cologne Cathedral, Germany", lat: 50.9413, lng: 6.9583 },
+                        transport: "car",
+                        color: transportColors.car, // #3498db
+                        description: "Taxi to Airport"
+                    },
+                    {
+                        from: { name: "Dubrovnik Airport, Croatia", lat: 42.5606, lng: 18.2618  },
+                        to: { name: "Amsterdam Airport, Netherlands", lat: 52.3169, lng: 4.7459 },
+                        transport: "plane",
+                        color: transportColors.plane, // #3498db
+                        description: "Long haul flight to Amsterdam"
+                    },
+                    {
+                        from: { name: "Amsterdam Airport, Netherlands", lat: 52.3169, lng: 4.7459  },
+                        to: { name: "Red Light District, Netherlands", lat: 52.3719, lng: 4.8959 },
+                        transport: "train",
+                        color: transportColors.train, // #3498db
+                        description: "Short train ride to Red Light District"
+                    }
+                ]
+            },
+            {
+                id: 6,
                 name: "Europe Fall 2022",
                 description: "Quick trip to Spain, Czech Republic, Malta, France, Germany, Belgium, Luxembourg, Austria, Croatia, and the Netherlands",
                 region: "Europe",
@@ -571,9 +721,9 @@ export async function GET() {
                 ]
             },
             {
-                id: 6,
+                id: 7,
                 name: "Iceland Spring 2024 ",
-                description: "Journey through the diverse landscapes of South America",
+                description: "Journey through the otherworldly island of Iceland.",
                 region: "Europe",
                 date: "2024-04",
                 duration: 7,
