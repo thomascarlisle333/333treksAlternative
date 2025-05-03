@@ -1,25 +1,32 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import React from 'react';
+import Link from 'next/link';
+import 'leaflet/dist/leaflet.css';
 
-// DEFINITIVE COLOR MAPPING - These must match TripMap.js exactly
-const COLORS = {
-    PLANE: "#9b59b6", // Purple for planes
-    TRAIN: "#3498db", // Blue for trains
-    CAR: "#e74c3c",   // Red for cars
-    BUS: "#2ecc71",   // Green for buses
-    BOAT: "#1abc9c",  // Teal for boats
-    DEFAULT: "#000000" // Black for unknown transport types
+// Dynamically import the TripMap component with no SSR
+const TripMap = dynamic(() => import('../../components/TripMap'), {
+    ssr: false,
+    loading: () => <div className="h-full w-full flex items-center justify-center bg-gray-100">Loading map...</div>
+});
+
+// Transport type to color mapping
+const TRANSPORT_COLORS = {
+    'train': '#3498db',  // blue
+    'plane': '#9b59b6',  // purple
+    'car': '#e74c3c',    // red
+    'bus': '#2ecc71',    // green
+    'boat': '#f39c12',   // orange
+    'bicycle': '#16a085', // teal
+    'walking': '#7f8c8d'  // gray
 };
 
-// Transport type to icon mapping (using emoji for simplicity)
-const TRANSPORT_ICONS = {
-    "plane": "✈️",
+// Transport icons for visual representation
+const transportIcons = {
     "train": "🚆",
+    "plane": "✈️",
     "car": "🚗",
     "bus": "🚌",
     "boat": "⛴️",
@@ -27,299 +34,382 @@ const TRANSPORT_ICONS = {
     "walking": "🚶"
 };
 
-// Use this function to get colors consistently
-function getColorForTransport(transportType) {
-    switch (transportType.toLowerCase()) {
-        case 'plane':
-            return COLORS.PLANE;
-        case 'train':
-            return COLORS.TRAIN;
-        case 'car':
-            return COLORS.CAR;
-        case 'bus':
-            return COLORS.BUS;
-        case 'boat':
-            return COLORS.BOAT;
-        default:
-            return COLORS.DEFAULT;
-    }
+// Function to calculate distance between two points using Haversine formula
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    // Convert degrees to radians
+    const toRad = (value) => value * Math.PI / 180;
+
+    const R = 3958.8; // Earth's radius in miles
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Distance in miles
 }
 
-// Import these components dynamically with no SSR to avoid hydration issues
-const MapWithNoSSR = dynamic(
-    () => import('../../components/TripMap'),
-    { ssr: false }
-);
-
 export default function TripPage() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
+    const [tripData, setTripData] = useState([]);
     const [selectedTrip, setSelectedTrip] = useState(null);
-    const [trips, setTrips] = useState([]);
-    const [filteredTrips, setFilteredTrips] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [regions, setRegions] = useState([]);
-    const [years, setYears] = useState([]);
+    const [error, setError] = useState(null);
+    const [noTripMatched, setNoTripMatched] = useState(false);
 
     // Filter states
-    const [selectedRegion, setSelectedRegion] = useState('All');
-    const [selectedYear, setSelectedYear] = useState('All');
-    const [durationFilter, setDurationFilter] = useState('All');
-    const [sortBy, setSortBy] = useState('date-desc'); // Default sort by date (newest first)
+    const [filteredTrips, setFilteredTrips] = useState([]);
+    const [regionFilter, setRegionFilter] = useState('all');
+    const [yearFilter, setYearFilter] = useState('all');
+    const [durationFilter, setDurationFilter] = useState('all');
+    const [sortOrder, setSortOrder] = useState('date-desc'); // Default sort by date (newest first)
 
-    const router = useRouter();
+    // Trip statistics state
+    const [tripStats, setTripStats] = useState(null);
+    const [relatedTrips, setRelatedTrips] = useState([]);
+
+    // Available filter options
+    const [availableRegions, setAvailableRegions] = useState([]);
+    const [availableYears, setAvailableYears] = useState([]);
 
     useEffect(() => {
-        // Fetch trip data from our API endpoint
-        const fetchTrips = async () => {
+        const fetchTripData = async () => {
             try {
-                const response = await fetch('/api/trips');
-                if (!response.ok) throw new Error('Failed to fetch trips');
+                setLoading(true);
+                const response = await fetch('/api/trip-routes');
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch trip data');
+                }
+
                 const data = await response.json();
 
-                // No longer need to modify colors here since we'll use getColorForTransport
-                // instead of relying on colors from the API
-                setTrips(data);
+                // Sort the data by date descending (newest first) for initial load
+                const sortedData = [...data].sort((a, b) => {
+                    if (!a.date) return 1;
+                    if (!b.date) return -1;
+                    return b.date.localeCompare(a.date);
+                });
 
-                // Extract unique regions and years for filters
-                const uniqueRegions = [...new Set(data.map(trip => trip.region))];
-                setRegions(uniqueRegions);
+                setTripData(sortedData);
 
-                const uniqueYears = [...new Set(data.map(trip => trip.date.substring(0, 4)))];
-                setYears(uniqueYears.sort().reverse()); // Sort years in descending order
+                // Extract available filter options, filtering out empty or invalid regions
+                const validRegions = ['Asia', 'Europe', 'North America', 'Africa', 'South America', 'Australia', 'Antarctica'];
+                const regions = [...new Set(sortedData.map(trip =>
+                    validRegions.includes(trip.region) ? trip.region : 'Other'
+                ))].sort();
 
-                // Initialize with all trips
-                setFilteredTrips(data);
-                if (data.length > 0) {
-                    setSelectedTrip(data[0]);
+                setAvailableRegions(regions);
+
+                // Extract years properly, ensuring only valid years are included
+                const years = [...new Set(sortedData.map(trip => {
+                    if (!trip.date) return 'Unknown';
+                    const yearPart = trip.date.split('-')[0];
+                    // Only return if it's a valid 4-digit year
+                    return /^\d{4}$/.test(yearPart) ? yearPart : 'Unknown';
+                }))].filter(year => year !== 'Unknown');
+
+                setAvailableYears(years.sort((a, b) => b - a)); // Sort years descending
+
+                // Check URL params for selected trip
+                const selectedId = searchParams.get('selected');
+                if (selectedId) {
+                    const numericId = parseInt(selectedId, 10);
+                    const trip = sortedData.find(t => t.id === numericId);
+                    if (trip) {
+                        setSelectedTrip(trip);
+                        updateTripStats(trip);
+                        findRelatedTrips(trip, sortedData);
+                    } else if (sortedData.length > 0) {
+                        // If no trip found with ID, select the first one in the sorted list
+                        setSelectedTrip(sortedData[0]);
+                        updateTripStats(sortedData[0]);
+                        findRelatedTrips(sortedData[0], sortedData);
+                    }
+                } else if (sortedData.length > 0) {
+                    // Set the first trip as selected by default if data exists
+                    setSelectedTrip(sortedData[0]);
+                    updateTripStats(sortedData[0]);
+                    findRelatedTrips(sortedData[0], sortedData);
                 }
+
+                // Apply initial filters with the sorted data
+                applyFilters(sortedData, 'all', 'all', 'all', 'date-desc');
+
                 setLoading(false);
             } catch (error) {
-                console.error('Error fetching trips:', error);
+                console.error('Error fetching trip data:', error);
+                setError(error.message);
                 setLoading(false);
             }
         };
 
-        fetchTrips();
-    }, []);
+        fetchTripData();
+    }, [searchParams]);
 
-    // Apply filters when filter criteria change
-    useEffect(() => {
-        if (trips.length === 0) return;
+    // Calculate statistics for the selected trip
+    const updateTripStats = (trip) => {
+        if (!trip || !trip.segments || trip.segments.length === 0) {
+            setTripStats(null);
+            return;
+        }
 
-        let result = [...trips];
+        // Count transport types
+        const transportCounts = {};
+        const distanceByTransport = {};
+        let totalDistance = 0;
+
+        // Get start and end points
+        const startPoint = trip.segments[0].from;
+        const endPoint = trip.segments[trip.segments.length - 1].to;
+
+        // Calculate statistics for each segment
+        trip.segments.forEach(segment => {
+            // Count transport types
+            transportCounts[segment.transport] = (transportCounts[segment.transport] || 0) + 1;
+
+            // Calculate distance for this segment
+            const distance = calculateDistance(
+                segment.from.lat,
+                segment.from.lng,
+                segment.to.lat,
+                segment.to.lng
+            );
+
+            // Add to distance by transport type
+            distanceByTransport[segment.transport] = (distanceByTransport[segment.transport] || 0) + distance;
+
+            // Add to total distance
+            totalDistance += distance;
+        });
+
+        setTripStats({
+            transportCounts,
+            distanceByTransport,
+            totalDistance: Math.round(totalDistance),
+            startPoint,
+            endPoint
+        });
+    };
+
+    // Find related trips based on region or timeframe
+    const findRelatedTrips = (currentTrip, allTrips) => {
+        if (!currentTrip || allTrips.length <= 1) {
+            setRelatedTrips([]);
+            return;
+        }
+
+        // Find trips in the same region or within 6 months
+        const related = allTrips.filter(trip => {
+            if (trip.id === currentTrip.id) return false;
+
+            // Same region
+            if (trip.region === currentTrip.region) return true;
+
+            // Within 6 months
+            if (trip.date && currentTrip.date) {
+                const tripDate = new Date(trip.date);
+                const currentDate = new Date(currentTrip.date);
+                const diff = Math.abs(tripDate - currentDate);
+                const diffMonths = diff / (1000 * 60 * 60 * 24 * 30);
+                return diffMonths <= 6;
+            }
+
+            return false;
+        }).slice(0, 3); // Limit to 3 related trips
+
+        setRelatedTrips(related);
+    };
+
+    // Apply filters to the trip data
+    const applyFilters = (trips, region, year, duration, sort) => {
+        let filtered = [...trips];
 
         // Apply region filter
-        if (selectedRegion !== 'All') {
-            result = result.filter(trip => trip.region === selectedRegion);
+        if (region !== 'all') {
+            filtered = filtered.filter(trip => trip.region === region);
         }
 
         // Apply year filter
-        if (selectedYear !== 'All') {
-            result = result.filter(trip => trip.date.startsWith(selectedYear));
+        if (year !== 'all') {
+            filtered = filtered.filter(trip => {
+                if (!trip.date) return false;
+                return trip.date.startsWith(year);
+            });
         }
 
         // Apply duration filter
-        if (durationFilter !== 'All') {
-            switch(durationFilter) {
+        if (duration !== 'all') {
+            switch (duration) {
                 case 'short':
-                    result = result.filter(trip => trip.duration <= 7);
+                    filtered = filtered.filter(trip => trip.duration <= 7);
                     break;
                 case 'medium':
-                    result = result.filter(trip => trip.duration > 7 && trip.duration <= 14);
+                    filtered = filtered.filter(trip => trip.duration > 7 && trip.duration <= 14);
                     break;
                 case 'long':
-                    result = result.filter(trip => trip.duration > 14);
+                    filtered = filtered.filter(trip => trip.duration > 14);
                     break;
             }
         }
 
         // Apply sorting
-        result = sortTrips(result, sortBy);
-
-        setFilteredTrips(result);
-
-        // If we have filtered results and the current selection is not in the filtered results,
-        // update the selected trip to the first item in the filtered list
-        if (result.length > 0 && (!selectedTrip || !result.some(trip => trip.id === selectedTrip.id))) {
-            setSelectedTrip(result[0]);
-        }
-    }, [selectedRegion, selectedYear, durationFilter, sortBy, trips]);
-
-    const sortTrips = (tripsToSort, sortCriteria) => {
-        const sortedTrips = [...tripsToSort];
-
-        switch (sortCriteria) {
-            case 'date-asc':
-                sortedTrips.sort((a, b) => a.date.localeCompare(b.date));
-                break;
+        switch (sort) {
             case 'date-desc':
-                sortedTrips.sort((a, b) => b.date.localeCompare(a.date));
+                filtered = filtered.sort((a, b) => {
+                    if (!a.date) return 1;
+                    if (!b.date) return -1;
+                    return b.date.localeCompare(a.date);
+                });
+                break;
+            case 'date-asc':
+                filtered = filtered.sort((a, b) => {
+                    if (!a.date) return -1;
+                    if (!b.date) return 1;
+                    return a.date.localeCompare(b.date);
+                });
+                break;
+            case 'alpha-asc':
+                filtered = filtered.sort((a, b) => a.name.localeCompare(b.name));
+                break;
+            case 'alpha-desc':
+                filtered = filtered.sort((a, b) => b.name.localeCompare(a.name));
                 break;
             case 'duration-asc':
-                sortedTrips.sort((a, b) => a.duration - b.duration);
+                filtered = filtered.sort((a, b) => (a.duration || 0) - (b.duration || 0));
                 break;
             case 'duration-desc':
-                sortedTrips.sort((a, b) => b.duration - a.duration);
-                break;
-            case 'name-asc':
-                sortedTrips.sort((a, b) => a.name.localeCompare(b.name));
-                break;
-            case 'name-desc':
-                sortedTrips.sort((a, b) => b.name.localeCompare(a.name));
+                filtered = filtered.sort((a, b) => (b.duration || 0) - (a.duration || 0));
                 break;
         }
 
-        return sortedTrips;
+        setFilteredTrips(filtered);
+
+        // Handle case when no trips match the filters
+        if (filtered.length === 0) {
+            setNoTripMatched(true);
+            setSelectedTrip(null);
+            setTripStats(null);
+            setRelatedTrips([]);
+        } else {
+            setNoTripMatched(false);
+            // If currently selected trip doesn't match the filters, select the first one
+            if (!selectedTrip || !filtered.some(trip => trip.id === selectedTrip.id)) {
+                setSelectedTrip(filtered[0]);
+                updateTripStats(filtered[0]);
+                findRelatedTrips(filtered[0], tripData);
+            }
+        }
+    };
+
+    // Handle filter changes
+    const handleRegionChange = (e) => {
+        const value = e.target.value;
+        setRegionFilter(value);
+        applyFilters(tripData, value, yearFilter, durationFilter, sortOrder);
+    };
+
+    const handleYearChange = (e) => {
+        const value = e.target.value;
+        setYearFilter(value);
+        applyFilters(tripData, regionFilter, value, durationFilter, sortOrder);
+    };
+
+    const handleDurationChange = (e) => {
+        const value = e.target.value;
+        setDurationFilter(value);
+        applyFilters(tripData, regionFilter, yearFilter, value, sortOrder);
+    };
+
+    const handleSortChange = (e) => {
+        const value = e.target.value;
+        setSortOrder(value);
+        applyFilters(tripData, regionFilter, yearFilter, durationFilter, value);
+    };
+
+    const handleTripSelect = (tripId) => {
+        const trip = tripData.find(t => t.id === tripId);
+        if (trip) {
+            setSelectedTrip(trip);
+            updateTripStats(trip);
+            findRelatedTrips(trip, tripData);
+        }
     };
 
     const navigateToHome = () => {
         router.push('/');
     };
 
-    const handleTripSelect = (tripId) => {
-        const trip = trips.find(t => t.id === tripId);
-        if (trip) {
-            setSelectedTrip(trip);
-        }
+    const navigateToAdmin = () => {
+        router.push('/trip/admin');
     };
 
-    const resetFilters = () => {
-        setSelectedRegion('All');
-        setSelectedYear('All');
-        setDurationFilter('All');
-        setSortBy('date-desc');
-    };
-
-    // Function to format date from YYYY-MM to Month Year
+    // Format the date to be more readable
     const formatDate = (dateString) => {
         if (!dateString) return '';
-        const [year, month] = dateString.split('-');
-        const date = new Date(parseInt(year), parseInt(month) - 1);
-        return date.toLocaleString('en-US', { month: 'long', year: 'numeric' });
-    };
 
-    // Render filter components
-    const renderFilters = () => {
-        return (
-            <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-                <h2 className="text-xl font-semibold mb-4">Filter & Sort</h2>
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    {/* Region Filter */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Region</label>
-                        <select
-                            value={selectedRegion}
-                            onChange={(e) => setSelectedRegion(e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
-                        >
-                            <option value="All">All Regions</option>
-                            {regions.map(region => (
-                                <option key={region} value={region}>{region}</option>
-                            ))}
-                        </select>
-                    </div>
+        // Check if we need to add a day to the date
+        const parts = dateString.split('-');
+        if (parts.length === 2) {
+            // Add the first day of the month if only year-month is provided
+            dateString = `${dateString}-01`;
+        }
 
-                    {/* Year Filter */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
-                        <select
-                            value={selectedYear}
-                            onChange={(e) => setSelectedYear(e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
-                        >
-                            <option value="All">All Years</option>
-                            {years.map(year => (
-                                <option key={year} value={year}>{year}</option>
-                            ))}
-                        </select>
-                    </div>
+        // Create date object and check if it's valid
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) {
+            console.error('Invalid date:', dateString);
+            return dateString; // Return the original string if invalid
+        }
 
-                    {/* Duration Filter */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Duration</label>
-                        <select
-                            value={durationFilter}
-                            onChange={(e) => setDurationFilter(e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
-                        >
-                            <option value="All">All Durations</option>
-                            <option value="short">Short (≤ 7 days)</option>
-                            <option value="medium">Medium (8-14 days)</option>
-                            <option value="long">Long ({'>'}14 days)</option>
-                        </select>
-                    </div>
-
-                    {/* Sort By */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Sort By</label>
-                        <select
-                            value={sortBy}
-                            onChange={(e) => setSortBy(e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-400"
-                        >
-                            <option value="date-desc">Date (Newest First)</option>
-                            <option value="date-asc">Date (Oldest First)</option>
-                            <option value="duration-desc">Duration (Longest First)</option>
-                            <option value="duration-asc">Duration (Shortest First)</option>
-                            <option value="name-asc">Name (A-Z)</option>
-                            <option value="name-desc">Name (Z-A)</option>
-                        </select>
-                    </div>
-                </div>
-
-                {/* Filter Reset Button */}
-                <div className="mt-4 text-right">
-                    <button
-                        onClick={resetFilters}
-                        className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 hover:underline"
-                    >
-                        Reset Filters
-                    </button>
-                </div>
-            </div>
-        );
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long'
+        });
     };
 
     if (loading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100">
-                <div className="text-center">
-                    <h1 className="text-2xl font-bold mb-4">Loading trips...</h1>
-                    <div className="w-16 h-16 border-4 border-gray-800 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <div className="text-xl">Loading trip data...</div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100">
+                <div className="text-xl text-red-600">
+                    Error: {error}
+                    <p className="mt-4 text-base">
+                        Make sure you have the CSV files in the correct location:<br/>
+                        <code className="bg-gray-200 px-2 py-1 rounded">data/trips.csv</code> and <code
+                        className="bg-gray-200 px-2 py-1 rounded">data/trip_segments.csv</code>
+                    </p>
                 </div>
             </div>
         );
     }
 
-    // No trips found after filtering
-    if (filteredTrips.length === 0) {
+    if (tripData.length === 0) {
         return (
-            <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
-                <div className="container mx-auto px-4 py-8">
-                    <div className="flex flex-col md:flex-row justify-between items-center mb-8">
-                        <h1 className="text-3xl md:text-4xl font-bold">My Travel Journeys</h1>
-                        <div className="flex space-x-4 mt-4 md:mt-0">
-                            <button
-                                onClick={navigateToHome}
-                                className="px-6 py-3 bg-gray-800 text-white rounded-lg font-medium transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
-                            >
-                                Return Home
-                            </button>
-                        </div>
-                    </div>
-
-                    <div className="mb-8">
-                        {renderFilters()}
-                    </div>
-
-                    <div className="text-center py-16 bg-white rounded-lg shadow-md">
-                        <h2 className="text-2xl font-bold mb-4">No trips found with the selected filters</h2>
-                        <p className="text-gray-600 mb-6">Try adjusting your filters to see more trips.</p>
-                        <button
-                            onClick={resetFilters}
-                            className="px-6 py-3 bg-gray-800 text-white rounded-lg font-medium transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100">
+                <div className="text-xl text-center max-w-md p-8 bg-white rounded-lg shadow-md">
+                    <p className="mb-4">No trips found in the database.</p>
+                    <p className="mb-6">Please make sure your CSV files are correctly formatted and located in the data
+                        directory.</p>
+                    <div className="flex justify-center">
+                        <Link
+                            href="/trip/admin"
+                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
                         >
-                            Reset All Filters
-                        </button>
+                            Go to Admin
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -338,72 +428,197 @@ export default function TripPage() {
                         >
                             Return Home
                         </button>
+                        <button
+                            onClick={navigateToAdmin}
+                            className="px-6 py-3 bg-white text-gray-900 border border-gray-300 rounded-lg font-medium transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                        >
+                            Admin Panel
+                        </button>
                     </div>
                 </div>
 
                 <div className="w-24 h-1 bg-gray-800 mb-8 hidden md:block"></div>
 
                 <p className="text-lg leading-relaxed mb-8 max-w-3xl">
-                    Follow my journey across different destinations, with various modes of transportation highlighted by different colored lines.
+                    Follow my journey across different destinations, with various modes of transportation highlighted by
+                    different colored lines.
                     Each trip tells a unique story of exploration and adventure.
                 </p>
 
-                {/* Filter Section */}
-                {renderFilters()}
-
-                {/* Trip selector */}
-                <div className="mb-8">
-                    <h2 className="text-xl font-semibold mb-4">Select a Trip:</h2>
-                    <div className="flex flex-wrap gap-4">
-                        {filteredTrips.map(trip => (
-                            <button
-                                key={trip.id}
-                                onClick={() => handleTripSelect(trip.id)}
-                                className={`px-4 py-2 rounded-lg transition-all ${
-                                    selectedTrip?.id === trip.id
-                                        ? 'bg-gray-800 text-white font-medium shadow-md'
-                                        : 'bg-white border border-gray-300 hover:bg-gray-100'
-                                }`}
+                {/* Filters */}
+                <div className="bg-white p-4 rounded-lg shadow-md mb-8">
+                    <h2 className="text-xl font-semibold mb-4">Filter Trips</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        {/* Region Filter */}
+                        <div>
+                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="regionFilter">
+                                Region
+                            </label>
+                            <select
+                                id="regionFilter"
+                                value={regionFilter}
+                                onChange={handleRegionChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                             >
-                                {trip.name}
-                            </button>
-                        ))}
+                                <option value="all">All Regions</option>
+                                {availableRegions.map(region => (
+                                    <option key={region} value={region}>{region}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Year Filter */}
+                        <div>
+                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="yearFilter">
+                                Year
+                            </label>
+                            <select
+                                id="yearFilter"
+                                value={yearFilter}
+                                onChange={handleYearChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="all">All Years</option>
+                                {availableYears.map(year => (
+                                    <option key={year} value={year}>{year}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Duration Filter */}
+                        <div>
+                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="durationFilter">
+                                Duration
+                            </label>
+                            <select
+                                id="durationFilter"
+                                value={durationFilter}
+                                onChange={handleDurationChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="all">All Durations</option>
+                                <option value="short">Short (≤ 7 days)</option>
+                                <option value="medium">Medium (8-14 days)</option>
+                                <option value="long">Long ({'\u003E'} 14 days)</option>
+                            </select>
+                        </div>
+
+                        {/* Sort Order */}
+                        <div>
+                            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="sortOrder">
+                                Sort By
+                            </label>
+                            <select
+                                id="sortOrder"
+                                value={sortOrder}
+                                onChange={handleSortChange}
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="date-desc">Date (Newest First)</option>
+                                <option value="date-asc">Date (Oldest First)</option>
+                                <option value="alpha-asc">Name (A-Z)</option>
+                                <option value="alpha-desc">Name (Z-A)</option>
+                                <option value="duration-desc">Duration (Longest First)</option>
+                                <option value="duration-asc">Duration (Shortest First)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Filter results count */}
+                    <div className="mt-4 text-gray-600">
+                        Showing {filteredTrips.length} of {tripData.length} trips
                     </div>
                 </div>
+
+                {/* No trips matched message */}
+                {noTripMatched && (
+                    <div className="bg-white p-6 rounded-lg shadow-md mb-8 text-center">
+                        <h3 className="text-xl font-semibold mb-2">No trips match your filters</h3>
+                        <p className="mb-4">Try adjusting your filter criteria to see available trips.</p>
+                        <button
+                            onClick={() => {
+                                setRegionFilter('all');
+                                setYearFilter('all');
+                                setDurationFilter('all');
+                                applyFilters(tripData, 'all', 'all', 'all', sortOrder);
+                            }}
+                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
+                        >
+                            Reset Filters
+                        </button>
+                    </div>
+                )}
+
+                {/* Trip selector */}
+                {!noTripMatched && (
+                    <div className="mb-8">
+                        <h2 className="text-xl font-semibold mb-4">Select a Trip:</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {filteredTrips.map(trip => (
+                                <div
+                                    key={trip.id}
+                                    onClick={() => handleTripSelect(trip.id)}
+                                    className={`p-4 rounded-lg cursor-pointer transition-all hover:shadow-md ${
+                                        selectedTrip?.id === trip.id
+                                            ? 'bg-gray-800 text-white'
+                                            : 'bg-white hover:bg-gray-100'
+                                    }`}
+                                >
+                                    <h3 className="font-bold text-lg">{trip.name}</h3>
+                                    <div className="flex flex-wrap gap-2 mt-2">
+                                        {trip.date && (
+                                            <span className={`text-xs px-2 py-1 rounded ${
+                                                selectedTrip?.id === trip.id ? 'bg-gray-700' : 'bg-gray-200'
+                                            }`}>
+                          {formatDate(trip.date)}
+                        </span>
+                                        )}
+                                        {trip.region && (
+                                            <span className={`text-xs px-2 py-1 rounded ${
+                                                selectedTrip?.id === trip.id ? 'bg-gray-700' : 'bg-gray-200'
+                                            }`}>
+                          {trip.region}
+                        </span>
+                                        )}
+                                        {trip.duration && (
+                                            <span className={`text-xs px-2 py-1 rounded ${
+                                                selectedTrip?.id === trip.id ? 'bg-gray-700' : 'bg-gray-200'
+                                            }`}>
+                          {trip.duration} days
+                        </span>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
 
                 {selectedTrip && (
                     <>
                         <div className="mb-6">
-                            <div className="flex flex-col md:flex-row justify-between items-start">
-                                <div>
-                                    <h2 className="text-2xl font-bold">{selectedTrip.name}</h2>
-                                    <p className="text-gray-600 mt-2">{selectedTrip.description}</p>
-                                </div>
-                                <div className="mt-4 md:mt-0 space-y-2">
-                                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                                        </svg>
-                                        <span>{formatDate(selectedTrip.date)}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                                        </svg>
-                                        <span>{selectedTrip.region}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                        </svg>
-                                        <span>{selectedTrip.duration} days</span>
-                                    </div>
-                                </div>
+                            <h2 className="text-2xl font-bold">{selectedTrip.name}</h2>
+                            <div className="flex flex-wrap items-center gap-4 mt-2">
+                                <p className="text-gray-600">{selectedTrip.description}</p>
+                                {selectedTrip.date && (
+                                    <span className="text-sm bg-gray-200 px-2 py-1 rounded">
+                    {formatDate(selectedTrip.date)}
+                  </span>
+                                )}
+                                {selectedTrip.region && (
+                                    <span className="text-sm bg-gray-200 px-2 py-1 rounded">
+                    {selectedTrip.region}
+                  </span>
+                                )}
+                                {selectedTrip.duration && (
+                                    <span className="text-sm bg-gray-200 px-2 py-1 rounded">
+                    {selectedTrip.duration} days
+                  </span>
+                                )}
                             </div>
                         </div>
 
-                        {/* UPDATED Legend with new color function */}
+                        {/* Legend */}
                         <div className="bg-white p-4 rounded-lg shadow-md mb-6">
                             <h3 className="font-semibold mb-2">Transportation Methods:</h3>
                             <div className="flex flex-wrap gap-4">
@@ -411,11 +626,13 @@ export default function TripPage() {
                                     <div key={transport} className="flex items-center">
                                         <div
                                             className="w-6 h-2 mr-2"
-                                            style={{ backgroundColor: getColorForTransport(transport) }}
+                                            style={{
+                                                backgroundColor: selectedTrip.segments.find(s => s.transport === transport).color
+                                            }}
                                         ></div>
                                         <span>
-                                            {TRANSPORT_ICONS[transport.toLowerCase()] || ''} {transport.charAt(0).toUpperCase() + transport.slice(1)}
-                                        </span>
+                      {transportIcons[transport] || ''} {transport.charAt(0).toUpperCase() + transport.slice(1)}
+                    </span>
                                     </div>
                                 ))}
                             </div>
@@ -423,19 +640,17 @@ export default function TripPage() {
 
                         {/* Map */}
                         <div className="h-96 w-full rounded-lg overflow-hidden shadow-lg mb-8">
-                            <MapWithNoSSR selectedTrip={selectedTrip} />
+                            <TripMap trip={selectedTrip}/>
                         </div>
 
-                        {/* UPDATED Trip details with new color function */}
+                        {/* Trip details */}
                         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
                             <h3 className="text-xl font-semibold mb-4">Journey Details</h3>
                             <div className="space-y-4">
                                 {selectedTrip.segments.map((segment, index) => (
-                                    <div key={index}
-                                         className="border-l-4 pl-4"
-                                         style={{ borderColor: getColorForTransport(segment.transport) }}>
+                                    <div key={index} className="border-l-4 pl-4" style={{borderColor: segment.color}}>
                                         <div className="flex items-center gap-2">
-                                            <span className="text-xl">{TRANSPORT_ICONS[segment.transport.toLowerCase()] || ''}</span>
+                                            <span className="text-xl">{transportIcons[segment.transport] || ''}</span>
                                             <h4 className="font-medium">{segment.from.name} to {segment.to.name}</h4>
                                         </div>
                                         <p className="text-gray-600 mt-1">{segment.description}</p>
@@ -443,79 +658,85 @@ export default function TripPage() {
                                 ))}
                             </div>
                         </div>
-                    </>
-                )}
 
-                {/* Trip Stats Section */}
-                {selectedTrip && (
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                        {/* UPDATED Transportation Breakdown with new color function */}
-                        <div className="bg-white rounded-lg shadow-md p-6">
-                            <h3 className="font-semibold mb-3 text-lg">Transportation Breakdown</h3>
-                            <div className="space-y-3">
-                                {Object.entries(
-                                    selectedTrip.segments.reduce((acc, segment) => {
-                                        acc[segment.transport] = (acc[segment.transport] || 0) + 1;
-                                        return acc;
-                                    }, {})
-                                ).sort((a, b) => b[1] - a[1]).map(([transport, count]) => (
-                                    <div key={transport} className="flex justify-between items-center">
-                                        <div className="flex items-center">
-                                            <span className="mr-2">{TRANSPORT_ICONS[transport.toLowerCase()] || ''}</span>
-                                            <span>{transport.charAt(0).toUpperCase() + transport.slice(1)}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <div className="w-16 bg-gray-200 rounded-full h-2.5">
-                                                <div
-                                                    className="h-2.5 rounded-full"
-                                                    style={{
-                                                        width: `${(count / selectedTrip.segments.length) * 100}%`,
-                                                        backgroundColor: getColorForTransport(transport)
-                                                    }}
-                                                ></div>
-                                            </div>
-                                            <span className="text-sm text-gray-600">{count}</span>
+                        {/* Trip Statistics */}
+                        {tripStats && (
+                            <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+                                <h3 className="text-xl font-semibold mb-4">Trip Statistics</h3>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {/* Journey Information */}
+                                    <div>
+                                        <h4 className="font-medium text-lg mb-2">Journey Information</h4>
+                                        <div className="space-y-3">
+                                            <p><span
+                                                className="font-semibold">Start Point:</span> {tripStats.startPoint.name}
+                                            </p>
+                                            <p><span
+                                                className="font-semibold">End Point:</span> {tripStats.endPoint.name}
+                                            </p>
+                                            <p><span
+                                                className="font-semibold">Total Distance:</span> {tripStats.totalDistance.toLocaleString()} miles
+                                            </p>
                                         </div>
                                     </div>
-                                ))}
+
+                                    {/* Transport Statistics */}
+                                    <div>
+                                        <h4 className="font-medium text-lg mb-2">Transportation Breakdown</h4>
+                                        <div className="space-y-3">
+                                            {Object.entries(tripStats.transportCounts).map(([transport, count]) => (
+                                                <div key={transport} className="flex items-center justify-between">
+                                                    <div className="flex items-center">
+                                                        <span
+                                                            className="text-xl mr-2">{transportIcons[transport] || ''}</span>
+                                                        <span className="capitalize">{transport}:</span>
+                                                    </div>
+                                                    <div>
+                                                        <span
+                                                            className="font-semibold">{count} segment{count !== 1 ? 's' : ''}</span>
+                                                        <span className="text-gray-500 ml-2">
+                                                            ({Math.round(tripStats.distanceByTransport[transport]).toLocaleString()} miles)
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
+                        )}
 
-                        <div className="bg-white rounded-lg shadow-md p-6">
-                            <h3 className="font-semibold mb-3 text-lg">Trip Highlights</h3>
-                            <ul className="list-disc pl-5 space-y-2">
-                                <li>Total destinations: {selectedTrip.segments.length + 1}</li>
-                                <li>Starting point: {selectedTrip.segments[0].from.name}</li>
-                                <li>Final destination: {selectedTrip.segments[selectedTrip.segments.length - 1].to.name}</li>
-                                <li>Trip duration: {selectedTrip.duration} days</li>
-                                <li>Trip date: {formatDate(selectedTrip.date)}</li>
-                            </ul>
-                        </div>
-
-                        <div className="bg-white rounded-lg shadow-md p-6">
-                            <h3 className="font-semibold mb-3 text-lg">Related Trips</h3>
-                            {filteredTrips.filter(trip =>
-                                trip.id !== selectedTrip.id && trip.region === selectedTrip.region
-                            ).slice(0, 3).length > 0 ? (
-                                <div className="space-y-3">
-                                    {filteredTrips.filter(trip =>
-                                        trip.id !== selectedTrip.id && trip.region === selectedTrip.region
-                                    ).slice(0, 3).map(trip => (
-                                        <button
+                        {/* Related Trips */}
+                        {relatedTrips.length > 0 && (
+                            <div className="bg-white rounded-lg shadow-md p-6 mb-8">
+                                <h3 className="text-xl font-semibold mb-4">Related Trips</h3>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    {relatedTrips.map(trip => (
+                                        <div
                                             key={trip.id}
                                             onClick={() => handleTripSelect(trip.id)}
-                                            className="w-full text-left p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+                                            className="p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-all"
                                         >
-                                            <div className="font-medium">{trip.name}</div>
-                                            <div className="text-sm text-gray-600">{formatDate(trip.date)} • {trip.duration} days</div>
-                                        </button>
+                                            <h4 className="font-medium">{trip.name}</h4>
+                                            <div className="flex flex-wrap gap-2 mt-2">
+                                                {trip.date && (
+                                                    <span className="text-xs px-2 py-1 bg-gray-200 rounded">
+                                                        {formatDate(trip.date)}
+                                                    </span>
+                                                )}
+                                                {trip.region && (
+                                                    <span className="text-xs px-2 py-1 bg-gray-200 rounded">
+                                                        {trip.region}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
                                     ))}
                                 </div>
-                            ) : (
-                                <p className="text-gray-600 italic">No related trips in this region.</p>
-                            )}
-                        </div>
-                    </div>
+                            </div>
+                        )}
+                    </>
                 )}
 
                 {/* Footer */}

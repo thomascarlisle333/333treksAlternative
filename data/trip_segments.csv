@@ -1,0 +1,160 @@
+id,trip_id,from_name,from_lat,from_lng,to_name,to_lat,to_lng,transport_type,description
+8,2,Paris France,48.8566,2.3522,Bordeaux France,44.8416,-0.5811,train,TVG bullet train through the French Countryside
+9,2,Bordeaux France,44.8416,-0.5811,Pauillac France,45.1996,-0.7462,car,Drive up and down the left bank of Bordeaux wine region
+10,2,Bordeaux France,44.8416,-0.5811,Paris France,48.8566,2.3522,train,TVG bullet train through the French Countryside
+11,2,Paris France,48.8566,2.3522,Rennes France,48.1173,-1.6778,train,TVG bullet train to get out of Paris
+12,2,Rennes France,48.1173,-1.6778,Mont Saint-Michel France,48.6361,-1.5115,car,Rural drive through Brittany
+13,2,Mont Saint-Michel France,48.6361,-1.5115,Saint-Goazec France,48.1624,-3.7841,car,Drive to work Chateau
+14,2,Saint-Goazec France,48.1624,-3.7841,Chateau d'Azay-le-Rideau France,47.259,-0.4657,car,Drive to Loire Valley
+15,2,Azay-le-Rideau France,47.259,-0.4657,Chenonceaux France,47.3249,1.0703,car,Scenic drive through the Loire Valley
+16,2,Chenonceaux France,47.3249,1.0703,Amboise France,47.4137,0.9861,car,Castle hopping!
+17,2,Amboise France,47.4137,0.9861,Chambord France,47.6158,1.5169,car,Drive to Chambord
+18,2,Chambord France,47.6158,1.5169,Etretat France,49.707,0.2056,car,Long drive to the northern coast!
+19,2,Etretat France,49.707,0.2056,Normandy D-Day Beach France,49.3585,-0.8545,car,Drive along the coast of Normandy
+20,2,Normandy D-Day Beach France,49.3585,-0.8545,Rennes France,48.1173,-1.6778,car,Return rental car to Rennes
+21,2,Rennes France,48.1173,-1.6778,Paris France,48.8566,2.3522,train,Return to Paris by TVG bullet train
+22,3,Seoul South Korea,37.5503,126.997,DMZ South Korea,37.7596,126.7778,bus,Scenic mountain bus journey
+23,3,DMZ South Korea,37.7596,126.7778,Seoul South Korea,37.5503,126.997,bus,Return journey from DMZ
+24,3,Seoul South Korea,37.5503,126.997,Busan South Korea,35.1731,129.0714,train,KTX high-speed train to coastal Busan
+25,3,Busan South Korea,35.1731,129.0714,Seoul South Korea,37.5503,126.997,train,KTX high-speed train to coastal Busan
+26,3,Seoul South Korea,37.5503,126.997,Beijing China,40.0799,116.6031,plane,Short flight to Beijing
+27,4,Seoul South Korea,37.5503,126.997,Beijing China,40.0799,116.6031,plane,Short flight from ICN
+28,4,Beijing China,40.0799,116.6031,Changchun China,43.816,125.3236,train,Bullet train to Changchun
+29,4,Changchun China,43.816,125.3236,Gongzhuling China,43.5047,124.8228,train,Bullet train to Gongzhuling
+30,4,Gongzhuling China,43.5047,124.8228,Chengde China,40.9515,117.9634,train,Bullet train to Chengde
+31,4,Chengde China,40.9515,117.9634,Beijing China,40.0799,116.6031,train,Bullet train to Beijing
+32,4,Beijing China,40.0799,116.6031,The Great Wall China,40.4327,116.564,car,Didi drive to the Great Wall
+33,4,The Great Wall China,40.4327,116.564,Beijing China,40.0799,116.6031,car,Didi drive back to Beijing
+34,4,Beijing China,40.0799,116.6031,Tiananmen Square China,39.9055,116.3976,train,Subway to Tiananmen Square
+35,4,Tiananmen Square China,39.9055,116.3976,Temple of Heaven China,39.8822,116.4066,train,Subway to Temple of Heaven
+36,4,Temple of Heaven China,39.8822,116.4066,Summer Palace China,40,116.2755,train,Subway to Summer Palace
+37,4,Summer Palace China,40,116.2755,Beijing China,40.0799,116.6031,train,Subway back to PEK airport
+38,4,Beijing China,40.0799,116.6031,Zhangjiajie China,29.1167,110.4784,plane,Short domestic flight to Zhangjiajie
+39,4,Zhangjiajie China,29.1167,110.4784,Wulingyuan China,29.3459,110.5504,car,Short Didi drive to Wulingyuan
+40,4,Wulingyuan China,29.3459,110.5504,Zhangjiajie Glass Bridge China,29.3982,110.6962,bus,Tour to China's Grand Canyon
+41,4,Zhangjiajie Glass Bridge China,29.3982,110.6962,Tianmen Mountain China,29.0468,110.4821,bus,Tour to Tianmen Mountain
+42,4,Tianmen Mountain China,29.0468,110.4821,Zhangjiajiebei Railway Station China,29.1046,110.487,bus,Quick bus ride to railway station
+43,4,Zhangjiajiebei Railway Station China,29.1046,110.487,Furong Ancient Town China,28.7673,109.9748,train,Bullet train to Furong Ancient Town
+44,4,Furong Ancient Town China,28.7673,109.9748,Fenghuang Ancient Town China,27.9484,109.5983,train,Bullet train to Fenghuang Ancient Town
+45,4,Fenghuang Ancient Town China,27.9484,109.5983,Zhangjiajiebei Railway Station China,29.1046,110.487,train,Bullet train to Zhangjiajiebei Railway Station
+46,4,Zhangjiajiebei Railway Station China,29.1046,110.487,72 Qilou Wonder Towers China,29.1448,110.4558,car,Didi ride to Qilou Wonder Towers
+47,4,72 Qilou Wonder Towers China,29.1448,110.4558,Zhangjiajie Airport China,29.1036,110.4506,car,Didi ride to Zhangjiajie Airport
+48,4,Zhangjiajie Airport China,29.1036,110.4506,Shanghai China,31.1443,121.8083,plane,Short domestic flight to Shanghai
+49,4,Shanghai Pudong Airport China,31.1443,121.8083,Nanjing Street China,31.2342,121.4748,train,Maglev train to center of Shanghai
+50,4,Nanjing Street China,31.2342,121.4748,The Bund China,31.2363,121.4911,car,Didi ride to The Bund
+51,4,The Bund China,31.2363,121.4911,Shanghai Tower China,31.2335,121.5056,boat,Ferry to Shanghai Tower
+52,4,Shanghai Tower China,31.2335,121.5056,Shanghai Pudong Airport China,31.1443,121.8083,train,Maglev back to Pudong Airport
+53,5,Paris Charles de Gaulle Airport France,49.0079,2.5508,Louvre Museum France,48.8606,2.3376,train,1 hr train ride to the center of Paris
+54,5,Louvre Museum France,48.8606,2.3376,Eiffel Tower France,48.8584,2.2945,walking,Meandering down the Seine
+55,5,Eiffel Tower France,48.8584,2.2945,Arc de Triomphe France,48.8738,2.295,walking,Stroll down Champs-Élysées
+56,5,Arc de Triomphe France,48.8738,2.295,Notre-Dame Cathedral Germany,48.853,2.3499,walking,Hike back to Notre-Dame
+57,5,Notre-Dame Cathedral Germany,48.853,2.3499,Paris Charles de Gaulle Airport France,49.0079,2.5508,train,Train ride back to the airport
+58,5,Paris Charles de Gaulle Airport France,49.0079,2.5508,Hamburg Germany,53.6319,9.9958,plane,Short flight to Deutschland
+59,5,Hamburg Germany,53.6319,9.9958,Cloppenburg Germany,52.8453,8.0473,car,Speeding down the Autobahn
+60,5,Cloppenburg Germany,52.8453,8.0473,Garrel Germany,52.9531,8.0256,car,Drive to work
+61,5,Garrel Germany,52.9531,8.0256,Cloppenburg Germany,52.8453,8.0473,car,Drive to hotel
+62,5,Cloppenburg Germany,52.8453,8.0473,Bremen Germany,53.0793,8.8017,car,More speeding on the Autobahn
+63,5,Bremen Germany,53.0793,8.8017,Cloppenburg Germany,52.8453,8.0473,car,Joy ride through the German countryside
+64,5,Cloppenburg Germany,52.8453,8.0473,Emstek Germany,52.8343,8.1555,car,Joy ride through the German countryside
+65,5,Emstek Germany,52.8343,8.1555,Cloppenburg Germany,52.8453,8.0473,car,Drive to hotel
+66,5,Cloppenburg Germany,52.8453,8.0473,Hanover Germany,52.3759,9.732,car,Long haul drive on the autobahn
+67,5,Hanover Germany,52.3759,9.732,Cloppenburg Germany,52.8453,8.0473,car,More speeding on the Autobahn
+68,5,Cloppenburg Germany,52.8453,8.0473,Deutsches Fußballmuseum Germany,51.5164,7.4585,car,Speeding down the Autobahn
+69,5,Deutsches Fußballmuseum Germany,51.5164,7.4585,Signal Iduna Park Germany,51.4926,7.4519,car,Taxi to Old Town
+70,5,Signal Iduna Park Germany,51.4926,7.4519,Cologne Cathedral Germany,50.9413,6.9583,car,Drive on the Autobahn
+71,5,Cologne Cathedral Germany,50.9413,6.9583,Düsseldorf Germany,51.223,6.7825,car,Drive on the Autobahn
+72,5,Düsseldorf Germany,51.223,6.7825,Osnabrück Germany,52.2799,8.0472,car,Drive on the Autobahn
+73,5,Osnabrück Germany,52.2799,8.0472,Cloppenburg Germany,52.8453,8.0473,car,Drive on the Autobahn
+74,5,Cloppenburg Germany,52.8453,8.0473,Hamburg Germany,53.6319,9.9958,car,Drive to the airport
+75,5,Hamburg Germany,53.6319,9.9958,Munich International Airport Germany,48.354,11.7884,plane,Short domestic flight to Bavaria
+76,5,Munich International Airport Germany,48.354,11.7884,Munich Hotel Germany,48.1289,11.5856,train,Train ride to center of Munich
+77,5,Munich Hotel Germany,48.1289,11.5856,Hofbräuhaus München Germany,48.1376,11.5797,walking,Stroll through the streets of Munich
+78,5,Hofbräuhaus München Germany,48.1376,11.5797,Marienplatz Germany,48.1374,11.5754,walking,Stroll through the streets of Munich
+79,5,Marienplatz Germany,48.1374,11.5754,Munich Residenz Germany,48.1418,11.5795,walking,Stroll through the streets of Munich
+80,5,Munich Residenz Germany,48.1418,11.5795,Karlsplatz Germany,48.1392,11.566,walking,Stroll through the streets of Munich
+81,5,Karlsplatz Germany,48.1392,11.566,Munich Hotel Germany,48.1289,11.5856,walking,Stroll through the streets of Munich
+82,5,Munich Hotel Germany,48.1289,11.5856,Oberammergau Germany,47.5981,11.0642,bus,Bus tour through Southern Bavaria
+83,5,Oberammergau Germany,47.5981,11.0642,Linderhof Palace Germany,47.5716,10.9608,bus,Bus tour through Southern Bavaria
+84,5,Linderhof Palace Germany,47.5716,10.9608,Neuschwanstein Castle Germany,47.5576,10.7498,bus,Bus tour through Southern Bavaria
+85,5,Neuschwanstein Castle Germany,47.5576,10.7498,Munich Hotel Germany,48.1289,11.5856,bus,Bus tour through Southern Bavaria
+86,5,Munich Hotel Germany,48.1289,11.5856,Munich International Airport Germany,48.354,11.7884,train,Train ride back to Airport
+87,5,Munich International Airport Germany,48.354,11.7884,Copenhagen Airport Denmark,55.612,12.6477,plane,Flight to Denmark
+88,5,Copenhagen Airport Denmark,55.612,12.6477,Copenhagen Central Station Denmark,55.6728,12.5649,train,Train ride to City Centre
+89,5,Copenhagen Central Station Denmark,55.6728,12.5649,Rosenborg Castle Denmark,55.6858,12.5773,walking,Stroll through the streets of Copenhagen
+90,5,Rosenborg Castle Denmark,55.6858,12.5773,Kastellet Denmark,55.6914,12.5943,walking,Stroll through the streets of Copenhagen
+91,5,Kastellet Denmark,55.6914,12.5943,The Little Mermaid Denmark,55.6929,12.5993,walking,Stroll through the streets of Copenhagen
+92,5,The Little Mermaid Denmark,55.6929,12.5993,Amalienborg Palace Denmark,55.6841,12.593,walking,Stroll through the streets of Copenhagen
+93,5,Amalienborg Palace Denmark,55.6841,12.593,Tivoli Gardens Denmark,55.6737,12.5681,walking,Stroll through the streets of Copenhagen
+94,5,Tivoli Gardens Denmark,55.6737,12.5681,Copenhagen Central Station Denmark,55.6728,12.5649,walking,Stroll through the streets of Copenhagen
+95,5,Copenhagen Central Station Denmark,55.6728,12.5649,Copenhagen Airport Denmark,55.612,12.6477,train,Train ride back to Airport
+96,6,Barcelona Spain,41.3874,2.1686,Prague Czech Republic,50.0755,14.4378,plane,Short European flight to Czech Republic
+97,6,Prague Czech Republic,50.0755,14.4378,Valleta Malta,35.8517,14.4863,plane,Flight to Mediterranean Malta
+98,6,Valleta Malta,35.8517,14.4863,Paris France,49.0079,2.5508,plane,Flight to the City of Lights
+99,6,Paris France,49.0079,2.5508,Munich Germany,48.354,11.7884,plane,Short flight to Bavaria
+100,6,Munich Germany,48.354,11.7884,Hamburg Germany,53.6319,9.9958,plane,Quick flight from southern to northern Germany
+101,6,Hamburg Germany,53.6319,9.9958,Cloppenburg Germany,52.8453,8.0473,car,Drive south to work location
+102,6,Cloppenburg Germany,52.8453,8.0473,Brussels Belgium,50.8477,4.3572,car,Weekended drive to Brussels
+103,6,Brussels Belgium,50.8477,4.3572,Dinant Belgium,50.2627,4.9106,car,Short drive through Belgian countryside
+104,6,Dinant Belgium,50.2627,4.9106,Luxembourg Luxembourg,49.8154,6.1296,car,Drive through Luxembourg
+105,6,Luxembourg Luxembourg,49.8154,6.1296,Vianden Luxembourg,49.934,6.2092,car,A scenic spin through Luxembourg's backroads
+106,6,Vianden Luxembourg,49.934,6.2092,Emstek Germany,52.8343,8.1555,car,Joy ride through the German countryside
+107,6,Vianden Luxembourg,49.934,6.2092,Emstek Germany,52.8343,8.1555,car,Joy ride through the German countryside
+108,6,Emstek Germany,52.8343,8.1555,Garrel Germany,52.9531,8.0256,car,Drive to hotel
+109,6,Garrel Germany,52.9531,8.0256,Hamburg Germany,53.6319,9.9958,car,Speeding on the autobahn back to catch a flight
+110,6,Hamburg Germany,53.6319,9.9958,Vienna Austria,48.2081,16.3713,plane,Jetting off to Vienna
+111,6,Vienna Austria,48.2081,16.3713,Dubrovnik Airport Croatia,42.5606,18.2618,plane,Long haul to Dubrovnik Airport
+112,6,Dubrovnik Airport Croatia,42.5606,18.2618,Dubrovnik Old Town Croatia,42.641,18.1104,car,Taxi to Old Town
+113,6,Dubrovnik Old Town Croatia,42.641,18.1104,Dubrovnik Airport Croatia,42.5606,18.2618,car,Taxi to Airport
+114,6,Dubrovnik Airport Croatia,42.5606,18.2618,Amsterdam Airport Netherlands,52.3169,4.7459,plane,Long haul flight to Amsterdam
+115,6,Amsterdam Airport Netherlands,52.3169,4.7459,Red Light District Netherlands,52.3719,4.8959,train,Short train ride to Red Light District
+116,7,Keflavik Airport Iceland,63.9845,-22.6266,Blue Lagoon Iceland,63.8807,-22.4473,car,Road tripping...
+117,7,Blue Lagoon Iceland,63.8807,-22.4473,Harpa Concert Hall Iceland,64.1502,-21.9323,car,Road tripping...
+118,7,Harpa Concert Hall Iceland,64.1502,-21.9323,Hallgrimskirkja Iceland,64.142,-21.9265,car,Road tripping...
+119,7,Hallgrimskirkja Iceland,64.142,-21.9265,Helgufoss Iceland,64.175,-21.5317,car,Road tripping...
+120,7,Helgufoss Iceland,64.175,-21.5317,Þórufoss Iceland,64.263,-21.3738,car,Road tripping...
+121,7,Þórufoss Iceland,64.263,-21.3738,Öxarárfoss Iceland,64.2659,-21.1171,car,Road tripping...
+122,7,Öxarárfoss Iceland,64.2659,-21.1171,Silfra Fissure Iceland,64.2563,-21.1161,car,Road tripping...
+123,7,Silfra Fissure Iceland,64.2563,-21.1161,Brúarfoss Iceland,64.2643,-20.5157,car,Road tripping...
+124,7,Brúarfoss Iceland,64.2643,-20.5157,Hotel Geysir Iceland,64.3102,-20.3007,car,Road tripping...
+125,7,Hotel Geysir Iceland,64.3102,-20.3007,Gullfoss Falls Iceland,64.3271,-20.1199,car,Road tripping...
+126,7,Gullfoss Falls Iceland,64.3271,-20.1199,Hjálparfoss Iceland,64.116,-19.8495,car,Road tripping...
+127,7,Hjálparfoss Iceland,64.116,-19.8495,Háifoss Iceland,64.2079,-19.6869,car,Road tripping...
+128,7,Háifoss Iceland,64.2079,-19.6869,Granni Iceland,64.2098,-19.683,car,Road tripping...
+129,7,Granni Iceland,64.2098,-19.683,Seljalandsfoss Iceland,63.6156,-19.9886,car,Road tripping...
+130,7,Seljalandsfoss Iceland,63.6156,-19.9886,Gljúfrabúi Iceland,63.6209,-19.9864,car,Road tripping...
+131,7,Gljúfrabúi Iceland,63.6209,-19.9864,Skógafoss Iceland,63.5321,-19.5114,car,Road tripping...
+132,7,Skógafoss Iceland,63.5321,-19.5114,Dyrhólaey Viewpoint Iceland,63.4015,-19.1284,car,Road tripping...
+133,7,Dyrhólaey Viewpoint Iceland,63.4015,-19.1284,Reynisfjara Beach Iceland,63.4057,-19.0716,car,Road tripping...
+134,7,Reynisfjara Beach Iceland,63.4057,-19.0716,Víkurfjara Black Sand Beach Iceland,63.4143,-19.0104,car,Road tripping...
+135,7,Víkurfjara Black Sand Beach Iceland,63.4143,-19.0104,Skaftafell tjaldsvæði Iceland,64.0155,-16.9716,car,Road tripping...
+136,7,Skaftafell tjaldsvæði Iceland,64.0155,-16.9716,Svartifoss Iceland,64.0275,-16.9753,car,Road tripping...
+137,7,Svartifoss Iceland,64.0275,-16.9753,Jökulsárlón Iceland,64.0484,-16.1791,car,Road tripping...
+138,7,Jökulsárlón Iceland,64.0484,-16.1791,Diamond Beach Iceland,64.0443,-16.1777,car,Road tripping...
+139,7,Diamond Beach Iceland,64.0443,-16.1777,Höfn Iceland,64.2551,-15.2088,car,Road tripping...
+140,7,Höfn Iceland,64.2551,-15.2088,Möðrudalur/Fjalladýrð Iceland,65.3741,-15.8833,car,Road tripping...
+141,7,Möðrudalur/Fjalladýrð Iceland,65.3741,-15.8833,Dettifoss Iceland,65.8147,-16.3846,car,Road tripping...
+142,7,Dettifoss Iceland,65.8147,-16.3846,Námaskarð Iceland,65.6472,-16.8267,car,Road tripping...
+143,7,Námaskarð Iceland,65.6472,-16.8267,Víti Explosion Crater Iceland,65.0111,-16.7485,car,Road tripping...
+144,7,Víti Explosion Crater Iceland,65.0111,-16.7485,Mývatn Nature Baths Iceland,65.6309,-16.8476,car,Road tripping...
+145,7,Mývatn Nature Baths Iceland,65.6309,-16.8476,Goðafoss Waterfall Iceland,65.6828,-17.5502,car,Road tripping...
+146,7,Goðafoss Waterfall Iceland,65.6828,-17.5502,Akureyri Iceland,65.6826,-18.0907,car,Road tripping...
+147,7,Akureyri Iceland,65.6826,-18.0907,Skardsviti Lighthouse Iceland,65.4855,-20.9882,car,Road tripping...
+148,7,Skardsviti Lighthouse Iceland,65.4855,-20.9882,Hvitserkur Iceland,65.6064,-20.6352,car,Road tripping...
+149,7,Hvitserkur Iceland,65.6064,-20.6352,Kolugljúfur Canyon Iceland,65.3334,-20.5713,car,Road tripping...
+150,7,Kolugljúfur Canyon Iceland,65.3334,-20.5713,Kirkjufell Iceland,64.9417,-23.3069,car,Road tripping...
+151,7,Kirkjufell Iceland,64.9417,-23.3069,Öndverðarnes lighthouse Iceland,64.8851,-24.0445,car,Road tripping...
+152,7,Öndverðarnes lighthouse Iceland,64.8851,-24.0445,Lóndrangar Iceland,64.7325,-23.7846,car,Road tripping...
+153,7,Lóndrangar Iceland,64.7325,-23.7846,Gatklettur Iceland,64.7654,-23.6221,car,Road tripping...
+154,7,Gatklettur Iceland,64.7654,-23.6221,Bjarnafoss Iceland,64.8481,-23.4036,car,Road tripping...
+155,7,Bjarnafoss Iceland,64.8481,-23.4036,Ytri Tunga Iceland,64.8027,-23.0803,car,Road tripping...
+156,7,Ytri Tunga Iceland,64.8027,-23.0803,Gerðuberg Cliffs Iceland,64.8607,-22.3589,car,Road tripping...
+157,7,Gerðuberg Cliffs Iceland,64.8607,-22.3589,Reykjavík Iceland,64.147,-21.9408,car,Road tripping...
+158,7,Reykjavík Iceland,64.147,-21.9408,Keflavik Airport Iceland,63.9845,-22.6266,car,Road tripping...
+182,1,Tokyo Japan,35.6762,139.6503,Kyoto Japan,35.0116,135.7681,train,Shinkansen bullet train
+183,1,Kyoto Japan,35.0116,135.7681,Osaka Japan,34.6937,135.5023,train,Local train through urban Japan
+184,1,Osaka Japan,34.6937,135.5023,Hiroshima Japan,34.3853,132.4553,train,Bullet train along the coast
+185,1,Hiroshima Japan,34.3853,132.4553,Miyajima Island Japan,34.2971,132.3197,boat,Ferry to the sacred island
+186,1,Miyajima Island Japan,34.2971,132.3197,Fukuoka Japan,33.5902,130.4017,train,Train to Kyushu Island
+187,1,Fukuoka Japan,33.5902,130.4017,Nagasaki Japan,32.7503,129.8779,train,Coastal train through southern Japan
+188,1,Nagasaki Japan,32.7503,129.8779,Sapporo Japan,43.0618,141.3545,plane,Flight to Hokkaido Island
+189,8,"New York City, US",40.6446,-73.7797,"Bergen, Norwar",60.2938,5.2219,plane,Long flight to Europe

@@ -1,278 +1,105 @@
-'use client';
-
-import React, { useState, useRef, useEffect } from 'react';
-import { MapContainer, TileLayer, Polyline, Marker, Popup, Tooltip, useMap, useMapEvents } from 'react-leaflet';
+import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
-// Fix for default marker icons in Leaflet with Next.js
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+// Fix for default Leaflet icons
+const fixLeafletIcon = () => {
+    delete L.Icon.Default.prototype._getIconUrl;
 
-let DefaultIcon = L.icon({
-    iconUrl: icon.src,
-    shadowUrl: iconShadow.src,
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-    shadowSize: [41, 41]
-});
-L.Marker.prototype.options.icon = DefaultIcon;
-
-// DEFINITIVE COLOR MAPPING - Never change these values
-// These are the ONLY colors that will ever be used to render routes
-// Transport type to icon mapping (using emoji for simplicity)
-const TRANSPORT_ICONS = {
-    "plane": "✈️",
-    "train": "🚆",
-    "car": "🚗",
-    "bus": "🚌",
-    "boat": "⛴️",
-    "bicycle": "🚲",
-    "walking": "🚶"
+    L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+    });
 };
 
-// Simple function to handle label visibility based on zoom level
-function ZoomHandler({ setShowLabels }) {
-    useMapEvents({
-        zoomend: (e) => {
-            setShowLabels(e.target.getZoom() > 7);
-        }
-    });
-    return null;
-}
+const TripMap = ({ trip }) => {
+    const mapRef = useRef(null);
+    const mapInstanceRef = useRef(null);
 
-// Function to set map bounds based on the selected trip
-function TripBoundsSetter({ bounds, tripId }) {
-    const map = useMap();
-    const prevTripIdRef = useRef(null);
-
-    React.useEffect(() => {
-        if (bounds && (prevTripIdRef.current === null || tripId !== prevTripIdRef.current)) {
-            map.fitBounds(bounds, { padding: [50, 50] });
-            prevTripIdRef.current = tripId;
-        }
-    }, [map, bounds, tripId]);
-
-    return null;
-}
-
-// Helper function to normalize longitude values
-function normalizeLongitude(lng) {
-    let result = lng;
-    while (result > 180) result -= 360;
-    while (result < -180) result += 360;
-    return result;
-}
-
-const TripMap = ({ selectedTrip }) => {
-    const [showLabels, setShowLabels] = useState(false);
-    const [forceUpdate, setForceUpdate] = useState(0); // Force re-render when needed
-
-    // Force re-render when trip changes
     useEffect(() => {
-        setForceUpdate(prev => prev + 1);
-        console.log("Trip changed, forcing re-render:", selectedTrip?.name);
-    }, [selectedTrip?.id]);
+        // Fix Leaflet icon issue
+        fixLeafletIcon();
 
-    if (!selectedTrip || !selectedTrip.segments || selectedTrip.segments.length === 0) {
-        return <div>No trip data available</div>;
-    }
+        // Initialize map if it doesn't exist yet
+        if (!mapInstanceRef.current) {
+            mapInstanceRef.current = L.map(mapRef.current).setView([0, 0], 2);
 
-    // DEBUGGING OUTPUT
-    console.log("RENDERING TRIP:", selectedTrip.name, "ID:", selectedTrip.id);
-    console.log("Force update counter:", forceUpdate);
-
-    // Special debugging for problematic trips
-    if (selectedTrip.id === 1 || selectedTrip.id === 4) {
-        console.log("DEBUGGING PROBLEM TRIP:", selectedTrip.name);
-        selectedTrip.segments.forEach((segment, idx) => {
-            console.log(`Segment ${idx}: ${segment.from.name} → ${segment.to.name}`);
-            console.log(`  Transport: "${segment.transport}"`);
-            console.log(`  Original color in data: ${segment.color}`);
-
-            // Check if this is a flight segment
-            if (segment.from.name.includes("New York") ||
-                segment.transport.toLowerCase() === "plane") {
-                console.log("  THIS SHOULD BE PURPLE!");
-            }
-        });
-    }
-
-    // Calculate map bounds to fit all points
-    const getBounds = () => {
-        const points = [];
-
-        // Add the starting point
-        points.push([selectedTrip.segments[0].from.lat, selectedTrip.segments[0].from.lng]);
-
-        // Add all destinations
-        selectedTrip.segments.forEach(segment => {
-            points.push([segment.to.lat, segment.to.lng]);
-        });
-
-        return L.latLngBounds(points);
-    };
-
-    // Check if a route crosses the international date line
-    const crossesDateLine = (fromLng, toLng) => {
-        const normFrom = normalizeLongitude(fromLng);
-        const normTo = normalizeLongitude(toLng);
-        return Math.abs(normFrom - normTo) > 180;
-    };
-
-    // Create a curved path for routes that cross the date line
-    const createCurvedPath = (fromLat, fromLng, toLat, toLng) => {
-        const numPoints = 10;
-        const points = [];
-
-        const normFrom = normalizeLongitude(fromLng);
-        const normTo = normalizeLongitude(toLng);
-
-        // Add the starting point
-        points.push([fromLat, normFrom]);
-
-        // Create intermediate points for a smooth curve
-        for (let i = 1; i < numPoints - 1; i++) {
-            const ratio = i / numPoints;
-            const lat = fromLat + (toLat - fromLat) * ratio;
-
-            let lng;
-            if (normFrom > normTo) {
-                // Go eastward around the globe
-                if (i < numPoints / 2) {
-                    lng = normFrom + (180 - normFrom) * (ratio * 2);
-                } else {
-                    lng = -180 + (normTo + 180) * ((ratio - 0.5) * 2);
-                }
-            } else {
-                // Go westward around the globe
-                if (i < numPoints / 2) {
-                    lng = normFrom - (normFrom + 180) * (ratio * 2);
-                } else {
-                    lng = -180 - (180 - normTo) * ((ratio - 0.5) * 2);
-                }
-            }
-
-            points.push([lat, lng]);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(mapInstanceRef.current);
         }
 
-        // Add the ending point
-        points.push([toLat, normTo]);
-        return points;
-    };
+        // Clear existing layers
+        mapInstanceRef.current.eachLayer(layer => {
+            if (layer instanceof L.Polyline || layer instanceof L.Marker) {
+                mapInstanceRef.current.removeLayer(layer);
+            }
+        });
 
-    const bounds = getBounds();
+        if (!trip || !trip.segments || trip.segments.length === 0) {
+            return;
+        }
 
-    return (
-        <MapContainer
-            key={`map-${selectedTrip.id}-${forceUpdate}`} // Force re-render when trip changes
-            style={{ height: '100%', width: '100%' }}
-            center={[20, 0]}
-            zoom={2}
-            scrollWheelZoom={true}
-        >
-            <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            />
+        // Collect all coordinates to set bounds
+        const bounds = L.latLngBounds();
 
-            <ZoomHandler setShowLabels={setShowLabels} />
-            <TripBoundsSetter bounds={bounds} tripId={selectedTrip.id} />
+        // Process segments and add to map
+        trip.segments.forEach((segment, index) => {
+            // Create polyline for the segment
+            const from = [segment.from.lat, segment.from.lng];
+            const to = [segment.to.lat, segment.to.lng];
 
-            {/* Starting point marker */}
-            <Marker position={[selectedTrip.segments[0].from.lat, selectedTrip.segments[0].from.lng]}>
-                <Popup>
-                    <h3 className="font-bold">{selectedTrip.segments[0].from.name}</h3>
-                    <p>Starting point of the journey</p>
-                </Popup>
-                {showLabels && <Tooltip permanent>{selectedTrip.segments[0].from.name}</Tooltip>}
-            </Marker>
+            // Add points to bounds
+            bounds.extend(from);
+            bounds.extend(to);
 
-            {/* Render all segments */}
-            {selectedTrip.segments.map((segment, index) => {
-                // Determine the route path
-                let positions;
-                if (crossesDateLine(segment.from.lng, segment.to.lng)) {
-                    positions = createCurvedPath(
-                        segment.from.lat, segment.from.lng,
-                        segment.to.lat, segment.to.lng
-                    );
-                } else {
-                    positions = [
-                        [segment.from.lat, segment.from.lng],
-                        [segment.to.lat, segment.to.lng]
-                    ];
-                }
+            // Create polyline
+            const polyline = L.polyline([from, to], {
+                color: segment.color || '#000',
+                weight: 3,
+                opacity: 0.7
+            }).addTo(mapInstanceRef.current);
 
-                // Force specific colors based on transport type
-                // Hard-code specific cases for problem trips
-                let forcedColor;
+            // Add tooltip with description
+            polyline.bindTooltip(`
+        <strong>${segment.from.name} to ${segment.to.name}</strong><br>
+        ${segment.transport.charAt(0).toUpperCase() + segment.transport.slice(1)}: ${segment.description}
+      `);
 
-                // JFK to Paris (in Northern France trip) or JFK to Barcelona (in Europe Fall 2022)
-                if ((selectedTrip.id === 1 || selectedTrip.id === 4) &&
-                    segment.from.name.includes('New York') &&
-                    (segment.to.name.includes('Paris') || segment.to.name.includes('Barcelona'))) {
-                    forcedColor = "#9b59b6"; // Purple for planes
-                    console.log("FORCING PURPLE for flight from New York:", segment.from.name, "to", segment.to.name);
-                }
-                // Other segments - determine by transport type only
-                else {
-                    switch (segment.transport.toLowerCase()) {
-                        case 'plane':
-                            forcedColor = "#9b59b6"; // Purple for planes
-                            break;
-                        case 'train':
-                            forcedColor = "#3498db"; // Blue for trains
-                            break;
-                        case 'car':
-                            forcedColor = "#e74c3c"; // Red for cars
-                            break;
-                        case 'bus':
-                            forcedColor = "#2ecc71"; // Green for buses
-                            break;
-                        case 'boat':
-                            forcedColor = "#1abc9c"; // Teal for boats
-                            break;
-                        default:
-                            forcedColor = "#000000"; // Black for unknown transport types
+            // Add markers for locations (only if not already added)
+            const fromMarker = L.marker(from).addTo(mapInstanceRef.current);
+            fromMarker.bindPopup(`<strong>${segment.from.name}</strong>`);
+
+            // Add ending marker only for the last segment
+            if (index === trip.segments.length - 1) {
+                const toMarker = L.marker(to).addTo(mapInstanceRef.current);
+                toMarker.bindPopup(`<strong>${segment.to.name}</strong>`);
+            }
+        });
+
+        // Fit map to bounds with padding
+        mapInstanceRef.current.fitBounds(bounds, { padding: [50, 50] });
+
+        // Force a resize event after render to ensure the map fills its container
+        setTimeout(() => {
+            mapInstanceRef.current.invalidateSize();
+        }, 100);
+
+        // Cleanup on unmount
+        return () => {
+            if (mapInstanceRef.current) {
+                // Just clean layers, don't remove the map instance
+                mapInstanceRef.current.eachLayer(layer => {
+                    if (layer instanceof L.Polyline || layer instanceof L.Marker) {
+                        mapInstanceRef.current.removeLayer(layer);
                     }
-                }
+                });
+            }
+        };
+    }, [trip]);
 
-                // Log for debugging purposes
-                console.log(`Segment ${index}: ${segment.from.name} → ${segment.to.name}`);
-                console.log(`  Transport: ${segment.transport}, Forced color: ${forcedColor}`);
-
-                // Use a unique key for each polyline to force re-rendering
-                const polylineKey = `polyline-${selectedTrip.id}-${index}-${forcedColor.replace('#', '')}-${forceUpdate}`;
-
-                return (
-                    <React.Fragment key={polylineKey}>
-                        <Polyline
-                            key={polylineKey}
-                            positions={positions}
-                            stroke={forcedColor}
-                            color={forcedColor}
-                            weight={4}
-                            pathOptions={{ color: forcedColor, stroke: forcedColor }}
-                        >
-                            <Tooltip>
-                                {TRANSPORT_ICONS[segment.transport.toLowerCase()] || ''} {segment.description}
-                            </Tooltip>
-                        </Polyline>
-
-                        <Marker position={[segment.to.lat, segment.to.lng]}>
-                            <Popup>
-                                <h3 className="font-bold">{segment.to.name}</h3>
-                                <p>{segment.description}</p>
-                            </Popup>
-                            {showLabels && <Tooltip permanent>{segment.to.name}</Tooltip>}
-                        </Marker>
-                    </React.Fragment>
-                );
-            })}
-        </MapContainer>
-    );
+    return <div ref={mapRef} style={{ width: '100%', height: '100%' }}></div>;
 };
 
 export default TripMap;
