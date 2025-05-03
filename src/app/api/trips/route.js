@@ -711,6 +711,27 @@ export async function GET() {
                         color: transportColors.car,
                         description: "Road tripping..."
                     },
+                    {
+                        from: { name: "Víkurfjara Black Sand Beach, Iceland", lat: 63.4143, lng: -19.0104 },
+                        to: { name: "Skaftafell tjaldsvæði, Iceland", lat: 64.0155, lng: -16.9716 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Skaftafell tjaldsvæði, Iceland", lat: 64.0155, lng: -16.9716 },
+                        to: { name: "Svartifoss, Iceland", lat: 64.0275, lng: -16.9753 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
+                    {
+                        from: { name: "Svartifoss, Iceland", lat: 64.0275, lng: -16.9753 },
+                        to: { name: "Jökulsárlón, Iceland", lat: 64.0484, lng: -16.1791 },
+                        transport: "car",
+                        color: transportColors.car,
+                        description: "Road tripping..."
+                    },
 
                 ]
             },

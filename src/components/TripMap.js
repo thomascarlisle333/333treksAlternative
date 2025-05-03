@@ -21,15 +21,6 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 // DEFINITIVE COLOR MAPPING - Never change these values
 // These are the ONLY colors that will ever be used to render routes
-const COLORS = {
-    PLANE: "#9b59b6", // Purple for planes
-    TRAIN: "#3498db", // Blue for trains
-    CAR: "#e74c3c",   // Red for cars
-    BUS: "#2ecc71",   // Green for buses
-    BOAT: "#1abc9c",  // Teal for boats
-    DEFAULT: "#000000" // Black for unknown transport types
-};
-
 // Transport type to icon mapping (using emoji for simplicity)
 const TRANSPORT_ICONS = {
     "plane": "✈️",
