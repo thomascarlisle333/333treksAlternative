@@ -158,3 +158,4 @@ id,trip_id,from_name,from_lat,from_lng,to_name,to_lat,to_lng,transport_type,desc
 187,1,Fukuoka Japan,33.5902,130.4017,Nagasaki Japan,32.7503,129.8779,train,Coastal train through southern Japan
 188,1,Nagasaki Japan,32.7503,129.8779,Sapporo Japan,43.0618,141.3545,plane,Flight to Hokkaido Island
 189,8,"New York City, US",40.6446,-73.7797,"Bergen, Norwar",60.2938,5.2219,plane,Long flight to Europe
+190,8,"New York City, US",40.6446,-73.7797,"Bergen Airport, Norway",60.2938,5.2219,plane,Transatlantic flight to Europe

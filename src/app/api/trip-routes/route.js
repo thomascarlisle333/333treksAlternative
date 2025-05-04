@@ -125,8 +125,14 @@ async function getTripData() {
                 }
             }
 
-            // Determine the region based on segments and trip data
-            const region = trip.region || determineRegion(tripSegments, trip.name, trip.description);
+            // Use region directly from CSV if available, otherwise determine it
+            // This ensures we always prioritize the manually set region in the CSV
+            let region = null;
+            if (trip.region && trip.region.trim() !== '') {
+                region = trip.region.trim();
+            } else {
+                region = determineRegion(tripSegments, trip.name, trip.description);
+            }
 
             // Use duration from CSV if available, otherwise estimate based on segments
             const duration = trip.duration
@@ -275,7 +281,7 @@ export async function POST(request) {
             description: trip.description,
             date: trip.date || new Date().toISOString().split('T')[0],
             duration: trip.duration || null,
-            region: trip.region || null
+            region: trip.region ? trip.region.trim() : null
         };
 
         // Add new trip to trips array
@@ -390,7 +396,8 @@ export async function PUT(request) {
             description: trip.description || trips[tripIndex].description,
             date: trip.date || trips[tripIndex].date,
             duration: trip.duration || trips[tripIndex].duration,
-            region: trip.region || trips[tripIndex].region
+            // If region is provided (even empty string), use it; otherwise keep existing
+            region: trip.region !== undefined ? (trip.region ? trip.region.trim() : '') : trips[tripIndex].region
         };
 
         // Remove existing segments for this trip

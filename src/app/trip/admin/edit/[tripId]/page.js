@@ -27,6 +27,19 @@ const TRANSPORT_OPTIONS = [
     { value: 'walking', label: '🚶 Walking' }
 ];
 
+// Region options for dropdown
+const REGION_OPTIONS = [
+    { value: 'Asia', label: 'Asia' },
+    { value: 'Europe', label: 'Europe' },
+    { value: 'North America', label: 'North America' },
+    { value: 'South America', label: 'South America' },
+    { value: 'Africa', label: 'Africa' },
+    { value: 'Australia', label: 'Australia' },
+    { value: 'Antarctica', label: 'Antarctica' },
+    { value: 'Pacific', label: 'Pacific' },
+    { value: 'Other', label: 'Other' }
+];
+
 export default function TripEditor({ params }) {
     const router = useRouter();
 
@@ -49,7 +62,9 @@ export default function TripEditor({ params }) {
     const [tripData, setTripData] = useState({
         name: '',
         description: '',
-        date: new Date().toISOString().split('T')[0]
+        date: new Date().toISOString().split('T')[0],
+        region: '',
+        duration: ''
     });
 
     // Initialize with a default empty segment for new trips
@@ -126,7 +141,9 @@ export default function TripEditor({ params }) {
                 setTripData({
                     name: trip.name || '',
                     description: trip.description || '',
-                    date: formattedDate
+                    date: formattedDate,
+                    region: trip.region || '',
+                    duration: trip.duration || ''
                 });
 
                 // Ensure segments have the correct structure
@@ -274,9 +291,15 @@ export default function TripEditor({ params }) {
             // Make sure we're sending the proper ID type
             const parsedTripId = isNewTrip ? null : parseInt(tripId, 10);
 
+            // Process duration to ensure it's a number
+            const processedTripData = {
+                ...tripData,
+                duration: tripData.duration ? parseInt(tripData.duration, 10) : null
+            };
+
             const body = isNewTrip
-                ? { trip: tripData, segments }
-                : { tripId: parsedTripId, trip: tripData, segments };
+                ? { trip: processedTripData, segments }
+                : { tripId: parsedTripId, trip: processedTripData, segments };
 
             console.log('Submitting data:', body);
 
@@ -426,6 +449,50 @@ export default function TripEditor({ params }) {
                                     onChange={handleTripDataChange}
                                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                            <div>
+                                <label className="block text-gray-700 font-medium mb-2" htmlFor="tripRegion">
+                                    Region
+                                </label>
+                                <select
+                                    id="tripRegion"
+                                    name="region"
+                                    value={tripData.region}
+                                    onChange={handleTripDataChange}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="">Select a Region</option>
+                                    {REGION_OPTIONS.map(option => (
+                                        <option key={option.value} value={option.value}>
+                                            {option.label}
+                                        </option>
+                                    ))}
+                                </select>
+                                <p className="text-gray-600 text-xs mt-1">
+                                    Select the primary region for this trip
+                                </p>
+                            </div>
+
+                            <div>
+                                <label className="block text-gray-700 font-medium mb-2" htmlFor="tripDuration">
+                                    Duration (days)
+                                </label>
+                                <input
+                                    type="number"
+                                    id="tripDuration"
+                                    name="duration"
+                                    value={tripData.duration}
+                                    onChange={handleTripDataChange}
+                                    min="1"
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Number of days"
+                                />
+                                <p className="text-gray-600 text-xs mt-1">
+                                    How many days does this trip last?
+                                </p>
                             </div>
                         </div>
 

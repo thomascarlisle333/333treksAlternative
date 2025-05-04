@@ -98,11 +98,12 @@ export default function TripPage() {
 
                 setTripData(sortedData);
 
-                // Extract available filter options, filtering out empty or invalid regions
-                const validRegions = ['Asia', 'Europe', 'North America', 'Africa', 'South America', 'Australia', 'Antarctica'];
-                const regions = [...new Set(sortedData.map(trip =>
-                    validRegions.includes(trip.region) ? trip.region : 'Other'
-                ))].sort();
+                // Extract all unique regions directly from the trip data
+                // This ensures we use exactly what's in the CSV without any filtering
+                const regions = [...new Set(sortedData
+                    .map(trip => trip.region ? trip.region.trim() : 'Unknown')
+                    .filter(region => region && region !== '')
+                )].sort();
 
                 setAvailableRegions(regions);
 
@@ -345,10 +346,6 @@ export default function TripPage() {
         router.push('/');
     };
 
-    const navigateToAdmin = () => {
-        router.push('/trip/admin');
-    };
-
     // Format the date to be more readable
     const formatDate = (dateString) => {
         if (!dateString) return '';
@@ -429,7 +426,7 @@ export default function TripPage() {
                             Return Home
                         </button>
                         <button
-                            onClick={navigateToAdmin}
+                            onClick={() => router.push('/trip/login')}
                             className="px-6 py-3 bg-white text-gray-900 border border-gray-300 rounded-lg font-medium transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
                         >
                             Admin Panel
