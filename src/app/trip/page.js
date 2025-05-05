@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
+import { Suspense } from 'react';
 import 'leaflet/dist/leaflet.css';
 
 // Dynamically import the TripMap component with no SSR
@@ -52,10 +53,22 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
     return R * c; // Distance in miles
 }
 
-export default function TripPage() {
-    const router = useRouter();
+// Component that uses the searchParams but doesn't directly render content
+function SearchParamsHelper({ onParamsChange }) {
     const searchParams = useSearchParams();
 
+    useEffect(() => {
+        const selectedId = searchParams.get('selected');
+        onParamsChange(selectedId ? parseInt(selectedId, 10) : null);
+    }, [searchParams, onParamsChange]);
+
+    return null;
+}
+
+// Main page component
+export default function TripPage() {
+    const router = useRouter();
+    const [selectedIdFromUrl, setSelectedIdFromUrl] = useState(null);
     const [tripData, setTripData] = useState([]);
     const [selectedTrip, setSelectedTrip] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -77,154 +90,9 @@ export default function TripPage() {
     const [availableRegions, setAvailableRegions] = useState([]);
     const [availableYears, setAvailableYears] = useState([]);
 
-    useEffect(() => {
-        const fetchTripData = async () => {
-            try {
-                setLoading(true);
-                const response = await fetch('/api/trip-routes');
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch trip data');
-                }
-
-                const data = await response.json();
-
-                // Sort the data by date descending (newest first) for initial load
-                const sortedData = [...data].sort((a, b) => {
-                    if (!a.date) return 1;
-                    if (!b.date) return -1;
-                    return b.date.localeCompare(a.date);
-                });
-
-                setTripData(sortedData);
-
-                // Extract all unique regions directly from the trip data
-                // This ensures we use exactly what's in the CSV without any filtering
-                const regions = [...new Set(sortedData
-                    .map(trip => trip.region ? trip.region.trim() : 'Unknown')
-                    .filter(region => region && region !== '')
-                )].sort();
-
-                setAvailableRegions(regions);
-
-                // Extract years properly, ensuring only valid years are included
-                const years = [...new Set(sortedData.map(trip => {
-                    if (!trip.date) return 'Unknown';
-                    const yearPart = trip.date.split('-')[0];
-                    // Only return if it's a valid 4-digit year
-                    return /^\d{4}$/.test(yearPart) ? yearPart : 'Unknown';
-                }))].filter(year => year !== 'Unknown');
-
-                setAvailableYears(years.sort((a, b) => b - a)); // Sort years descending
-
-                // Check URL params for selected trip
-                const selectedId = searchParams.get('selected');
-                if (selectedId) {
-                    const numericId = parseInt(selectedId, 10);
-                    const trip = sortedData.find(t => t.id === numericId);
-                    if (trip) {
-                        setSelectedTrip(trip);
-                        updateTripStats(trip);
-                        findRelatedTrips(trip, sortedData);
-                    } else if (sortedData.length > 0) {
-                        // If no trip found with ID, select the first one in the sorted list
-                        setSelectedTrip(sortedData[0]);
-                        updateTripStats(sortedData[0]);
-                        findRelatedTrips(sortedData[0], sortedData);
-                    }
-                } else if (sortedData.length > 0) {
-                    // Set the first trip as selected by default if data exists
-                    setSelectedTrip(sortedData[0]);
-                    updateTripStats(sortedData[0]);
-                    findRelatedTrips(sortedData[0], sortedData);
-                }
-
-                // Apply initial filters with the sorted data
-                applyFilters(sortedData, 'all', 'all', 'all', 'date-desc');
-
-                setLoading(false);
-            } catch (error) {
-                console.error('Error fetching trip data:', error);
-                setError(error.message);
-                setLoading(false);
-            }
-        };
-
-        fetchTripData();
-    }, [searchParams]);
-
-    // Calculate statistics for the selected trip
-    const updateTripStats = (trip) => {
-        if (!trip || !trip.segments || trip.segments.length === 0) {
-            setTripStats(null);
-            return;
-        }
-
-        // Count transport types
-        const transportCounts = {};
-        const distanceByTransport = {};
-        let totalDistance = 0;
-
-        // Get start and end points
-        const startPoint = trip.segments[0].from;
-        const endPoint = trip.segments[trip.segments.length - 1].to;
-
-        // Calculate statistics for each segment
-        trip.segments.forEach(segment => {
-            // Count transport types
-            transportCounts[segment.transport] = (transportCounts[segment.transport] || 0) + 1;
-
-            // Calculate distance for this segment
-            const distance = calculateDistance(
-                segment.from.lat,
-                segment.from.lng,
-                segment.to.lat,
-                segment.to.lng
-            );
-
-            // Add to distance by transport type
-            distanceByTransport[segment.transport] = (distanceByTransport[segment.transport] || 0) + distance;
-
-            // Add to total distance
-            totalDistance += distance;
-        });
-
-        setTripStats({
-            transportCounts,
-            distanceByTransport,
-            totalDistance: Math.round(totalDistance),
-            startPoint,
-            endPoint
-        });
-    };
-
-    // Find related trips based on region or timeframe
-    const findRelatedTrips = (currentTrip, allTrips) => {
-        if (!currentTrip || allTrips.length <= 1) {
-            setRelatedTrips([]);
-            return;
-        }
-
-        // Find trips in the same region or within 6 months
-        const related = allTrips.filter(trip => {
-            if (trip.id === currentTrip.id) return false;
-
-            // Same region
-            if (trip.region === currentTrip.region) return true;
-
-            // Within 6 months
-            if (trip.date && currentTrip.date) {
-                const tripDate = new Date(trip.date);
-                const currentDate = new Date(currentTrip.date);
-                const diff = Math.abs(tripDate - currentDate);
-                const diffMonths = diff / (1000 * 60 * 60 * 24 * 30);
-                return diffMonths <= 6;
-            }
-
-            return false;
-        }).slice(0, 3); // Limit to 3 related trips
-
-        setRelatedTrips(related);
+    // Handle URL search params changes
+    const handleParamsChange = (selectedId) => {
+        setSelectedIdFromUrl(selectedId);
     };
 
     // Apply filters to the trip data
@@ -306,6 +174,153 @@ export default function TripPage() {
                 findRelatedTrips(filtered[0], tripData);
             }
         }
+    };
+
+    // Load trip data
+    useEffect(() => {
+        const fetchTripData = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch('/api/trip-routes');
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch trip data');
+                }
+
+                const data = await response.json();
+
+                // Sort the data by date descending (newest first) for initial load
+                const sortedData = [...data].sort((a, b) => {
+                    if (!a.date) return 1;
+                    if (!b.date) return -1;
+                    return b.date.localeCompare(a.date);
+                });
+
+                setTripData(sortedData);
+
+                // Extract all unique regions directly from the trip data
+                const regions = [...new Set(sortedData
+                    .map(trip => trip.region ? trip.region.trim() : 'Unknown')
+                    .filter(region => region && region !== '')
+                )].sort();
+
+                setAvailableRegions(regions);
+
+                // Extract years properly, ensuring only valid years are included
+                const years = [...new Set(sortedData.map(trip => {
+                    if (!trip.date) return 'Unknown';
+                    const yearPart = trip.date.split('-')[0];
+                    // Only return if it's a valid 4-digit year
+                    return /^\d{4}$/.test(yearPart) ? yearPart : 'Unknown';
+                }))].filter(year => year !== 'Unknown');
+
+                setAvailableYears(years.sort((a, b) => b - a)); // Sort years descending
+
+                if (sortedData.length > 0) {
+                    // Set the first trip as selected by default if data exists
+                    setSelectedTrip(sortedData[0]);
+                    updateTripStats(sortedData[0]);
+                    findRelatedTrips(sortedData[0], sortedData);
+                }
+
+                // Apply initial filters with the sorted data
+                applyFilters(sortedData, 'all', 'all', 'all', 'date-desc');
+
+                setLoading(false);
+            } catch (error) {
+                console.error('Error fetching trip data:', error);
+                setError(error.message);
+                setLoading(false);
+            }
+        };
+
+        fetchTripData();
+    }, []);
+
+    // Handle URL selected trip ID changes
+    useEffect(() => {
+        if (selectedIdFromUrl && tripData.length > 0) {
+            const trip = tripData.find(t => t.id === selectedIdFromUrl);
+            if (trip) {
+                setSelectedTrip(trip);
+                updateTripStats(trip);
+                findRelatedTrips(trip, tripData);
+            }
+        }
+    }, [selectedIdFromUrl, tripData]);
+
+    // Calculate statistics for the selected trip
+    const updateTripStats = (trip) => {
+        if (!trip || !trip.segments || trip.segments.length === 0) {
+            setTripStats(null);
+            return;
+        }
+
+        // Count transport types
+        const transportCounts = {};
+        const distanceByTransport = {};
+        let totalDistance = 0;
+
+        // Get start and end points
+        const startPoint = trip.segments[0].from;
+        const endPoint = trip.segments[trip.segments.length - 1].to;
+
+        // Calculate statistics for each segment
+        trip.segments.forEach(segment => {
+            // Count transport types
+            transportCounts[segment.transport] = (transportCounts[segment.transport] || 0) + 1;
+
+            // Calculate distance for this segment
+            const distance = calculateDistance(
+                segment.from.lat,
+                segment.from.lng,
+                segment.to.lat,
+                segment.to.lng
+            );
+
+            // Add to distance by transport type
+            distanceByTransport[segment.transport] = (distanceByTransport[segment.transport] || 0) + distance;
+
+            // Add to total distance
+            totalDistance += distance;
+        });
+
+        setTripStats({
+            transportCounts,
+            distanceByTransport,
+            totalDistance: Math.round(totalDistance),
+            startPoint,
+            endPoint
+        });
+    };
+
+    // Find related trips based on region or timeframe
+    const findRelatedTrips = (currentTrip, allTrips) => {
+        if (!currentTrip || allTrips.length <= 1) {
+            setRelatedTrips([]);
+            return;
+        }
+
+        // Find trips in the same region or within 6 months
+        const related = allTrips.filter(trip => {
+            if (trip.id === currentTrip.id) return false;
+
+            // Same region
+            if (trip.region === currentTrip.region) return true;
+
+            // Within 6 months
+            if (trip.date && currentTrip.date) {
+                const tripDate = new Date(trip.date);
+                const currentDate = new Date(currentTrip.date);
+                const diff = Math.abs(tripDate - currentDate);
+                const diffMonths = diff / (1000 * 60 * 60 * 24 * 30);
+                return diffMonths <= 6;
+            }
+
+            return false;
+        }).slice(0, 3); // Limit to 3 related trips
+
+        setRelatedTrips(related);
     };
 
     // Handle filter changes
@@ -415,6 +430,11 @@ export default function TripPage() {
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+            {/* Wrap ONLY the component that uses useSearchParams in Suspense */}
+            <Suspense fallback={null}>
+                <SearchParamsHelper onParamsChange={handleParamsChange} />
+            </Suspense>
+
             <div className="container mx-auto px-4 py-8">
                 <div className="flex flex-col md:flex-row justify-between items-center mb-8">
                     <h1 className="text-3xl md:text-4xl font-bold">My Travel Journeys</h1>
@@ -496,7 +516,7 @@ export default function TripPage() {
                                 <option value="all">All Durations</option>
                                 <option value="short">Short (≤ 7 days)</option>
                                 <option value="medium">Medium (8-14 days)</option>
-                                <option value="long">Long ({'\u003E'} 14 days)</option>
+                                <option value="long">Long (&gt; 14 days)</option>
                             </select>
                         </div>
 
