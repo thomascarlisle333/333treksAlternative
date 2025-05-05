@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
-import { parse } from 'papaparse';
+import { parse, unparse } from 'papaparse';
 
 // Define the paths to your CSV files
 const TRIPS_CSV_PATH = path.join(process.cwd(), 'data', 'trips.csv');
@@ -98,7 +98,7 @@ async function getTripData() {
             if (formattedDate) {
                 try {
                     // Clean up the date string by removing any trailing commas or spaces
-                    formattedDate = formattedDate.trim().replace(/,$/, '');
+                    formattedDate = formattedDate.toString().trim().replace(/,$/, '');
 
                     // Extract year and month if it looks like a date format with digits
                     const dateMatch = formattedDate.match(/(\d{4})[-\/]?(\d{1,2})[-\/]?(\d{1,2})?/);
@@ -128,8 +128,8 @@ async function getTripData() {
             // Use region directly from CSV if available, otherwise determine it
             // This ensures we always prioritize the manually set region in the CSV
             let region = null;
-            if (trip.region && trip.region.trim() !== '') {
-                region = trip.region.trim();
+            if (trip.region && trip.region.toString().trim() !== '') {
+                region = trip.region.toString().trim();
             } else {
                 region = determineRegion(tripSegments, trip.name, trip.description);
             }
@@ -316,7 +316,7 @@ export async function POST(request) {
     } catch (error) {
         console.error('Error adding new trip:', error);
         return NextResponse.json(
-            { error: 'Failed to add new trip' },
+            { error: 'Failed to add new trip', details: error.message },
             { status: 500 }
         );
     }
@@ -431,7 +431,7 @@ export async function PUT(request) {
     } catch (error) {
         console.error('Error updating trip:', error);
         return NextResponse.json(
-            { error: 'Failed to update trip' },
+            { error: 'Failed to update trip', details: error.message },
             { status: 500 }
         );
     }
@@ -495,7 +495,7 @@ export async function DELETE(request) {
     } catch (error) {
         console.error('Error deleting trip:', error);
         return NextResponse.json(
-            { error: 'Failed to delete trip' },
+            { error: 'Failed to delete trip', details: error.message },
             { status: 500 }
         );
     }
