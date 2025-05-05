@@ -9,6 +9,11 @@ function decodeURIComponentSafe(str) {
     }
 }
 
+// Function to format display names (replace underscores with spaces)
+function formatDisplayName(name) {
+    return name.replace(/_/g, ' ');
+}
+
 // Azure Storage account connection string - store this in your environment variables
 const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
 const containerName = 'photos';
@@ -108,6 +113,8 @@ export async function POST(request) {
             return Response.json({
                 country: decodedCountry,
                 city: decodedCity,
+                displayCountry: formatDisplayName(decodedCountry),
+                displayCity: formatDisplayName(decodedCity),
                 images: CACHE.cities[cacheKey].images
             });
         }
@@ -126,10 +133,12 @@ export async function POST(request) {
             expiryTime: now + CACHE.CACHE_TTL
         };
 
-        // Send back properly decoded city and country names
+        // Send back properly decoded city and country names along with display formatted names
         return Response.json({
             country: decodedCountry,
             city: decodedCity,
+            displayCountry: formatDisplayName(decodedCountry),
+            displayCity: formatDisplayName(decodedCity),
             images
         });
     } catch (error) {
@@ -227,6 +236,7 @@ async function fetchCountriesData() {
 
                                 return {
                                     name: city,
+                                    displayName: formatDisplayName(city), // Add formatted display name
                                     path: firstCityImage.url, // Full URL for city preview image
                                     thumbnailPath: firstCityImage.url.replace(`${basePath}/`, `${thumbnailPrefix}/`), // Thumbnail URL
                                     fullPath: `${basePath}/${country}/${city}` // Path for city folder
@@ -249,6 +259,7 @@ async function fetchCountriesData() {
 
                     return {
                         name: country,
+                        displayName: formatDisplayName(country), // Add formatted display name
                         path: countryPreviewPath, // Use the first city's first image for country preview
                         thumbnailPath: countryPreviewThumbnail, // Thumbnail version
                         cities: validCities

@@ -5,6 +5,11 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+// Function to format display names (replace underscores with spaces)
+function formatDisplayName(name) {
+  return name.replace(/_/g, ' ');
+}
+
 // Add a skeleton loader component for better UX during loading
 const SkeletonLoader = () => (
     <div className="relative w-full pb-[66.67%] rounded-lg overflow-hidden shadow-lg bg-gray-200 animate-pulse">
@@ -17,6 +22,8 @@ export default function GalleryPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedCountry, setSelectedCountry] = useState(null);
+  // Track the display name of the selected country (for UI) separately from the folder name
+  const [selectedCountryDisplay, setSelectedCountryDisplay] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -47,6 +54,8 @@ export default function GalleryPage() {
         const storedCountry = sessionStorage.getItem('selectedCountry');
         if (storedCountry) {
           setSelectedCountry(storedCountry);
+          // Set display country name with underscores replaced by spaces
+          setSelectedCountryDisplay(formatDisplayName(storedCountry));
           // Clear the stored value after using it
           sessionStorage.removeItem('selectedCountry');
         }
@@ -66,8 +75,11 @@ export default function GalleryPage() {
     if (selectedCountry === country.name) {
       // If the same country is clicked again, reset selection
       setSelectedCountry(null);
+      setSelectedCountryDisplay(null);
     } else {
       setSelectedCountry(country.name);
+      // Use the provided displayName from the API if available, otherwise format it
+      setSelectedCountryDisplay(country.displayName || formatDisplayName(country.name));
     }
   };
 
@@ -131,7 +143,10 @@ export default function GalleryPage() {
                 </Link>
             ) : (
                 <button
-                    onClick={() => setSelectedCountry(null)}
+                    onClick={() => {
+                      setSelectedCountry(null);
+                      setSelectedCountryDisplay(null);
+                    }}
                     className="px-4 py-2 bg-gray-900 hover:bg-gray-600 rounded-lg transition-colors text-white"
                 >
                   ← Back to Countries
@@ -140,7 +155,7 @@ export default function GalleryPage() {
           </div>
 
           <h1 className="text-3xl font-bold mb-8 text-center pt-12 text-gray-800">
-            {!selectedCountry ? 'My Travel Photography' : selectedCountry}
+            {!selectedCountry ? 'My Travel Photography' : selectedCountryDisplay}
           </h1>
 
           {/* Display countries grid */}
@@ -155,7 +170,7 @@ export default function GalleryPage() {
                       <div className="relative w-full pb-[66.67%] rounded-lg overflow-hidden shadow-lg">
                         <Image
                             src={country.path}
-                            alt={`${country.name} photography`}
+                            alt={`${country.displayName || formatDisplayName(country.name)} photography`}
                             fill
                             style={{ objectFit: 'cover' }}
                             sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -163,7 +178,7 @@ export default function GalleryPage() {
                             blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAALCAAIAAoBAREA/8QAFQABAQAAAAAAAAAAAAAAAAAAAAn/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oACAEBAAA/AL+A/9k="
                         />
                         <div className="absolute bottom-0 left-0 right-0 bg-gray-900 bg-opacity-50 text-white p-3">
-                          <h2 className="text-xl font-semibold">{country.name}</h2>
+                          <h2 className="text-xl font-semibold">{country.displayName || formatDisplayName(country.name)}</h2>
                         </div>
                       </div>
                     </div>
@@ -185,7 +200,7 @@ export default function GalleryPage() {
                           <div className="relative w-full pb-[66.67%] rounded-lg overflow-hidden shadow-lg">
                             <Image
                                 src={city.path}
-                                alt={`${city.name} photography`}
+                                alt={`${city.displayName || formatDisplayName(city.name)} photography`}
                                 fill
                                 style={{ objectFit: 'cover' }}
                                 sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -193,7 +208,7 @@ export default function GalleryPage() {
                                 blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQH/wAALCAAIAAoBAREA/8QAFQABAQAAAAAAAAAAAAAAAAAAAAn/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/9oACAEBAAA/AL+A/9k="
                             />
                             <div className="absolute bottom-0 left-0 right-0 bg-gray-900 bg-opacity-50 text-white p-3">
-                              <h3 className="text-lg font-semibold">{city.name}</h3>
+                              <h3 className="text-lg font-semibold">{city.displayName || formatDisplayName(city.name)}</h3>
                             </div>
                           </div>
                         </div>

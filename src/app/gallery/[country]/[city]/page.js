@@ -13,6 +13,11 @@ function decodeURIComponentSafe(str) {
   }
 }
 
+// Function to format display names (replace underscores with spaces)
+function formatDisplayName(name) {
+  return name.replace(/_/g, ' ');
+}
+
 // Add skeleton loader for better UX
 const ImageSkeleton = () => (
     <div className="relative w-full pb-[66.67%] rounded-lg overflow-hidden shadow-lg bg-gray-200 animate-pulse"></div>
@@ -24,6 +29,10 @@ export default function CityGalleryPage() {
   const rawCity = params.city;
   const country = decodeURIComponentSafe(rawCountry);
   const city = decodeURIComponentSafe(rawCity);
+
+  // Format display names (replace underscores with spaces)
+  const displayCountry = formatDisplayName(country);
+  const displayCity = formatDisplayName(city);
 
   const router = useRouter();
 
@@ -161,8 +170,8 @@ export default function CityGalleryPage() {
               </button>
             </div>
 
-            <h1 className="text-3xl font-bold mb-2 text-center pt-12 text-gray-800">{city}</h1>
-            <h2 className="text-xl mb-8 text-center text-gray-600">{country}</h2>
+            <h1 className="text-3xl font-bold mb-2 text-center pt-12 text-gray-800">{displayCity}</h1>
+            <h2 className="text-xl mb-8 text-center text-gray-600">{displayCountry}</h2>
 
             {/* Skeleton loader grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -233,7 +242,7 @@ export default function CityGalleryPage() {
               >
                 <Image
                     src={selectedImage.originalUrl}
-                    alt={`${city} - ${selectedImage.name}`}
+                    alt={`${displayCity} - ${selectedImage.name}`}
                     fill
                     style={{ objectFit: 'contain' }}
                     sizes="100vw"
@@ -259,8 +268,8 @@ export default function CityGalleryPage() {
             </button>
           </div>
 
-          <h1 className="text-3xl font-bold mb-2 text-center pt-12 text-gray-800">{city}</h1>
-          <h2 className="text-xl mb-8 text-center text-gray-600">{country}</h2>
+          <h1 className="text-3xl font-bold mb-2 text-center pt-12 text-gray-800">{displayCity}</h1>
+          <h2 className="text-xl mb-8 text-center text-gray-600">{displayCountry}</h2>
 
           {/* Image grid with thumbnails */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -274,7 +283,7 @@ export default function CityGalleryPage() {
                   <div className="relative w-full pb-[66.67%] rounded-lg overflow-hidden shadow-lg group">
                     <Image
                         src={image.url} // Using thumbnail URL
-                        alt={`${city} - ${image.name}`}
+                        alt={`${displayCity} - ${image.name}`}
                         fill
                         style={{ objectFit: 'cover' }}
                         sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"

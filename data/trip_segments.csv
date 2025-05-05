@@ -47,8 +47,8 @@ id,trip_id,from_name,from_lat,from_lng,to_name,to_lat,to_lng,transport_type,desc
 53,5,Paris Charles de Gaulle Airport France,49.0079,2.5508,Louvre Museum France,48.8606,2.3376,train,1 hr train ride to the center of Paris
 54,5,Louvre Museum France,48.8606,2.3376,Eiffel Tower France,48.8584,2.2945,walking,Meandering down the Seine
 55,5,Eiffel Tower France,48.8584,2.2945,Arc de Triomphe France,48.8738,2.295,walking,Stroll down Champs-Élysées
-56,5,Arc de Triomphe France,48.8738,2.295,Notre-Dame Cathedral Germany,48.853,2.3499,walking,Hike back to Notre-Dame
-57,5,Notre-Dame Cathedral Germany,48.853,2.3499,Paris Charles de Gaulle Airport France,49.0079,2.5508,train,Train ride back to the airport
+56,5,Arc de Triomphe France,48.8738,2.295,Notre-Dame Cathedral France,48.853,2.3499,walking,Hike back to Notre-Dame
+57,5,Notre-Dame Cathedral France,48.853,2.3499,Paris Charles de Gaulle Airport France,49.0079,2.5508,train,Train ride back to the airport
 58,5,Paris Charles de Gaulle Airport France,49.0079,2.5508,Hamburg Germany,53.6319,9.9958,plane,Short flight to Deutschland
 59,5,Hamburg Germany,53.6319,9.9958,Cloppenburg Germany,52.8453,8.0473,car,Speeding down the Autobahn
 60,5,Cloppenburg Germany,52.8453,8.0473,Garrel Germany,52.9531,8.0256,car,Drive to work
