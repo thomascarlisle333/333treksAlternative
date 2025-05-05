@@ -10,34 +10,6 @@ const CACHE_KEY = 'photo_locations_cache';
 const CACHE_TIMESTAMP_KEY = 'photo_locations_timestamp';
 const CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
 
-// Fallback data in case API fails
-const FALLBACK_DATA = [
-    {
-        country: "USA",
-        city: "New York",
-        latitude: 40.7128,
-        longitude: -74.0060,
-        photoCount: 5,
-        isDefaultLocation: false
-    },
-    {
-        country: "France",
-        city: "Paris",
-        latitude: 48.8566,
-        longitude: 2.3522,
-        photoCount: 10,
-        isDefaultLocation: false
-    },
-    {
-        country: "Japan",
-        city: "Tokyo",
-        latitude: 35.6762,
-        longitude: 139.6503,
-        photoCount: 7,
-        isDefaultLocation: false
-    }
-];
-
 // Dynamically import Leaflet components with no SSR
 const MapWithNoSSR = dynamic(
     () => import('./components/MapComponent'),
@@ -53,7 +25,6 @@ export default function MapPage() {
     const [photoLocations, setPhotoLocations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [debugMode, setDebugMode] = useState(false);
     const router = useRouter();
 
     const navigateToGallery = () => {
@@ -64,27 +35,12 @@ export default function MapPage() {
         router.push('/');
     };
 
-    const clearCache = () => {
-        if (typeof window !== 'undefined') {
-            localStorage.removeItem(CACHE_KEY);
-            localStorage.removeItem(CACHE_TIMESTAMP_KEY);
-            console.log('Cache cleared');
-            window.location.reload();
-        }
-    };
-
-    const toggleDebug = () => {
-        setDebugMode(prev => !prev);
-    };
-
     useEffect(() => {
         async function loadPhotoData() {
-            console.log("Starting to load photo data");
             try {
                 // Try to load from localStorage first
                 if (typeof window !== 'undefined') {
                     try {
-                        console.log("Checking localStorage cache");
                         const cachedData = localStorage.getItem(CACHE_KEY);
                         const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
 
@@ -95,38 +51,11 @@ export default function MapPage() {
 
                             if (!isNaN(timestamp) && (now - timestamp) < CACHE_DURATION) {
                                 console.log('Loading map data from localStorage cache');
-                                try {
-                                    const parsedData = JSON.parse(cachedData);
-
-                                    // Validate parsed data
-                                    if (Array.isArray(parsedData) && parsedData.length > 0) {
-                                        console.log(`Cache has ${parsedData.length} locations`);
-                                        const firstItem = parsedData[0];
-
-                                        // Check if data has expected structure
-                                        if (firstItem &&
-                                            typeof firstItem.latitude === 'number' &&
-                                            typeof firstItem.longitude === 'number' &&
-                                            firstItem.country &&
-                                            firstItem.city) {
-
-                                            setPhotoLocations(parsedData);
-                                            setLoading(false);
-                                            return;
-                                        } else {
-                                            console.warn("Cache data missing required properties, fetching fresh data");
-                                        }
-                                    } else {
-                                        console.warn("Cache contains empty or invalid array, fetching fresh data");
-                                    }
-                                } catch (parseError) {
-                                    console.error("Error parsing cached data:", parseError);
-                                }
-                            } else {
-                                console.log("Cache expired, fetching fresh data");
+                                const parsedData = JSON.parse(cachedData);
+                                setPhotoLocations(parsedData);
+                                setLoading(false);
+                                return;
                             }
-                        } else {
-                            console.log("No valid cache found");
                         }
                     } catch (cacheError) {
                         console.error('Error reading from cache:', cacheError);
@@ -136,57 +65,31 @@ export default function MapPage() {
 
                 // If no valid cache exists, fetch from API
                 console.log('Fetching map data from API');
-                const response = await fetch('/api/photo-locations');
+                const response = await fetch('/api/photo-locations', {
+                    headers: {
+                        'Cache-Control': 'public, max-age=604800, stale-while-revalidate=86400'
+                    }
+                });
 
                 if (!response.ok) {
-                    throw new Error(`Failed to fetch photo locations: ${response.status} ${response.statusText}`);
+                    throw new Error('Failed to fetch photo locations');
                 }
 
                 const data = await response.json();
-                console.log(`API returned ${data?.length || 0} locations`);
+                setPhotoLocations(data);
 
-                // Validate data
-                if (!Array.isArray(data)) {
-                    console.error("API returned non-array data:", data);
-                    throw new Error("API returned invalid data format");
-                }
-
-                if (data.length === 0) {
-                    console.warn("API returned empty array, using fallback data");
-                    setPhotoLocations(FALLBACK_DATA);
-                } else {
-                    // Validate first item to ensure data structure is correct
-                    const firstItem = data[0];
-                    if (!firstItem ||
-                        typeof firstItem.latitude !== 'number' ||
-                        typeof firstItem.longitude !== 'number' ||
-                        !firstItem.country ||
-                        !firstItem.city) {
-
-                        console.error("API returned data with missing required properties:", firstItem);
-                        throw new Error("API returned data with invalid structure");
-                    }
-
-                    setPhotoLocations(data);
-
-                    // Save to localStorage for future visits
-                    if (typeof window !== 'undefined') {
-                        try {
-                            localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-                            localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
-                            console.log(`Saved ${data.length} locations to localStorage cache`);
-                        } catch (storageError) {
-                            console.error('Error saving to localStorage:', storageError);
-                        }
+                // Save to localStorage for future visits
+                if (typeof window !== 'undefined') {
+                    try {
+                        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                        localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
+                    } catch (storageError) {
+                        console.error('Error saving to localStorage:', storageError);
                     }
                 }
             } catch (err) {
                 console.error('Error loading photo locations:', err);
                 setError(err.message);
-
-                // Use fallback data if API fails
-                console.log("Using fallback data due to error");
-                setPhotoLocations(FALLBACK_DATA);
             } finally {
                 setLoading(false);
             }
@@ -199,6 +102,14 @@ export default function MapPage() {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="text-xl">Loading map data...</div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-xl text-red-600">Error: {error}</div>
             </div>
         );
     }
@@ -231,65 +142,11 @@ export default function MapPage() {
                     and access photos from that destination. This interactive map lets you explore my photographic journey around the world.
                 </p>
 
-                {error && (
-                    <div className="mb-8 p-4 bg-red-100 text-red-800 rounded-lg">
-                        <h2 className="font-bold text-lg mb-2">Error Loading Map Data</h2>
-                        <p>{error}</p>
-                        <div className="mt-4 flex space-x-4">
-                            <button
-                                onClick={clearCache}
-                                className="px-4 py-2 bg-red-700 text-white rounded"
-                            >
-                                Clear Cache and Reload
-                            </button>
-                            <button
-                                onClick={toggleDebug}
-                                className="px-4 py-2 bg-gray-700 text-white rounded"
-                            >
-                                {debugMode ? "Hide Debug Info" : "Show Debug Info"}
-                            </button>
-                        </div>
-                    </div>
-                )}
-
                 {/* Map component dynamically loaded with no SSR */}
                 <MapWithNoSSR locations={photoLocations} />
 
-                {/* Debug Info */}
-                {debugMode && (
-                    <div className="mb-8 p-4 bg-gray-100 rounded-lg overflow-auto">
-                        <h2 className="font-bold text-lg mb-2">Debug Info</h2>
-                        <div className="mb-4">
-                            <h3 className="font-bold">Photo Locations:</h3>
-                            <p>Count: {photoLocations.length}</p>
-                            {photoLocations.length > 0 && (
-                                <div>
-                                    <p>First location:</p>
-                                    <pre className="bg-gray-200 p-2 rounded overflow-auto">
-                                        {JSON.stringify(photoLocations[0], null, 2)}
-                                    </pre>
-                                </div>
-                            )}
-                        </div>
-                        <div className="mb-4">
-                            <button
-                                onClick={clearCache}
-                                className="px-4 py-2 bg-red-700 text-white rounded mr-2"
-                            >
-                                Clear Cache and Reload
-                            </button>
-                            <button
-                                onClick={toggleDebug}
-                                className="px-4 py-2 bg-gray-700 text-white rounded"
-                            >
-                                Hide Debug Info
-                            </button>
-                        </div>
-                    </div>
-                )}
-
                 <div className="mb-16">
-                    <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center text-gray-800">All Destinations ({photoLocations.length})</h2>
+                    <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center text-gray-800">All Destinations</h2>
                     <div className="w-24 h-1 bg-gray-800 mx-auto mb-8"></div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -304,23 +161,11 @@ export default function MapPage() {
                                 <p className="text-gray-600">{location.photoCount} photos</p>
                                 <p className="text-sm text-gray-500 mt-2">
                                     {location.latitude.toFixed(4)}, {location.longitude.toFixed(4)}
-                                    {location.isDefaultLocation && <span className="ml-2 text-yellow-600">(Default)</span>}
                                 </p>
                             </Link>
                         ))}
                     </div>
                 </div>
-
-                {!debugMode && (
-                    <div className="mb-4 flex justify-center">
-                        <button
-                            onClick={toggleDebug}
-                            className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
-                        >
-                            Show Debug Info
-                        </button>
-                    </div>
-                )}
 
                 {/* Footer */}
                 <footer className="py-8 px-4 bg-gray-800 text-white rounded-t-lg mt-12">
