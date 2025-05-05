@@ -1,21 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import 'leaflet/dist/leaflet.css';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import L from 'leaflet';
+import dynamic from 'next/dynamic';
 
-// Custom icon for the markers
-const customIcon = new L.Icon({
-    iconUrl: '/marker-icon.png',
-    iconSize: [25, 41],
-    iconAnchor: [12, 41],
-    popupAnchor: [1, -34],
-});
+// Dynamically import Leaflet components with no SSR
+const MapWithNoSSR = dynamic(
+    () => import('./components/MapComponent'),
+    {
+        ssr: false,
+        loading: () => <div className="h-96 w-full rounded-lg overflow-hidden shadow-lg flex items-center justify-center bg-gray-100">
+            <p className="text-xl">Loading map...</p>
+        </div>
+    }
+);
 
-// Define the structure for our photo data
 export default function MapPage() {
     const [photoLocations, setPhotoLocations] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -31,14 +31,6 @@ export default function MapPage() {
     };
 
     useEffect(() => {
-        // Fix for the missing Leaflet icon issue in Next.js
-        delete L.Icon.Default.prototype._getIconUrl;
-        L.Icon.Default.mergeOptions({
-            iconRetinaUrl: '/marker-icon-2x.png',
-            iconUrl: '/marker-icon.png',
-            shadowUrl: '/marker-shadow.png',
-        });
-
         async function loadPhotoData() {
             try {
                 // Fetch the photo data from our API endpoint
@@ -99,46 +91,12 @@ export default function MapPage() {
                 <div className="w-24 h-1 bg-gray-800 mb-8 hidden md:block"></div>
 
                 <p className="text-lg leading-relaxed mb-8 max-w-3xl">
-                    Each pin represents a location I've captured through my lens. Click on any marker to see details
+                    Each pin represents a location I&apos;ve captured through my lens. Click on any marker to see details
                     and access photos from that destination. This interactive map lets you explore my photographic journey around the world.
                 </p>
 
-                {/* Map is wrapped in a div with a specific height */}
-                <div className="h-96 w-full rounded-lg overflow-hidden shadow-lg mb-8">
-                    {typeof window !== 'undefined' && (
-                        <MapContainer
-                            center={[20, 0]} // Default center of the map (adjust as needed)
-                            zoom={2} // Default zoom level
-                            style={{ height: '100%', width: '100%' }}
-                        >
-                            <TileLayer
-                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                            />
-
-                            {photoLocations.map((location, index) => (
-                                <Marker
-                                    key={index}
-                                    position={[location.latitude, location.longitude]}
-                                    icon={customIcon}
-                                >
-                                    <Popup>
-                                        <div className="text-center">
-                                            <h3 className="font-bold">{location.city}, {location.country}</h3>
-                                            <p className="my-2">{location.photoCount} photos</p>
-                                            <Link
-                                                href={`/gallery/${encodeURIComponent(location.country)}/${encodeURIComponent(location.city)}`}
-                                                className="inline-block px-4 py-2 bg-gray-800 text-white rounded hover:bg-gray-700 transform transition-all duration-300 hover:scale-105"
-                                            >
-                                                View Photos
-                                            </Link>
-                                        </div>
-                                    </Popup>
-                                </Marker>
-                            ))}
-                        </MapContainer>
-                    )}
-                </div>
+                {/* Map component dynamically loaded with no SSR */}
+                <MapWithNoSSR locations={photoLocations} />
 
                 <div className="mb-16">
                     <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center">All Destinations</h2>
