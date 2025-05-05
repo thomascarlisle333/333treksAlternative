@@ -127,23 +127,23 @@ export default function HomePage() {
         <section className="py-20 px-4">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl font-bold mb-6">My Photographic Journey</h2>
+              <h2 className="text-3xl md:text-4xl font-bold mb-6 text-grey-900">My Photographic Journey</h2>
               <div className="w-24 h-1 bg-gray-800 mx-auto mb-8"></div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div>
-                <p className="text-lg leading-relaxed mb-6">
+                <p className="text-lg leading-relaxed mb-6 text-grey-900">
                   Photography allows me to freeze moments in time, preserving the beauty
                   and emotion of places I've been fortunate enough to visit. From bustling
                   city streets to remote wilderness, each location has its own story to tell.
                 </p>
-                <p className="text-lg leading-relaxed mb-6">
+                <p className="text-lg leading-relaxed mb-6 text-grey-900">
                   My camera has taken me across continents, through diverse cultures, and into
                   the lives of extraordinary people. This gallery is a collection of those experiences,
                   organized by the countries and cities that have left their mark on me.
                 </p>
-                <p className="text-lg leading-relaxed">
+                <p className="text-lg leading-relaxed text-grey-900">
                   I hope these images inspire you to see the world through a different lens and
                   perhaps embark on your own journey of discovery.
                 </p>
