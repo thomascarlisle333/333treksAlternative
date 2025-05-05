@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import 'leaflet/dist/leaflet.css';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
@@ -8,7 +8,9 @@ import L from 'leaflet';
 
 // This component is only rendered on the client side
 export default function MapComponent({ locations }) {
-    // Custom icon for the markers
+    const [isMapReady, setIsMapReady] = useState(false);
+
+    // Fix Leaflet icon issues on client-side only
     useEffect(() => {
         // Fix Leaflet icon issues
         delete L.Icon.Default.prototype._getIconUrl;
@@ -17,6 +19,8 @@ export default function MapComponent({ locations }) {
             iconUrl: '/marker-icon.png',
             shadowUrl: '/marker-shadow.png',
         });
+
+        setIsMapReady(true);
     }, []);
 
     const customIcon = new L.Icon({
@@ -26,11 +30,62 @@ export default function MapComponent({ locations }) {
         popupAnchor: [1, -34],
     });
 
+    // Group locations by country for better UX with many markers
+    const groupedLocations = locations.reduce((groups, location) => {
+        if (!groups[location.country]) {
+            groups[location.country] = [];
+        }
+        groups[location.country].push(location);
+        return groups;
+    }, {});
+
+    // Calculate center of the map based on all locations
+    const calculateMapCenter = () => {
+        if (!locations || locations.length === 0) {
+            return [20, 0]; // Default center
+        }
+
+        // Filter out default locations (they might skew the center)
+        const validLocations = locations.filter(loc => !loc.isDefaultLocation);
+
+        if (validLocations.length === 0) {
+            return [20, 0]; // Default center if no valid locations
+        }
+
+        // Calculate average lat/long for real GPS locations
+        const totalLat = validLocations.reduce((sum, loc) => sum + loc.latitude, 0);
+        const totalLng = validLocations.reduce((sum, loc) => sum + loc.longitude, 0);
+
+        return [totalLat / validLocations.length, totalLng / validLocations.length];
+    };
+
+    // Determine appropriate zoom level
+    const calculateZoom = () => {
+        if (!locations || locations.length === 0) return 2;
+
+        // More precise zoom calculation could be implemented here
+        // For now, simple heuristic based on number of countries
+        const countryCount = Object.keys(groupedLocations).length;
+
+        if (countryCount === 1) return 5; // Single country - zoom closer
+        if (countryCount <= 3) return 4; // Few countries
+        if (countryCount <= 6) return 3; // Several countries
+        return 2; // Many countries
+    };
+
+    if (!isMapReady) {
+        return (
+            <div className="h-96 w-full rounded-lg overflow-hidden shadow-lg mb-8 flex items-center justify-center bg-gray-100">
+                <p className="text-xl">Initializing map...</p>
+            </div>
+        );
+    }
+
     return (
         <div className="h-96 w-full rounded-lg overflow-hidden shadow-lg mb-8">
             <MapContainer
-                center={[20, 0]} // Default center of the map (adjust as needed)
-                zoom={2} // Default zoom level
+                center={calculateMapCenter()}
+                zoom={calculateZoom()}
                 style={{ height: '100%', width: '100%' }}
             >
                 <TileLayer
@@ -40,7 +95,7 @@ export default function MapComponent({ locations }) {
 
                 {locations.map((location, index) => (
                     <Marker
-                        key={index}
+                        key={`${location.country}-${location.city}`}
                         position={[location.latitude, location.longitude]}
                         icon={customIcon}
                     >

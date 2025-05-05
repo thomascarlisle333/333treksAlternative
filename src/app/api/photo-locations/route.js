@@ -10,9 +10,22 @@ const storageAccountName = '333treksphotos';
 const containerName = 'photos';
 const basePath = 'Final';
 
+// File paths for location data cache
+const CACHE_DIR_PATH = path.join(process.cwd(), 'data');
+const LOCATIONS_CACHE_PATH = path.join(CACHE_DIR_PATH, 'photo-locations.json');
+const LAST_UPDATED_PATH = path.join(CACHE_DIR_PATH, 'locations-last-updated.txt');
+
+// Cache expiration time (in milliseconds) - set to 7 days
+const CACHE_EXPIRATION = 30 * 24 * 60 * 60 * 1000;
+
 // Create a BlobServiceClient
-const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
-const containerClient = blobServiceClient.getContainerClient(containerName);
+let blobServiceClient, containerClient;
+try {
+    blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+    containerClient = blobServiceClient.getContainerClient(containerName);
+} catch (error) {
+    console.error('Error initializing Azure Blob Storage client:', error);
+}
 
 // Helper function to convert GPS coordinates to decimal format
 function convertDMSToDD(degrees, minutes, seconds, direction) {
@@ -107,48 +120,64 @@ function getDefaultCoordinatesForCountry(country) {
     return countryMap[country] || { latitude: 0, longitude: 0 };
 }
 
-// Cache for storing previously extracted coordinates
-// This helps avoid re-processing the same photos on every API call
-const coordinatesCache = new Map();
-const CACHE_FILE_PATH = path.join(process.cwd(), 'data', 'coordinates-cache.json');
-
-// Load cache from file if it exists
-async function loadCoordinatesCache() {
+// Function to check if the cache is valid (exists and not expired)
+async function isCacheValid() {
     try {
-        const cacheData = await fs.readFile(CACHE_FILE_PATH, 'utf8');
-        const parsedCache = JSON.parse(cacheData);
+        // Check if cache files exist
+        await fs.access(LOCATIONS_CACHE_PATH);
+        await fs.access(LAST_UPDATED_PATH);
 
-        // Convert the object back to a Map
-        Object.entries(parsedCache).forEach(([key, value]) => {
-            coordinatesCache.set(key, value);
-        });
+        // Check if cache is expired
+        const lastUpdatedStr = await fs.readFile(LAST_UPDATED_PATH, 'utf8');
+        const lastUpdated = parseInt(lastUpdatedStr.trim(), 10);
+        const now = Date.now();
 
-        console.log(`Loaded ${coordinatesCache.size} cached locations`);
+        return !isNaN(lastUpdated) && (now - lastUpdated) < CACHE_EXPIRATION;
     } catch (error) {
-        // If file doesn't exist or can't be read, just start with an empty cache
-        console.log('No coordinates cache found, starting fresh');
+        // If any errors occur (like files don't exist), cache is invalid
+        return false;
     }
 }
 
-// Save cache to file
-async function saveCoordinatesCache() {
+// Function to read locations from cache file
+async function getLocationsFromCache() {
+    try {
+        const data = await fs.readFile(LOCATIONS_CACHE_PATH, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Error reading locations from cache:', error);
+        return null;
+    }
+}
+
+// Function to write locations to cache file
+async function saveLocationsToCache(locations) {
     try {
         // Create directory if it doesn't exist
-        await fs.mkdir(path.dirname(CACHE_FILE_PATH), { recursive: true });
+        await fs.mkdir(CACHE_DIR_PATH, { recursive: true });
 
-        // Convert Map to object for JSON serialization
-        const cacheObject = Object.fromEntries(coordinatesCache);
-        await fs.writeFile(CACHE_FILE_PATH, JSON.stringify(cacheObject, null, 2));
-        console.log(`Saved ${coordinatesCache.size} locations to cache`);
+        // Save locations data
+        await fs.writeFile(LOCATIONS_CACHE_PATH, JSON.stringify(locations, null, 2));
+
+        // Save timestamp
+        await fs.writeFile(LAST_UPDATED_PATH, Date.now().toString());
+
+        console.log(`Saved ${locations.length} locations to cache`);
     } catch (error) {
-        console.error('Error saving coordinates cache:', error);
+        console.error('Error saving locations to cache:', error);
     }
 }
 
 // Get all photos and their GPS data from Azure Blob Storage
+// This is your original working function but with added caching
 async function getPhotoLocations() {
-    // Try to load the cache first
-    await loadCoordinatesCache();
+    // Try to load from cache first
+    if (await isCacheValid()) {
+        console.log('Returning locations from cache');
+        return await getLocationsFromCache();
+    }
+
+    console.log('Cache invalid or expired, fetching fresh data...');
 
     // Check if containerClient is initialized
     if (!containerClient) {
@@ -157,7 +186,7 @@ async function getPhotoLocations() {
     }
 
     const locations = [];
-    let newCoordinatesFound = false;
+    const coordinatesCache = new Map();
 
     try {
         // Get all countries (first level directories in Final/)
@@ -227,7 +256,7 @@ async function getPhotoLocations() {
                     // Try to extract GPS data from photos
                     let gpsFound = false;
 
-                    for (const photoPath of photoFiles) {
+                    for (const photoPath of photoFiles.slice(0, 5)) { // Check only first 5 photos for efficiency
                         if (gpsFound) break;
 
                         const blobClient = containerClient.getBlobClient(photoPath);
@@ -239,7 +268,6 @@ async function getPhotoLocations() {
 
                             // Save to cache
                             coordinatesCache.set(locationKey, coordinates);
-                            newCoordinatesFound = true;
                         }
                     }
 
@@ -251,7 +279,6 @@ async function getPhotoLocations() {
                             ...coordinates,
                             isDefault: true
                         });
-                        newCoordinatesFound = true;
                     }
                 }
 
@@ -266,10 +293,8 @@ async function getPhotoLocations() {
             }
         }
 
-        // If we found new coordinates, save the cache
-        if (newCoordinatesFound) {
-            await saveCoordinatesCache();
-        }
+        // Save to cache for future use
+        await saveLocationsToCache(locations);
 
         return locations;
     } catch (error) {
