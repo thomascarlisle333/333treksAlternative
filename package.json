@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/preload-cache.js && next build",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
@@ -30,5 +30,3 @@
     "tailwindcss": "^4"
   }
 }
-
-

@@ -5,11 +5,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 
-// Cache constants
-const CACHE_KEY = 'photo_locations_cache';
-const CACHE_TIMESTAMP_KEY = 'photo_locations_timestamp';
-const CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
-
 // Dynamically import Leaflet components with no SSR
 const MapWithNoSSR = dynamic(
     () => import('./components/MapComponent'),
@@ -38,55 +33,13 @@ export default function MapPage() {
     useEffect(() => {
         async function loadPhotoData() {
             try {
-                // Try to load from localStorage first
-                if (typeof window !== 'undefined') {
-                    try {
-                        const cachedData = localStorage.getItem(CACHE_KEY);
-                        const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
-
-                        // Check if cache is valid (not expired)
-                        if (cachedData && cachedTimestamp) {
-                            const timestamp = parseInt(cachedTimestamp, 10);
-                            const now = Date.now();
-
-                            if (!isNaN(timestamp) && (now - timestamp) < CACHE_DURATION) {
-                                console.log('Loading map data from localStorage cache');
-                                const parsedData = JSON.parse(cachedData);
-                                setPhotoLocations(parsedData);
-                                setLoading(false);
-                                return;
-                            }
-                        }
-                    } catch (cacheError) {
-                        console.error('Error reading from cache:', cacheError);
-                        // Continue to fetch from API if cache read fails
-                    }
-                }
-
-                // If no valid cache exists, fetch from API
-                console.log('Fetching map data from API');
-                const response = await fetch('/api/photo-locations', {
-                    headers: {
-                        'Cache-Control': 'public, max-age=604800, stale-while-revalidate=86400'
-                    }
-                });
-
+                // Fetch the photo data from our API endpoint
+                const response = await fetch('/api/photo-locations');
                 if (!response.ok) {
                     throw new Error('Failed to fetch photo locations');
                 }
-
                 const data = await response.json();
                 setPhotoLocations(data);
-
-                // Save to localStorage for future visits
-                if (typeof window !== 'undefined') {
-                    try {
-                        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-                        localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
-                    } catch (storageError) {
-                        console.error('Error saving to localStorage:', storageError);
-                    }
-                }
             } catch (err) {
                 console.error('Error loading photo locations:', err);
                 setError(err.message);

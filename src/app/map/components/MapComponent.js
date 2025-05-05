@@ -1,34 +1,14 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import 'leaflet/dist/leaflet.css';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
-
-// This component handles updating the map center and zoom when locations change
-function MapUpdater({ center, zoom }) {
-    const map = useMap();
-
-    useEffect(() => {
-        map.setView(center, zoom);
-    }, [center, zoom, map]);
-
-    return null;
-}
 
 // This component is only rendered on the client side
 export default function MapComponent({ locations }) {
     const [isMapReady, setIsMapReady] = useState(false);
-    const [visibleMarkers, setVisibleMarkers] = useState([]);
-
-    // Only create icon definition once
-    const customIcon = useMemo(() => new L.Icon({
-        iconUrl: '/marker-icon.png',
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-        popupAnchor: [1, -34],
-    }), []);
 
     // Fix Leaflet icon issues on client-side only
     useEffect(() => {
@@ -41,38 +21,26 @@ export default function MapComponent({ locations }) {
         });
 
         setIsMapReady(true);
+    }, []);
 
-        // Progressive marker loading for better performance
-        if (locations && locations.length > 0) {
-            // First load a subset of markers (first 20) for faster initial rendering
-            setVisibleMarkers(locations.slice(0, 20));
+    const customIcon = new L.Icon({
+        iconUrl: '/marker-icon.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+    });
 
-            // Then load the rest after a short delay
-            if (locations.length > 20) {
-                const timer = setTimeout(() => {
-                    setVisibleMarkers(locations);
-                }, 1000);
-
-                return () => clearTimeout(timer);
-            }
+    // Group locations by country for better UX with many markers
+    const groupedLocations = locations.reduce((groups, location) => {
+        if (!groups[location.country]) {
+            groups[location.country] = [];
         }
-    }, [locations]);
+        groups[location.country].push(location);
+        return groups;
+    }, {});
 
-    // Group locations by country - memoized for performance
-    const groupedLocations = useMemo(() => {
-        if (!locations || locations.length === 0) return {};
-
-        return locations.reduce((groups, location) => {
-            if (!groups[location.country]) {
-                groups[location.country] = [];
-            }
-            groups[location.country].push(location);
-            return groups;
-        }, {});
-    }, [locations]);
-
-    // Calculate center of the map based on all locations - memoized
-    const mapCenter = useMemo(() => {
+    // Calculate center of the map based on all locations
+    const calculateMapCenter = () => {
         if (!locations || locations.length === 0) {
             return [20, 0]; // Default center
         }
@@ -89,20 +57,21 @@ export default function MapComponent({ locations }) {
         const totalLng = validLocations.reduce((sum, loc) => sum + loc.longitude, 0);
 
         return [totalLat / validLocations.length, totalLng / validLocations.length];
-    }, [locations]);
+    };
 
-    // Determine appropriate zoom level - memoized
-    const mapZoom = useMemo(() => {
+    // Determine appropriate zoom level
+    const calculateZoom = () => {
         if (!locations || locations.length === 0) return 2;
 
-        // More precise zoom calculation based on number of countries
+        // More precise zoom calculation could be implemented here
+        // For now, simple heuristic based on number of countries
         const countryCount = Object.keys(groupedLocations).length;
 
         if (countryCount === 1) return 5; // Single country - zoom closer
         if (countryCount <= 3) return 4; // Few countries
         if (countryCount <= 6) return 3; // Several countries
         return 2; // Many countries
-    }, [locations, groupedLocations]);
+    };
 
     if (!isMapReady) {
         return (
@@ -115,27 +84,16 @@ export default function MapComponent({ locations }) {
     return (
         <div className="h-96 w-full rounded-lg overflow-hidden shadow-lg mb-8">
             <MapContainer
-                center={mapCenter}
-                zoom={mapZoom}
+                center={calculateMapCenter()}
+                zoom={calculateZoom()}
                 style={{ height: '100%', width: '100%' }}
-                attributionControl={false}
-                zoomControl={true}
-                doubleClickZoom={true}
-                scrollWheelZoom={true}
-                dragging={true}
-                easeLinearity={0.35}
             >
                 <TileLayer
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    tileSize={256}
-                    maxZoom={19}
-                    detectRetina={true}
                 />
 
-                <MapUpdater center={mapCenter} zoom={mapZoom} />
-
-                {visibleMarkers.map((location) => (
+                {locations.map((location, index) => (
                     <Marker
                         key={`${location.country}-${location.city}`}
                         position={[location.latitude, location.longitude]}
