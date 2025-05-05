@@ -475,7 +475,7 @@ export default function TripPage() {
                                 id="regionFilter"
                                 value={regionFilter}
                                 onChange={handleRegionChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
                             >
                                 <option value="all">All Regions</option>
                                 {availableRegions.map(region => (
@@ -493,7 +493,7 @@ export default function TripPage() {
                                 id="yearFilter"
                                 value={yearFilter}
                                 onChange={handleYearChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
                             >
                                 <option value="all">All Years</option>
                                 {availableYears.map(year => (
@@ -511,7 +511,7 @@ export default function TripPage() {
                                 id="durationFilter"
                                 value={durationFilter}
                                 onChange={handleDurationChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
                             >
                                 <option value="all">All Durations</option>
                                 <option value="short">Short (≤ 7 days)</option>
@@ -529,7 +529,7 @@ export default function TripPage() {
                                 id="sortOrder"
                                 value={sortOrder}
                                 onChange={handleSortChange}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-800"
                             >
                                 <option value="date-desc">Date (Newest First)</option>
                                 <option value="date-asc">Date (Oldest First)</option>
@@ -569,7 +569,7 @@ export default function TripPage() {
                 {/* Trip selector */}
                 {!noTripMatched && (
                     <div className="mb-8">
-                        <h2 className="text-xl font-semibold mb-4">Select a Trip:</h2>
+                        <h2 className="text-xl font-semibold mb-4 text-gray-800">Select a Trip:</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {filteredTrips.map(trip => (
                                 <div
@@ -578,7 +578,7 @@ export default function TripPage() {
                                     className={`p-4 rounded-lg cursor-pointer transition-all hover:shadow-md ${
                                         selectedTrip?.id === trip.id
                                             ? 'bg-gray-800 text-white'
-                                            : 'bg-white hover:bg-gray-100'
+                                            : 'bg-white hover:bg-gray-100 text-gray-800'
                                     }`}
                                 >
                                     <h3 className="font-bold text-lg">{trip.name}</h3>
