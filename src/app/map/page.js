@@ -71,7 +71,7 @@ export default function MapPage() {
         <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
             <div className="container mx-auto px-4 py-8">
                 <div className="flex flex-col md:flex-row justify-between items-center mb-8">
-                    <h1 className="text-3xl md:text-4xl font-bold">Explore My Travel Locations</h1>
+                    <h1 className="text-3xl md:text-4xl font-bold text-gray-800">Explore My Travel Locations</h1>
                     <div className="flex space-x-4 mt-4 md:mt-0">
                         <button
                             onClick={navigateToHome}
@@ -90,7 +90,7 @@ export default function MapPage() {
 
                 <div className="w-24 h-1 bg-gray-800 mb-8 hidden md:block"></div>
 
-                <p className="text-lg leading-relaxed mb-8 max-w-3xl">
+                <p className="text-lg leading-relaxed mb-8 max-w-3xl text-gray-800">
                     Each pin represents a location I&apos;ve captured through my lens. Click on any marker to see details
                     and access photos from that destination. This interactive map lets you explore my photographic journey around the world.
                 </p>
@@ -99,7 +99,7 @@ export default function MapPage() {
                 <MapWithNoSSR locations={photoLocations} />
 
                 <div className="mb-16">
-                    <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center">All Destinations</h2>
+                    <h2 className="text-2xl md:text-3xl font-bold mb-6 text-center text-gray-800">All Destinations</h2>
                     <div className="w-24 h-1 bg-gray-800 mx-auto mb-8"></div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -109,7 +109,7 @@ export default function MapPage() {
                                 href={`/gallery/${encodeURIComponent(location.country)}/${encodeURIComponent(location.city)}`}
                                 className="block p-6 border rounded-lg shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 transform bg-white"
                             >
-                                <h2 className="text-xl font-semibold mb-2">{location.city}, {location.country}</h2>
+                                <h2 className="text-xl font-semibold mb-2 text-gray-800">{location.city}, {location.country}</h2>
                                 <div className="w-12 h-0.5 bg-gray-300 mb-3"></div>
                                 <p className="text-gray-600">{location.photoCount} photos</p>
                                 <p className="text-sm text-gray-500 mt-2">
