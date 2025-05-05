@@ -1,153 +1,262 @@
-import fs from 'fs/promises';
-import path from 'path';
+import { BlobServiceClient } from '@azure/storage-blob';
 
-// Base path for the "Final" folder containing all images
-const basePath = path.join(process.cwd(), 'public', 'Final');
+// Azure Storage account connection string - store this in your environment variables
+const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
+const containerName = 'photos';
+const basePath = 'Final';
+
+// Better error handling for the BlobServiceClient initialization
+let containerClient;
+try {
+    // Only create the client if we have a connection string
+    if (!connectionString) {
+        console.error('AZURE_STORAGE_CONNECTION_STRING is not set in environment variables');
+    } else {
+        const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+        containerClient = blobServiceClient.getContainerClient(containerName);
+    }
+} catch (error) {
+    console.error('Error initializing Azure Blob Storage client:', error);
+}
 
 /**
- * Fetches all countries in the Final folder
+ * Fetches all countries in the Final folder from Azure Blob Storage
  */
 export async function GET(request) {
-  try {
-    // Get all country folders
-    const countries = await fs.readdir(basePath);
-
-    // Create an array of country data with their first image
-    const countryData = await Promise.all(
-      countries.map(async (country) => {
-        const countryPath = path.join(basePath, country);
-        const stats = await fs.stat(countryPath);
-
-        // Skip if not a directory
-        if (!stats.isDirectory()) return null;
-
-        // Get all cities in this country
-        const cities = await fs.readdir(countryPath);
-        const validCityDirs = [];
-
-        for (const city of cities) {
-          const cityPath = path.join(countryPath, city);
-          const cityStats = await fs.stat(cityPath);
-
-          // Only consider directories
-          if (cityStats.isDirectory()) {
-            validCityDirs.push(city);
-          }
+    try {
+        // Check if containerClient is initialized
+        if (!containerClient) {
+            console.error('Container client is not initialized. Check your connection string.');
+            return Response.json(
+                { error: 'Azure Storage not configured. Check your environment variables.' },
+                { status: 500 }
+            );
         }
 
-        // If there are no valid city directories, skip this country
-        if (validCityDirs.length === 0) return null;
+        // List all blobs with the Final prefix to get countries
+        const countries = new Set();
 
-        // Get the first city to find its first image for the country preview
-        const firstCity = validCityDirs[0];
-        const firstCityPath = path.join(countryPath, firstCity);
-        const countryPreviewImage = await getFirstImageFromFolder(firstCityPath);
+        // Get all blobs that start with the basePath
+        const blobsIterator = containerClient.listBlobsByHierarchy('/', { prefix: `${basePath}/` });
 
-        // If no images found in the first city, return null
-        if (!countryPreviewImage) return null;
+        // Collect country folders
+        for await (const blob of blobsIterator) {
+            // If it's a directory (virtual directories in blob storage end with '/')
+            if (blob.kind === 'prefix') {
+                // Extract country name from path (Final/CountryName/)
+                const countryPath = blob.name;
+                const countryName = countryPath.split('/')[1];
 
-        // Build country preview path using the first city's first image
-        const countryPreviewPath = `/Final/${country}/${firstCity}/${countryPreviewImage}`;
+                if (countryName) {
+                    countries.add(countryName);
+                }
+            }
+        }
 
-        const cityData = await Promise.all(
-          validCityDirs.map(async (city) => {
-            const cityPath = path.join(countryPath, city);
+        console.log(`Found ${countries.size} countries`);
 
-            // Get first image from city folder
-            const firstCityImage = await getFirstImageFromFolder(cityPath);
+        // Create an array of country data with their first image
+        const countryData = await Promise.all(
+            Array.from(countries).map(async (country) => {
+                try {
+                    // Get all cities in this country
+                    const citiesSet = new Set();
+                    const cityBlobsIterator = containerClient.listBlobsByHierarchy('/', {
+                        prefix: `${basePath}/${country}/`
+                    });
 
-            // Skip if no images in this city
-            if (!firstCityImage) return null;
+                    for await (const blob of cityBlobsIterator) {
+                        if (blob.kind === 'prefix') {
+                            // Extract city name from path (Final/CountryName/CityName/)
+                            const cityPath = blob.name;
+                            const cityName = cityPath.split('/')[2];
 
-            return {
-              name: city,
-              path: `/Final/${country}/${city}/${firstCityImage}`, // Correct path for city image
-              fullPath: `/Final/${country}/${city}` // Full path for city folder
-            };
-          })
+                            if (cityName) {
+                                citiesSet.add(cityName);
+                            }
+                        }
+                    }
+
+                    const validCityDirs = Array.from(citiesSet);
+
+                    // If there are no valid city directories, skip this country
+                    if (validCityDirs.length === 0) {
+                        console.log(`No cities found for country: ${country}`);
+                        return null;
+                    }
+
+                    console.log(`Found ${validCityDirs.length} cities for country: ${country}`);
+
+                    // Get the first city to find its first image for the country preview
+                    const firstCity = validCityDirs[0];
+                    const countryPreviewImage = await getFirstImageFromFolder(`${basePath}/${country}/${firstCity}`);
+
+                    // If no images found in the first city, return null
+                    if (!countryPreviewImage) {
+                        console.log(`No preview image found for country: ${country}`);
+                        return null;
+                    }
+
+                    // Build country preview path using the full URL
+                    const countryPreviewPath = countryPreviewImage.url;
+
+                    const cityData = await Promise.all(
+                        validCityDirs.map(async (city) => {
+                            try {
+                                // Get first image from city folder
+                                const firstCityImage = await getFirstImageFromFolder(`${basePath}/${country}/${city}`);
+
+                                // Skip if no images in this city
+                                if (!firstCityImage) {
+                                    console.log(`No preview image found for city: ${city}`);
+                                    return null;
+                                }
+
+                                return {
+                                    name: city,
+                                    path: firstCityImage.url, // Full URL for city preview image
+                                    fullPath: `${basePath}/${country}/${city}` // Path for city folder
+                                };
+                            } catch (cityError) {
+                                console.error(`Error processing city ${city}:`, cityError);
+                                return null;
+                            }
+                        })
+                    );
+
+                    // Filter out any null values
+                    const validCities = cityData.filter(city => city !== null);
+
+                    // If no valid cities with images, skip this country
+                    if (validCities.length === 0) {
+                        console.log(`No valid cities with images found for country: ${country}`);
+                        return null;
+                    }
+
+                    return {
+                        name: country,
+                        path: countryPreviewPath, // Use the first city's first image for country preview
+                        cities: validCities
+                    };
+                } catch (countryError) {
+                    console.error(`Error processing country ${country}:`, countryError);
+                    return null;
+                }
+            })
         );
 
         // Filter out any null values
-        const validCities = cityData.filter(city => city !== null);
+        const validCountryData = countryData.filter(country => country !== null);
+        console.log(`Returning ${validCountryData.length} valid countries`);
 
-        // If no valid cities with images, skip this country
-        if (validCities.length === 0) return null;
-
-        return {
-          name: country,
-          path: countryPreviewPath, // Use the first city's first image for country preview
-          cities: validCities
-        };
-      })
-    );
-
-    // Filter out any null values
-    const validCountryData = countryData.filter(country => country !== null);
-
-    return Response.json(validCountryData);
-  } catch (error) {
-    console.error('Error fetching gallery data:', error);
-    return Response.json({ error: 'Failed to load gallery data' }, { status: 500 });
-  }
+        return Response.json(validCountryData);
+    } catch (error) {
+        console.error('Error fetching gallery data:', error);
+        return Response.json({
+            error: 'Failed to load gallery data',
+            details: error.message
+        }, { status: 500 });
+    }
 }
 
 /**
  * Fetches all images from a specific city
  */
 export async function POST(request) {
-  try {
-    const { country, city } = await request.json();
+    try {
+        // Check if containerClient is initialized
+        if (!containerClient) {
+            console.error('Container client is not initialized. Check your connection string.');
+            return Response.json(
+                { error: 'Azure Storage not configured. Check your environment variables.' },
+                { status: 500 }
+            );
+        }
 
-    if (!country || !city) {
-      return Response.json({ error: 'Country and city parameters are required' }, { status: 400 });
+        const { country, city } = await request.json();
+
+        if (!country || !city) {
+            return Response.json({ error: 'Country and city parameters are required' }, { status: 400 });
+        }
+
+        const cityPath = `${basePath}/${country}/${city}`;
+        const images = await getImagesFromFolder(cityPath);
+
+        return Response.json({
+            country,
+            city,
+            images
+        });
+    } catch (error) {
+        console.error('Error fetching city images:', error);
+        return Response.json({
+            error: 'Failed to load city images',
+            details: error.message
+        }, { status: 500 });
     }
-
-    const cityPath = path.join(basePath, country, city);
-    const files = await fs.readdir(cityPath);
-
-    // Filter for image files only
-    const imageFiles = files.filter(file => {
-      const ext = path.extname(file).toLowerCase();
-      return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
-    });
-
-    const images = imageFiles.map(file => ({
-      name: file,
-      path: `/Final/${country}/${city}/${file}` // Correct path for images
-    }));
-
-    return Response.json({
-      country,
-      city,
-      images
-    });
-  } catch (error) {
-    console.error('Error fetching city images:', error);
-    return Response.json({ error: 'Failed to load city images' }, { status: 500 });
-  }
 }
 
 /**
- * Helper function to get the first image from a folder
+ * Helper function to get the first image from a folder in Azure Blob Storage
  */
 async function getFirstImageFromFolder(folderPath) {
-  try {
-    const files = await fs.readdir(folderPath);
+    try {
+        const images = await getImagesFromFolder(folderPath);
 
-    // Filter for image files only
-    const imageFiles = files.filter(file => {
-      const ext = path.extname(file).toLowerCase();
-      return ['.jpg', '.jpeg', '.png', '.gif', '.webp'].includes(ext);
-    });
+        // Return the first image if there are any
+        if (images.length > 0) {
+            return images[0];
+        }
 
-    // Return the first image file if there are any
-    if (imageFiles.length > 0) {
-      return imageFiles[0]; // Returning the first image
+        return null;
+    } catch (error) {
+        console.error(`Error getting first image from ${folderPath}:`, error);
+        return null;
     }
+}
 
-    return null;
-  } catch (error) {
-    console.error('Error getting first image:', error);
-    return null;
-  }
+/**
+ * Helper function to get all images from a folder in Azure Blob Storage
+ */
+async function getImagesFromFolder(folderPath) {
+    try {
+        if (!containerClient) {
+            console.error('Container client is not initialized in getImagesFromFolder');
+            return [];
+        }
+
+        const imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+        const images = [];
+
+        console.log(`Listing blobs in folder: ${folderPath}`);
+
+        // List all blobs in the folder
+        const blobsIterator = containerClient.listBlobsFlat({
+            prefix: `${folderPath}/`
+        });
+
+        for await (const blob of blobsIterator) {
+            // Check if it's a file and has an image extension
+            const fileName = blob.name.split('/').pop();
+            const fileExt = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
+
+            if (imageExtensions.includes(fileExt)) {
+                // Generate a URL for the blob
+                const blobClient = containerClient.getBlobClient(blob.name);
+                const url = blobClient.url;
+
+                images.push({
+                    name: fileName,
+                    path: blob.name, // Full path in the blob storage
+                    url: url // Full URL to access the image
+                });
+            }
+        }
+
+        console.log(`Found ${images.length} images in folder: ${folderPath}`);
+        return images;
+    } catch (error) {
+        console.error(`Error getting images from folder ${folderPath}:`, error);
+        return [];
+    }
 }

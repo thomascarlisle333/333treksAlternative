@@ -1,11 +1,52 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
   const router = useRouter();
+  const [imageUrls, setImageUrls] = useState({
+    hero: '',
+    barcelona: '',
+    lisbon: '',
+    bergen: '',
+    budapest: ''
+  });
+  const [loading, setLoading] = useState(true);
+
+  // Function to fetch image URLs from Azure Blob Storage
+  useEffect(() => {
+    async function fetchImages() {
+      try {
+        // Define the image paths we need
+        const imagePaths = {
+          hero: 'Final/Vatican_City/Vatican_City/Vatican_City_Vatican_City_Vatican_City_1_011122.jpg',
+          barcelona: 'Final/Spain/Barcelona/Barcelona_Barcelona_Spain_2_093022.jpg',
+          lisbon: 'Final/Portugal/Lisbon/Lisbon_Lisbon_Portugal_5_020323.jpg',
+          bergen: 'Final/Norway/Bergen/Bergen_Vestland_Norway_5_041023.jpg',
+          budapest: 'Final/Hungary/Budapest/Budapest_Budapest_Hungary_8_021323.jpg'
+        };
+
+        // Convert paths to Azure Blob Storage URLs
+        const storageBaseUrl = `https://333treksphotos.blob.core.windows.net/photos/`;
+
+        // Create URLs for each image
+        const urls = {};
+        for (const [key, path] of Object.entries(imagePaths)) {
+          urls[key] = `${storageBaseUrl}${path}`;
+        }
+
+        setImageUrls(urls);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching image URLs:', error);
+        setLoading(false);
+      }
+    }
+
+    fetchImages();
+  }, []);
 
   const navigateToGallery = () => {
     router.push('/gallery');
@@ -19,6 +60,15 @@ export default function HomePage() {
     router.push('/trip');
   };
 
+  // Show a loading state while images are being prepared
+  if (loading) {
+    return (
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-xl">Loading beautiful photography...</div>
+        </div>
+    );
+  }
+
   return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
         {/* Hero Section */}
@@ -27,16 +77,17 @@ export default function HomePage() {
           <div className="absolute inset-0 z-10">
             <div className="relative w-full h-full">
               <Image
-                  src="/Final/Vatican_City/Vatican_City/Vatican_City_Vatican_City_Vatican_City_1_011122.jpg"
+                  src={imageUrls.hero}
                   alt="Travel photography hero"
                   fill
+                  sizes="100vw"
                   style={{ objectFit: 'cover' }}
                   priority
+                  unoptimized={true}
               />
             </div>
             <div className="absolute inset-0 bg-gradient-to-b from-black via-transparent to-transparent"></div>
           </div>
-
 
           {/* Content */}
           <div className="relative z-10 flex flex-col items-center justify-center h-full text-center px-4 text-white">
@@ -100,34 +151,42 @@ export default function HomePage() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="relative h-64 rounded-lg overflow-hidden shadow-lg">
                   <Image
-                      src="/Final/Spain/Barcelona/Barcelona_Barcelona_Spain_2_093022.jpg" // Replace with path to your image
-                      alt="Photography journey"
+                      src={imageUrls.barcelona}
+                      alt="Barcelona photography"
                       fill
+                      sizes="(max-width: 768px) 100vw, 25vw"
                       style={{ objectFit: 'cover' }}
+                      unoptimized={true}
                   />
                 </div>
                 <div className="relative h-64 rounded-lg overflow-hidden shadow-lg mt-8">
                   <Image
-                      src="/Final/Portugal/Lisbon/Lisbon_Lisbon_Portugal_5_020323.jpg" // Replace with path to your image
-                      alt="Photography journey"
+                      src={imageUrls.lisbon}
+                      alt="Lisbon photography"
                       fill
+                      sizes="(max-width: 768px) 100vw, 25vw"
                       style={{ objectFit: 'cover' }}
+                      unoptimized={true}
                   />
                 </div>
                 <div className="relative h-64 rounded-lg overflow-hidden shadow-lg">
                   <Image
-                      src="/Final/Norway/Bergen/Bergen_Vestland_Norway_5_041023.jpg" // Replace with path to your image
-                      alt="Photography journey"
+                      src={imageUrls.bergen}
+                      alt="Bergen photography"
                       fill
+                      sizes="(max-width: 768px) 100vw, 25vw"
                       style={{ objectFit: 'cover' }}
+                      unoptimized={true}
                   />
                 </div>
                 <div className="relative h-64 rounded-lg overflow-hidden shadow-lg mt-8">
                   <Image
-                      src="/Final/Hungary/Budapest/Budapest_Budapest_Hungary_8_021323.jpg" // Replace with path to your image
-                      alt="Photography journey"
+                      src={imageUrls.budapest}
+                      alt="Budapest photography"
                       fill
+                      sizes="(max-width: 768px) 100vw, 25vw"
                       style={{ objectFit: 'cover' }}
+                      unoptimized={true}
                   />
                 </div>
               </div>

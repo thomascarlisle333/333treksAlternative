@@ -31,6 +31,14 @@ export default function MapPage() {
     };
 
     useEffect(() => {
+        // Fix for the missing Leaflet icon issue in Next.js
+        delete L.Icon.Default.prototype._getIconUrl;
+        L.Icon.Default.mergeOptions({
+            iconRetinaUrl: '/marker-icon-2x.png',
+            iconUrl: '/marker-icon.png',
+            shadowUrl: '/marker-shadow.png',
+        });
+
         async function loadPhotoData() {
             try {
                 // Fetch the photo data from our API endpoint

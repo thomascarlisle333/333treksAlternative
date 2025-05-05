@@ -1,7 +1,18 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs/promises';
 import path from 'path';
-import exifr from 'exifr'; // Make sure to install this: npm install exifr
+import exifr from 'exifr';
+import { BlobServiceClient } from '@azure/storage-blob';
+
+// Azure Storage account connection string - stored in environment variables
+const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
+const storageAccountName = '333treksphotos';
+const containerName = 'photos';
+const basePath = 'Final';
+
+// Create a BlobServiceClient
+const blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+const containerClient = blobServiceClient.getContainerClient(containerName);
 
 // Helper function to convert GPS coordinates to decimal format
 function convertDMSToDD(degrees, minutes, seconds, direction) {
@@ -12,14 +23,15 @@ function convertDMSToDD(degrees, minutes, seconds, direction) {
     return dd;
 }
 
-// Extract GPS coordinates from a photo file
-async function extractGPSFromPhoto(photoPath) {
+// Extract GPS coordinates from a photo blob
+async function extractGPSFromBlob(blobClient) {
     try {
-        // Read the file as a buffer
-        const imageBuffer = await fs.readFile(photoPath);
+        // Download the blob as an array buffer
+        const downloadedBlobResponse = await blobClient.download();
+        const blobContents = await streamToBuffer(downloadedBlobResponse.readableStreamBody);
 
         // Parse EXIF data including GPS
-        const gps = await exifr.gps(imageBuffer);
+        const gps = await exifr.gps(blobContents);
 
         if (gps && typeof gps.latitude === 'number' && typeof gps.longitude === 'number') {
             return {
@@ -29,7 +41,7 @@ async function extractGPSFromPhoto(photoPath) {
         }
 
         // Try to parse the full EXIF data if the GPS module doesn't work
-        const exif = await exifr.parse(imageBuffer, { gps: true });
+        const exif = await exifr.parse(blobContents, { gps: true });
 
         if (exif && exif.GPSLatitude && exif.GPSLongitude) {
             // Convert coordinates if they're in degrees/minutes/seconds format
@@ -54,9 +66,23 @@ async function extractGPSFromPhoto(photoPath) {
 
         return null;
     } catch (error) {
-        console.error(`Error extracting GPS data from ${photoPath}:`, error);
+        console.error(`Error extracting GPS data from blob ${blobClient.name}:`, error);
         return null;
     }
+}
+
+// Helper function to convert a readable stream to a buffer
+async function streamToBuffer(readableStream) {
+    return new Promise((resolve, reject) => {
+        const chunks = [];
+        readableStream.on('data', (data) => {
+            chunks.push(data instanceof Buffer ? data : Buffer.from(data));
+        });
+        readableStream.on('end', () => {
+            resolve(Buffer.concat(chunks));
+        });
+        readableStream.on('error', reject);
+    });
 }
 
 // Fallback coordinates based on country if GPS data isn't available
@@ -74,6 +100,7 @@ function getDefaultCoordinatesForCountry(country) {
         'China': { latitude: 35.8617, longitude: 104.1954 },
         'India': { latitude: 20.5937, longitude: 78.9629 },
         'Brazil': { latitude: -14.2350, longitude: -51.9253 },
+        'Belgium': { latitude: 50.5039, longitude: 4.4699 },
         // Add more countries as needed
     };
 
@@ -118,127 +145,137 @@ async function saveCoordinatesCache() {
     }
 }
 
-// Get all photos and their GPS data
+// Get all photos and their GPS data from Azure Blob Storage
 async function getPhotoLocations() {
     // Try to load the cache first
     await loadCoordinatesCache();
 
-    const photosDir = path.join(process.cwd(), 'public', 'Final');
-    let countries;
-
-    try {
-        countries = await fs.readdir(photosDir);
-    } catch (error) {
-        console.error('Error reading photos directory:', error);
-        return []; // Return empty array if directory can't be read
+    // Check if containerClient is initialized
+    if (!containerClient) {
+        console.error('Container client is not initialized. Check your connection string.');
+        return [];
     }
 
     const locations = [];
     let newCoordinatesFound = false;
 
-    for (const country of countries) {
-        const countryPath = path.join(photosDir, country);
-        let countryStats;
+    try {
+        // Get all countries (first level directories in Final/)
+        const countries = new Set();
+        const countryBlobsIterator = containerClient.listBlobsByHierarchy('/', {
+            prefix: `${basePath}/`
+        });
 
-        try {
-            countryStats = await fs.stat(countryPath);
-        } catch (error) {
-            console.error(`Error accessing country path ${country}:`, error);
-            continue;
+        for await (const blob of countryBlobsIterator) {
+            if (blob.kind === 'prefix') {
+                // Extract country name from path (Final/CountryName/)
+                const countryPath = blob.name;
+                const countryName = countryPath.split('/')[1];
+
+                if (countryName) {
+                    countries.add(countryName);
+                }
+            }
         }
 
-        if (!countryStats.isDirectory()) continue;
+        // Process each country
+        for (const country of Array.from(countries)) {
+            // Get all cities in this country
+            const cities = new Set();
+            const cityBlobsIterator = containerClient.listBlobsByHierarchy('/', {
+                prefix: `${basePath}/${country}/`
+            });
 
-        let cities;
-        try {
-            cities = await fs.readdir(countryPath);
-        } catch (error) {
-            console.error(`Error reading cities in ${country}:`, error);
-            continue;
-        }
+            for await (const blob of cityBlobsIterator) {
+                if (blob.kind === 'prefix') {
+                    // Extract city name from path (Final/CountryName/CityName/)
+                    const cityPath = blob.name;
+                    const cityName = cityPath.split('/')[2];
 
-        for (const city of cities) {
-            const cityPath = path.join(countryPath, city);
-            let cityStats;
-
-            try {
-                cityStats = await fs.stat(cityPath);
-            } catch (error) {
-                console.error(`Error accessing city path ${city}:`, error);
-                continue;
+                    if (cityName) {
+                        cities.add(cityName);
+                    }
+                }
             }
 
-            if (!cityStats.isDirectory()) continue;
+            // Process each city
+            for (const city of Array.from(cities)) {
+                // Get all photos in this city
+                const photoFiles = [];
+                const photoBlobsIterator = containerClient.listBlobsFlat({
+                    prefix: `${basePath}/${country}/${city}/`
+                });
 
-            let photos;
-            try {
-                photos = await fs.readdir(cityPath);
-            } catch (error) {
-                console.error(`Error reading photos in ${country}/${city}:`, error);
-                continue;
-            }
+                for await (const blob of photoBlobsIterator) {
+                    const fileName = blob.name.split('/').pop();
+                    const fileExt = path.extname(fileName).toLowerCase();
 
-            const photoFiles = photos.filter(photo =>
-                ['.jpg', '.jpeg', '.png'].includes(path.extname(photo).toLowerCase())
-            );
+                    if (['.jpg', '.jpeg', '.png'].includes(fileExt)) {
+                        photoFiles.push(blob.name);
+                    }
+                }
 
-            if (photoFiles.length === 0) continue;
+                if (photoFiles.length === 0) continue;
 
-            // Check if we have cached coordinates for this location
-            const locationKey = `${country}-${city}`;
-            let coordinates;
+                // Check if we have cached coordinates for this location
+                const locationKey = `${country}-${city}`;
+                let coordinates;
 
-            if (coordinatesCache.has(locationKey)) {
-                coordinates = coordinatesCache.get(locationKey);
-            } else {
-                // Try to extract GPS data from photos
-                let gpsFound = false;
+                if (coordinatesCache.has(locationKey)) {
+                    coordinates = coordinatesCache.get(locationKey);
+                } else {
+                    // Try to extract GPS data from photos
+                    let gpsFound = false;
 
-                for (const photo of photoFiles) {
-                    if (gpsFound) break;
+                    for (const photoPath of photoFiles) {
+                        if (gpsFound) break;
 
-                    const photoPath = path.join(cityPath, photo);
-                    const gpsCoordinates = await extractGPSFromPhoto(photoPath);
+                        const blobClient = containerClient.getBlobClient(photoPath);
+                        const gpsCoordinates = await extractGPSFromBlob(blobClient);
 
-                    if (gpsCoordinates) {
-                        coordinates = gpsCoordinates;
-                        gpsFound = true;
+                        if (gpsCoordinates) {
+                            coordinates = gpsCoordinates;
+                            gpsFound = true;
 
-                        // Save to cache
-                        coordinatesCache.set(locationKey, coordinates);
+                            // Save to cache
+                            coordinatesCache.set(locationKey, coordinates);
+                            newCoordinatesFound = true;
+                        }
+                    }
+
+                    // If no GPS data found in any photo, use a fallback
+                    if (!gpsFound) {
+                        coordinates = getDefaultCoordinatesForCountry(country);
+                        // Store fallback in cache but mark it
+                        coordinatesCache.set(locationKey, {
+                            ...coordinates,
+                            isDefault: true
+                        });
                         newCoordinatesFound = true;
                     }
                 }
 
-                // If no GPS data found in any photo, use a fallback
-                if (!gpsFound) {
-                    coordinates = getDefaultCoordinatesForCountry(country);
-                    // Store fallback in cache but mark it
-                    coordinatesCache.set(locationKey, {
-                        ...coordinates,
-                        isDefault: true
-                    });
-                    newCoordinatesFound = true;
-                }
+                locations.push({
+                    country,
+                    city,
+                    latitude: coordinates.latitude,
+                    longitude: coordinates.longitude,
+                    photoCount: photoFiles.length,
+                    isDefaultLocation: coordinates.isDefault || false
+                });
             }
-
-            locations.push({
-                country,
-                city,
-                latitude: coordinates.latitude,
-                longitude: coordinates.longitude,
-                photoCount: photoFiles.length,
-                isDefaultLocation: coordinates.isDefault || false
-            });
         }
-    }
 
-    // If we found new coordinates, save the cache
-    if (newCoordinatesFound) {
-        await saveCoordinatesCache();
-    }
+        // If we found new coordinates, save the cache
+        if (newCoordinatesFound) {
+            await saveCoordinatesCache();
+        }
 
-    return locations;
+        return locations;
+    } catch (error) {
+        console.error('Error getting photo locations:', error);
+        return [];
+    }
 }
 
 export async function GET() {
@@ -248,7 +285,7 @@ export async function GET() {
     } catch (error) {
         console.error('Error in photo-locations API route:', error);
         return NextResponse.json(
-            { error: 'Failed to fetch photo locations' },
+            { error: 'Failed to fetch photo locations', details: error.message },
             { status: 500 }
         );
     }
