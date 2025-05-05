@@ -614,21 +614,21 @@ export default function TripPage() {
                 {selectedTrip && (
                     <>
                         <div className="mb-6">
-                            <h2 className="text-2xl font-bold">{selectedTrip.name}</h2>
+                            <h2 className="text-2xl font-bold text-gray-800">{selectedTrip.name}</h2>
                             <div className="flex flex-wrap items-center gap-4 mt-2">
-                                <p className="text-gray-600">{selectedTrip.description}</p>
+                                <p className="text-gray-800">{selectedTrip.description}</p>
                                 {selectedTrip.date && (
-                                    <span className="text-sm bg-gray-200 px-2 py-1 rounded">
+                                    <span className="text-sm bg-gray-200 px-2 py-1 rounded text-gray-800">
                     {formatDate(selectedTrip.date)}
                   </span>
                                 )}
                                 {selectedTrip.region && (
-                                    <span className="text-sm bg-gray-200 px-2 py-1 rounded">
+                                    <span className="text-sm bg-gray-200 px-2 py-1 rounded text-gray-800">
                     {selectedTrip.region}
                   </span>
                                 )}
                                 {selectedTrip.duration && (
-                                    <span className="text-sm bg-gray-200 px-2 py-1 rounded">
+                                    <span className="text-sm bg-gray-200 px-2 py-1 rounded text-gray-800">
                     {selectedTrip.duration} days
                   </span>
                                 )}
@@ -642,12 +642,12 @@ export default function TripPage() {
                                 {Array.from(new Set(selectedTrip.segments.map(s => s.transport))).map(transport => (
                                     <div key={transport} className="flex items-center">
                                         <div
-                                            className="w-6 h-2 mr-2 text-gray-800"
+                                            className="w-6 h-2 mr-2"
                                             style={{
                                                 backgroundColor: selectedTrip.segments.find(s => s.transport === transport).color
                                             }}
                                         ></div>
-                                        <span>
+                                        <span className="text-gray-800">
                       {transportIcons[transport] || ''} {transport.charAt(0).toUpperCase() + transport.slice(1)}
                     </span>
                                     </div>
@@ -668,9 +668,9 @@ export default function TripPage() {
                                     <div key={index} className="border-l-4 pl-4" style={{borderColor: segment.color}}>
                                         <div className="flex items-center gap-2">
                                             <span className="text-xl">{transportIcons[segment.transport] || ''}</span>
-                                            <h4 className="font-medium text-gray-600">{segment.from.name} to {segment.to.name}</h4>
+                                            <h4 className="font-medium text-gray-800">{segment.from.name} to {segment.to.name}</h4>
                                         </div>
-                                        <p className="text-gray-600 mt-1">{segment.description}</p>
+                                        <p className="text-gray-800 mt-1">{segment.description}</p>
                                     </div>
                                 ))}
                             </div>
@@ -686,14 +686,17 @@ export default function TripPage() {
                                     <div>
                                         <h4 className="font-medium text-lg mb-2 text-gray-800">Journey Information</h4>
                                         <div className="space-y-3">
-                                            <p><span
-                                                className="font-semibold text-gray-800">Start Point:</span> {tripStats.startPoint.name}
+                                            <p>
+                                                <span className="font-semibold text-gray-800">Start Point:</span>{" "}
+                                                <span className="text-gray-800">{tripStats.startPoint.name}</span>
                                             </p>
-                                            <p><span
-                                                className="font-semibold text-gray-800">End Point:</span> {tripStats.endPoint.name}
+                                            <p>
+                                                <span className="font-semibold text-gray-800">End Point:</span>{" "}
+                                                <span className="text-gray-800">{tripStats.endPoint.name}</span>
                                             </p>
-                                            <p><span
-                                                className="font-semibold text-gray-800">Total Distance:</span> {tripStats.totalDistance.toLocaleString()} miles
+                                            <p>
+                                                <span className="font-semibold text-gray-800">Total Distance:</span>{" "}
+                                                <span className="text-gray-800">{tripStats.totalDistance.toLocaleString()} miles</span>
                                             </p>
                                         </div>
                                     </div>
@@ -707,7 +710,7 @@ export default function TripPage() {
                                                     <div className="flex items-center">
                                                         <span
                                                             className="text-xl mr-2 text-gray-800">{transportIcons[transport] || ''}</span>
-                                                        <span className="capitalize">{transport}:</span>
+                                                        <span className="capitalize text-gray-800">{transport}:</span>
                                                     </div>
                                                     <div>
                                                         <span
@@ -735,15 +738,15 @@ export default function TripPage() {
                                             onClick={() => handleTripSelect(trip.id)}
                                             className="p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-all"
                                         >
-                                            <h4 className="font-medium">{trip.name}</h4>
+                                            <h4 className="font-medium text-gray-800">{trip.name}</h4>
                                             <div className="flex flex-wrap gap-2 mt-2">
                                                 {trip.date && (
-                                                    <span className="text-xs px-2 py-1 bg-gray-200 rounded">
+                                                    <span className="text-xs px-2 py-1 bg-gray-200 rounded text-gray-800">
                                                         {formatDate(trip.date)}
                                                     </span>
                                                 )}
                                                 {trip.region && (
-                                                    <span className="text-xs px-2 py-1 bg-gray-200 rounded">
+                                                    <span className="text-xs px-2 py-1 bg-gray-200 rounded text-gray-800">
                                                         {trip.region}
                                                     </span>
                                                 )}
