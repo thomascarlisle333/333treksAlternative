@@ -679,39 +679,39 @@ export default function TripPage() {
                         {/* Trip Statistics */}
                         {tripStats && (
                             <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-                                <h3 className="text-xl font-semibold mb-4">Trip Statistics</h3>
+                                <h3 className="text-xl font-semibold mb-4 text-gray-800">Trip Statistics</h3>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {/* Journey Information */}
                                     <div>
-                                        <h4 className="font-medium text-lg mb-2">Journey Information</h4>
+                                        <h4 className="font-medium text-lg mb-2 text-gray-800">Journey Information</h4>
                                         <div className="space-y-3">
                                             <p><span
-                                                className="font-semibold">Start Point:</span> {tripStats.startPoint.name}
+                                                className="font-semibold text-gray-800">Start Point:</span> {tripStats.startPoint.name}
                                             </p>
                                             <p><span
-                                                className="font-semibold">End Point:</span> {tripStats.endPoint.name}
+                                                className="font-semibold text-gray-800">End Point:</span> {tripStats.endPoint.name}
                                             </p>
                                             <p><span
-                                                className="font-semibold">Total Distance:</span> {tripStats.totalDistance.toLocaleString()} miles
+                                                className="font-semibold text-gray-800">Total Distance:</span> {tripStats.totalDistance.toLocaleString()} miles
                                             </p>
                                         </div>
                                     </div>
 
                                     {/* Transport Statistics */}
                                     <div>
-                                        <h4 className="font-medium text-lg mb-2">Transportation Breakdown</h4>
+                                        <h4 className="font-medium text-lg mb-2 text-gray-800">Transportation Breakdown</h4>
                                         <div className="space-y-3">
                                             {Object.entries(tripStats.transportCounts).map(([transport, count]) => (
                                                 <div key={transport} className="flex items-center justify-between">
                                                     <div className="flex items-center">
                                                         <span
-                                                            className="text-xl mr-2">{transportIcons[transport] || ''}</span>
+                                                            className="text-xl mr-2 text-gray-800">{transportIcons[transport] || ''}</span>
                                                         <span className="capitalize">{transport}:</span>
                                                     </div>
                                                     <div>
                                                         <span
-                                                            className="font-semibold">{count} segment{count !== 1 ? 's' : ''}</span>
+                                                            className="font-semibold text-gray-800">{count} segment{count !== 1 ? 's' : ''}</span>
                                                         <span className="text-gray-500 ml-2">
                                                             ({Math.round(tripStats.distanceByTransport[transport]).toLocaleString()} miles)
                                                         </span>
