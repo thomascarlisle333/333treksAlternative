@@ -103,19 +103,19 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row gap-4">
               <button
                   onClick={navigateToGallery}
-                  className="px-8 py-4 bg-white text-gray-900 rounded-lg font-medium text-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                  className="px-8 py-4 bg-gray-100 text-gray-900 border border-gray-900 rounded-lg font-medium text-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
               >
                 Explore Gallery
               </button>
               <button
                   onClick={navigateToMap}
-                  className="px-8 py-4 bg-gray-800 text-white rounded-lg font-medium text-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                  className="px-8 py-4 bg-gray-100 text-gray-900 border border-gray-900 rounded-lg font-medium text-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
               >
                 View Photo Map
               </button>
               <button
                   onClick={navigateToTrip}
-                  className="px-8 py-4 bg-gray-600 text-white rounded-lg font-medium text-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                  className="px-8 py-4 bg-gray-100 text-gray-900 border border-gray-900 rounded-lg font-medium text-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
               >
                 Explore My Trips
               </button>
@@ -211,13 +211,13 @@ export default function HomePage() {
               </button>
               <button
                   onClick={navigateToMap}
-                  className="px-8 py-4 bg-gray-800 text-white border border-white rounded-lg font-medium text-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                  className="px-8 py-4 bg-white text-gray-900 rounded-lg font-medium text-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
               >
                 Explore Map
               </button>
               <button
                   onClick={navigateToTrip}
-                  className="px-8 py-4 bg-gray-600 text-white rounded-lg font-medium text-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
+                  className="px-8 py-4 bg-white text-gray-900 rounded-lg font-medium text-lg transform transition-all duration-300 hover:scale-105 hover:shadow-lg"
               >
                 Explore My Trips
               </button>

@@ -103,7 +103,7 @@ export default function LoginPage() {
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100">
             <div className="max-w-md w-full px-6 py-8 bg-white shadow-md rounded-lg">
                 <div className="mb-6 text-center">
-                    <h1 className="text-3xl font-bold mb-2">Admin Login</h1>
+                    <h1 className="text-3xl font-bold mb-2 text-gray-800">Admin Login</h1>
                     <p className="text-gray-600">Enter your password to access the trip admin panel</p>
                 </div>
 
