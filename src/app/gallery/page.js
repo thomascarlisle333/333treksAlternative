@@ -67,7 +67,7 @@ export default function GalleryPage() {
           {/* Home button in the upper left */}
           <div className="absolute top-4 left-4">
             <Link href="/">
-              <button className="mr-4 px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-lg transition-colors">
+              <button className="mr-4 px-4 py-2 bg-gray-900 hover:bg-gray-600 text-white rounded-lg transition-colors">
                 Home
               </button>
             </Link>
@@ -93,7 +93,7 @@ export default function GalleryPage() {
                             sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                             unoptimized={true} // Add this because we're using external URLs
                         />
-                        <div className="absolute bottom-0 left-0 right-0 bg-gray-600 bg-opacity-50 text-white p-3">
+                        <div className="absolute bottom-0 left-0 right-0 bg-gray-900 bg-opacity-50 text-white p-3">
                           <h2 className="text-xl font-semibold">{country.name}</h2>
                         </div>
                       </div>
@@ -108,7 +108,7 @@ export default function GalleryPage() {
                 <div className="mb-6 flex items-center">
                   <button
                       onClick={() => setSelectedCountry(null)}
-                      className="mr-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors text-gray-800"
+                      className="mr-4 px-4 py-2 bg-gray-900 hover:bg-gray-600 rounded-lg transition-colors text-white"
                   >
                     ← Back to Countries
                   </button>
@@ -133,7 +133,7 @@ export default function GalleryPage() {
                                   sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                                   unoptimized={true} // Add this because we're using external URLs
                               />
-                              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-3">
+                              <div className="absolute bottom-0 left-0 right-0 bg-gray-900 bg-opacity-50 text-white p-3">
                                 <h3 className="text-lg font-semibold">{city.name}</h3>
                               </div>
                             </div>

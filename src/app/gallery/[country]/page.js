@@ -76,7 +76,7 @@ export default function CountryPage({ params }) {
       <div className="mb-6 flex items-center">
         <button
           onClick={handleBackClick}
-          className="mr-4 px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg transition-colors"
+          className="mr-4 px-4 py-2 bg-gray-900 hover:bg-gray-300 rounded-lg transition-colors text-gray-800"
         >
           ← Back to Gallery
         </button>
@@ -101,7 +101,7 @@ export default function CountryPage({ params }) {
                 style={{ objectFit: 'cover' }}
                 sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
               />
-              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white p-3">
+              <div className="absolute bottom-0 left-0 right-0 bg-gray-900 bg-opacity-50 text-white p-3">
                 <h2 className="text-lg font-semibold">{city.name}</h2>
               </div>
             </div>
