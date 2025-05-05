@@ -5,10 +5,38 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
 
-// Cache constants - simple client-side caching
+// Cache constants
 const CACHE_KEY = 'photo_locations_cache';
 const CACHE_TIMESTAMP_KEY = 'photo_locations_timestamp';
-const CACHE_DURATION = 24 * 60 * 60 * 1000; // 1 day in milliseconds
+const CACHE_DURATION = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+
+// Fallback data in case API fails
+const FALLBACK_DATA = [
+    {
+        country: "USA",
+        city: "New York",
+        latitude: 40.7128,
+        longitude: -74.0060,
+        photoCount: 5,
+        isDefaultLocation: false
+    },
+    {
+        country: "France",
+        city: "Paris",
+        latitude: 48.8566,
+        longitude: 2.3522,
+        photoCount: 10,
+        isDefaultLocation: false
+    },
+    {
+        country: "Japan",
+        city: "Tokyo",
+        latitude: 35.6762,
+        longitude: 139.6503,
+        photoCount: 7,
+        isDefaultLocation: false
+    }
+];
 
 // Dynamically import Leaflet components with no SSR
 const MapWithNoSSR = dynamic(
@@ -52,36 +80,57 @@ export default function MapPage() {
     useEffect(() => {
         async function loadPhotoData() {
             console.log("Starting to load photo data");
-
-            // Check if we're in the browser
-            if (typeof window === 'undefined') {
-                console.log("Server-side rendering, skipping data load");
-                return;
-            }
-
             try {
-                // Try to load from localStorage first for faster loads
-                console.log("Checking localStorage cache");
-                const cachedData = localStorage.getItem(CACHE_KEY);
-                const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
+                // Try to load from localStorage first
+                if (typeof window !== 'undefined') {
+                    try {
+                        console.log("Checking localStorage cache");
+                        const cachedData = localStorage.getItem(CACHE_KEY);
+                        const cachedTimestamp = localStorage.getItem(CACHE_TIMESTAMP_KEY);
 
-                // Check if cache is valid (not expired)
-                if (cachedData && cachedTimestamp) {
-                    const timestamp = parseInt(cachedTimestamp, 10);
-                    const now = Date.now();
+                        // Check if cache is valid (not expired)
+                        if (cachedData && cachedTimestamp) {
+                            const timestamp = parseInt(cachedTimestamp, 10);
+                            const now = Date.now();
 
-                    if (!isNaN(timestamp) && (now - timestamp) < CACHE_DURATION) {
-                        console.log('Loading map data from localStorage cache');
-                        try {
-                            const parsedData = JSON.parse(cachedData);
-                            if (Array.isArray(parsedData) && parsedData.length > 0) {
-                                setPhotoLocations(parsedData);
-                                setLoading(false);
-                                return;
+                            if (!isNaN(timestamp) && (now - timestamp) < CACHE_DURATION) {
+                                console.log('Loading map data from localStorage cache');
+                                try {
+                                    const parsedData = JSON.parse(cachedData);
+
+                                    // Validate parsed data
+                                    if (Array.isArray(parsedData) && parsedData.length > 0) {
+                                        console.log(`Cache has ${parsedData.length} locations`);
+                                        const firstItem = parsedData[0];
+
+                                        // Check if data has expected structure
+                                        if (firstItem &&
+                                            typeof firstItem.latitude === 'number' &&
+                                            typeof firstItem.longitude === 'number' &&
+                                            firstItem.country &&
+                                            firstItem.city) {
+
+                                            setPhotoLocations(parsedData);
+                                            setLoading(false);
+                                            return;
+                                        } else {
+                                            console.warn("Cache data missing required properties, fetching fresh data");
+                                        }
+                                    } else {
+                                        console.warn("Cache contains empty or invalid array, fetching fresh data");
+                                    }
+                                } catch (parseError) {
+                                    console.error("Error parsing cached data:", parseError);
+                                }
+                            } else {
+                                console.log("Cache expired, fetching fresh data");
                             }
-                        } catch (parseError) {
-                            console.error("Error parsing cached data:", parseError);
+                        } else {
+                            console.log("No valid cache found");
                         }
+                    } catch (cacheError) {
+                        console.error('Error reading from cache:', cacheError);
+                        // Continue to fetch from API if cache read fails
                     }
                 }
 
@@ -96,23 +145,48 @@ export default function MapPage() {
                 const data = await response.json();
                 console.log(`API returned ${data?.length || 0} locations`);
 
-                if (Array.isArray(data) && data.length > 0) {
+                // Validate data
+                if (!Array.isArray(data)) {
+                    console.error("API returned non-array data:", data);
+                    throw new Error("API returned invalid data format");
+                }
+
+                if (data.length === 0) {
+                    console.warn("API returned empty array, using fallback data");
+                    setPhotoLocations(FALLBACK_DATA);
+                } else {
+                    // Validate first item to ensure data structure is correct
+                    const firstItem = data[0];
+                    if (!firstItem ||
+                        typeof firstItem.latitude !== 'number' ||
+                        typeof firstItem.longitude !== 'number' ||
+                        !firstItem.country ||
+                        !firstItem.city) {
+
+                        console.error("API returned data with missing required properties:", firstItem);
+                        throw new Error("API returned data with invalid structure");
+                    }
+
                     setPhotoLocations(data);
 
-                    // Save to localStorage for faster loads next time
-                    try {
-                        localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-                        localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
-                        console.log(`Saved ${data.length} locations to localStorage cache`);
-                    } catch (storageError) {
-                        console.error('Error saving to localStorage:', storageError);
+                    // Save to localStorage for future visits
+                    if (typeof window !== 'undefined') {
+                        try {
+                            localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+                            localStorage.setItem(CACHE_TIMESTAMP_KEY, Date.now().toString());
+                            console.log(`Saved ${data.length} locations to localStorage cache`);
+                        } catch (storageError) {
+                            console.error('Error saving to localStorage:', storageError);
+                        }
                     }
-                } else {
-                    throw new Error("API returned invalid or empty data");
                 }
             } catch (err) {
                 console.error('Error loading photo locations:', err);
                 setError(err.message);
+
+                // Use fallback data if API fails
+                console.log("Using fallback data due to error");
+                setPhotoLocations(FALLBACK_DATA);
             } finally {
                 setLoading(false);
             }
@@ -179,13 +253,7 @@ export default function MapPage() {
                 )}
 
                 {/* Map component dynamically loaded with no SSR */}
-                {photoLocations.length > 0 ? (
-                    <MapWithNoSSR locations={photoLocations} />
-                ) : (
-                    <div className="h-96 w-full rounded-lg overflow-hidden shadow-lg mb-8 flex items-center justify-center bg-gray-100">
-                        <p className="text-xl">No location data available. Please try reloading.</p>
-                    </div>
-                )}
+                <MapWithNoSSR locations={photoLocations} />
 
                 {/* Debug Info */}
                 {debugMode && (

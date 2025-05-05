@@ -1,4 +1,7 @@
 import { NextResponse } from 'next/server';
+import fs from 'fs/promises';
+import path from 'path';
+import exifr from 'exifr';
 import { BlobServiceClient } from '@azure/storage-blob';
 
 // Azure Storage account connection string - stored in environment variables
@@ -6,155 +9,332 @@ const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
 const containerName = 'photos';
 const basePath = 'Final';
 
+// File paths for location data cache
+const CACHE_DIR_PATH = path.join(process.cwd(), 'data');
+const LOCATIONS_CACHE_PATH = path.join(CACHE_DIR_PATH, 'photo-locations.json');
+const LAST_UPDATED_PATH = path.join(CACHE_DIR_PATH, 'locations-last-updated.txt');
+
+// Cache expiration time (in milliseconds) - extend to 30 days
+const CACHE_EXPIRATION = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
+
 // Create a BlobServiceClient
 let blobServiceClient, containerClient;
+try {
+    blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+    containerClient = blobServiceClient.getContainerClient(containerName);
+} catch (error) {
+    console.error('Error initializing Azure Blob Storage client:', error);
+}
 
-// Simple in-memory cache for the API route
-let locationsCache = null;
-let lastCacheUpdate = 0;
-const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
+// Helper function to convert GPS coordinates to decimal format
+function convertDMSToDD(degrees, minutes, seconds, direction) {
+    let dd = degrees + minutes / 60 + seconds / 3600;
+    if (direction === 'S' || direction === 'W') {
+        dd = dd * -1;
+    }
+    return dd;
+}
 
-// Default country coordinates if GPS data isn't available
-const countryMap = {
-    'USA': { latitude: 37.0902, longitude: -95.7129 },
-    'Canada': { latitude: 56.1304, longitude: -106.3468 },
-    'UK': { latitude: 55.3781, longitude: -3.4360 },
-    'Australia': { latitude: -25.2744, longitude: 133.7751 },
-    'Germany': { latitude: 51.1657, longitude: 10.4515 },
-    'France': { latitude: 46.2276, longitude: 2.2137 },
-    'Italy': { latitude: 41.8719, longitude: 12.5674 },
-    'Spain': { latitude: 40.4637, longitude: -3.7492 },
-    'Japan': { latitude: 36.2048, longitude: 138.2529 },
-    'China': { latitude: 35.8617, longitude: 104.1954 },
-    'India': { latitude: 20.5937, longitude: 78.9629 },
-    'Brazil': { latitude: -14.2350, longitude: -51.9253 },
-    'Belgium': { latitude: 50.5039, longitude: 4.4699 },
-    // Add more countries as needed
-};
-
-// Initialize Azure Blob Storage client
-function initAzureClient() {
+// Extract GPS coordinates from a photo blob
+async function extractGPSFromBlob(blobClient) {
     try {
-        if (!connectionString) {
-            throw new Error('Azure Storage connection string is not defined');
+        // Download the blob as an array buffer
+        const downloadedBlobResponse = await blobClient.download();
+        const blobContents = await streamToBuffer(downloadedBlobResponse.readableStreamBody);
+
+        // Parse EXIF data including GPS
+        const gps = await exifr.gps(blobContents);
+
+        if (gps && typeof gps.latitude === 'number' && typeof gps.longitude === 'number') {
+            return {
+                latitude: gps.latitude,
+                longitude: gps.longitude
+            };
         }
 
-        blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
-        containerClient = blobServiceClient.getContainerClient(containerName);
-        return true;
+        // Try to parse the full EXIF data if the GPS module doesn't work
+        const exif = await exifr.parse(blobContents, { gps: true });
+
+        if (exif && exif.GPSLatitude && exif.GPSLongitude) {
+            // Convert coordinates if they're in degrees/minutes/seconds format
+            if (Array.isArray(exif.GPSLatitude) && Array.isArray(exif.GPSLongitude)) {
+                const latitude = convertDMSToDD(
+                    exif.GPSLatitude[0],
+                    exif.GPSLatitude[1],
+                    exif.GPSLatitude[2],
+                    exif.GPSLatitudeRef || 'N'
+                );
+
+                const longitude = convertDMSToDD(
+                    exif.GPSLongitude[0],
+                    exif.GPSLongitude[1],
+                    exif.GPSLongitude[2],
+                    exif.GPSLongitudeRef || 'E'
+                );
+
+                return { latitude, longitude };
+            }
+        }
+
+        return null;
     } catch (error) {
-        console.error('Error initializing Azure Blob Storage client:', error.message);
+        console.error(`Error extracting GPS data from blob ${blobClient.name}:`, error);
+        return null;
+    }
+}
+
+// Helper function to convert a readable stream to a buffer
+async function streamToBuffer(readableStream) {
+    return new Promise((resolve, reject) => {
+        const chunks = [];
+        readableStream.on('data', (data) => {
+            chunks.push(data instanceof Buffer ? data : Buffer.from(data));
+        });
+        readableStream.on('end', () => {
+            resolve(Buffer.concat(chunks));
+        });
+        readableStream.on('error', reject);
+    });
+}
+
+// Fallback coordinates based on country if GPS data isn't available
+function getDefaultCoordinatesForCountry(country) {
+    const countryMap = {
+        'USA': { latitude: 37.0902, longitude: -95.7129 },
+        'Canada': { latitude: 56.1304, longitude: -106.3468 },
+        'UK': { latitude: 55.3781, longitude: -3.4360 },
+        'Australia': { latitude: -25.2744, longitude: 133.7751 },
+        'Germany': { latitude: 51.1657, longitude: 10.4515 },
+        'France': { latitude: 46.2276, longitude: 2.2137 },
+        'Italy': { latitude: 41.8719, longitude: 12.5674 },
+        'Spain': { latitude: 40.4637, longitude: -3.7492 },
+        'Japan': { latitude: 36.2048, longitude: 138.2529 },
+        'China': { latitude: 35.8617, longitude: 104.1954 },
+        'India': { latitude: 20.5937, longitude: 78.9629 },
+        'Brazil': { latitude: -14.2350, longitude: -51.9253 },
+        'Belgium': { latitude: 50.5039, longitude: 4.4699 },
+        // Add more countries as needed
+    };
+
+    return countryMap[country] || { latitude: 0, longitude: 0 };
+}
+
+// Function to check if the cache is valid (exists and not expired)
+async function isCacheValid() {
+    try {
+        // Check if cache files exist
+        await fs.access(LOCATIONS_CACHE_PATH);
+        await fs.access(LAST_UPDATED_PATH);
+
+        // Check if cache is expired
+        const lastUpdatedStr = await fs.readFile(LAST_UPDATED_PATH, 'utf8');
+        const lastUpdated = parseInt(lastUpdatedStr.trim(), 10);
+        const now = Date.now();
+
+        return !isNaN(lastUpdated) && (now - lastUpdated) < CACHE_EXPIRATION;
+    } catch (error) {
+        // If any errors occur (like files don't exist), cache is invalid
         return false;
     }
 }
 
-// Get photo locations from blob storage
+// Function to read locations from cache file
+async function getLocationsFromCache() {
+    try {
+        const data = await fs.readFile(LOCATIONS_CACHE_PATH, 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        console.error('Error reading locations from cache:', error);
+        return null;
+    }
+}
+
+// Function to write locations to cache file
+async function saveLocationsToCache(locations) {
+    try {
+        // Create directory if it doesn't exist
+        await fs.mkdir(CACHE_DIR_PATH, { recursive: true });
+
+        // Save locations data
+        await fs.writeFile(LOCATIONS_CACHE_PATH, JSON.stringify(locations, null, 2));
+
+        // Save timestamp
+        await fs.writeFile(LAST_UPDATED_PATH, Date.now().toString());
+
+        console.log(`Saved ${locations.length} locations to cache`);
+    } catch (error) {
+        console.error('Error saving locations to cache:', error);
+    }
+}
+
+// Modified getPhotoLocations function with improved efficiency
 async function getPhotoLocations() {
-    // Check if we have a valid cache
-    const now = Date.now();
-    if (locationsCache && (now - lastCacheUpdate < CACHE_DURATION)) {
-        console.log('Returning locations from in-memory cache');
-        return locationsCache;
+    // Try to load from cache first
+    if (await isCacheValid()) {
+        console.log('Returning locations from cache');
+        return await getLocationsFromCache();
     }
 
-    console.log('Cache expired or not set, fetching fresh data');
+    console.log('Cache invalid or expired, fetching fresh data...');
 
-    // Initialize Azure client if needed
-    if (!containerClient && !initAzureClient()) {
-        console.error('Failed to initialize Azure client');
-        throw new Error('Failed to connect to Azure Blob Storage');
+    // Check if containerClient is initialized
+    if (!containerClient) {
+        console.error('Container client is not initialized. Check your connection string.');
+        return [];
     }
 
     const locations = [];
+    const coordinatesCache = new Map();
 
     try {
-        // List all country directories
-        const countryFolders = new Set();
-        const countryIterator = containerClient.listBlobsByHierarchy('/', { prefix: `${basePath}/` });
+        // Get all countries (first level directories in Final/)
+        const countries = new Set();
+        const countryBlobsIterator = containerClient.listBlobsByHierarchy('/', {
+            prefix: `${basePath}/`
+        });
 
-        for await (const item of countryIterator) {
-            if (item.kind === 'prefix') {
-                const country = item.name.split('/')[1];
-                if (country) countryFolders.add(country);
+        for await (const blob of countryBlobsIterator) {
+            if (blob.kind === 'prefix') {
+                // Extract country name from path (Final/CountryName/)
+                const countryPath = blob.name;
+                const countryName = countryPath.split('/')[1];
+
+                if (countryName) {
+                    countries.add(countryName);
+                }
             }
         }
 
-        // Process each country
-        for (const country of countryFolders) {
-            // List city directories for this country
-            const cityFolders = new Set();
-            const cityIterator = containerClient.listBlobsByHierarchy('/', {
+        // Process each country - use Promise.all for parallel processing
+        const countryPromises = Array.from(countries).map(async (country) => {
+            // Get all cities in this country
+            const cities = new Set();
+            const cityBlobsIterator = containerClient.listBlobsByHierarchy('/', {
                 prefix: `${basePath}/${country}/`
             });
 
-            for await (const item of cityIterator) {
-                if (item.kind === 'prefix') {
-                    const city = item.name.split('/')[2];
-                    if (city) cityFolders.add(city);
+            for await (const blob of cityBlobsIterator) {
+                if (blob.kind === 'prefix') {
+                    // Extract city name from path (Final/CountryName/CityName/)
+                    const cityPath = blob.name;
+                    const cityName = cityPath.split('/')[2];
+
+                    if (cityName) {
+                        cities.add(cityName);
+                    }
                 }
             }
 
-            // Process each city
-            for (const city of cityFolders) {
-                // Count photos in this city
-                let photoCount = 0;
-                const photoIterator = containerClient.listBlobsFlat({
+            // Process each city in parallel
+            const cityPromises = Array.from(cities).map(async (city) => {
+                // Get all photos in this city
+                const photoFiles = [];
+                const photoBlobsIterator = containerClient.listBlobsFlat({
                     prefix: `${basePath}/${country}/${city}/`,
-                    maxResults: 100 // Limit to prevent performance issues
+                    maxResults: 10 // Limit to 10 photos per city to improve performance
                 });
 
-                for await (const blob of photoIterator) {
+                for await (const blob of photoBlobsIterator) {
                     const fileName = blob.name.split('/').pop();
-                    const fileExt = fileName.split('.').pop().toLowerCase();
+                    const fileExt = path.extname(fileName).toLowerCase();
 
-                    if (['jpg', 'jpeg', 'png'].includes(fileExt)) {
-                        photoCount++;
+                    if (['.jpg', '.jpeg', '.png'].includes(fileExt)) {
+                        photoFiles.push(blob.name);
                     }
                 }
 
-                if (photoCount > 0) {
-                    // Use default coordinates for country as we're skipping EXIF parsing for speed
-                    const coordinates = countryMap[country] || { latitude: 0, longitude: 0 };
+                if (photoFiles.length === 0) return null;
 
-                    locations.push({
-                        country,
-                        city,
-                        latitude: coordinates.latitude,
-                        longitude: coordinates.longitude,
-                        photoCount,
-                        isDefaultLocation: true // Mark as default since we're not parsing EXIF
-                    });
+                // Check if we have cached coordinates for this location
+                const locationKey = `${country}-${city}`;
+                let coordinates;
+
+                if (coordinatesCache.has(locationKey)) {
+                    coordinates = coordinatesCache.get(locationKey);
+                } else {
+                    // Try to extract GPS data from photos - only check the first photo
+                    if (photoFiles.length > 0) {
+                        const blobClient = containerClient.getBlobClient(photoFiles[0]);
+                        const gpsCoordinates = await extractGPSFromBlob(blobClient);
+
+                        if (gpsCoordinates) {
+                            coordinates = gpsCoordinates;
+                            coordinatesCache.set(locationKey, coordinates);
+                        } else {
+                            // If no GPS data found, use a fallback
+                            coordinates = getDefaultCoordinatesForCountry(country);
+                            coordinatesCache.set(locationKey, {
+                                ...coordinates,
+                                isDefault: true
+                            });
+                        }
+                    } else {
+                        // Fallback if somehow we have a city with no photos
+                        coordinates = getDefaultCoordinatesForCountry(country);
+                        coordinatesCache.set(locationKey, {
+                            ...coordinates,
+                            isDefault: true
+                        });
+                    }
                 }
-            }
-        }
 
-        // Update the cache
-        locationsCache = locations;
-        lastCacheUpdate = now;
+                return {
+                    country,
+                    city,
+                    latitude: coordinates.latitude,
+                    longitude: coordinates.longitude,
+                    photoCount: photoFiles.length,
+                    isDefaultLocation: coordinates.isDefault || false
+                };
+            });
 
-        return locations;
+            // Wait for all cities to process and filter out null results
+            const cityResults = await Promise.all(cityPromises);
+            return cityResults.filter(result => result !== null);
+        });
+
+        // Wait for all countries to process
+        const countryResults = await Promise.all(countryPromises);
+
+        // Flatten the array of arrays into a single array of locations
+        const allLocations = countryResults.flat();
+
+        // Save to cache for future use
+        await saveLocationsToCache(allLocations);
+
+        return allLocations;
     } catch (error) {
         console.error('Error getting photo locations:', error);
-        throw error;
+        return [];
+    }
+}
+
+// Function to preload cache - called during build time
+export async function preloadLocationCache() {
+    console.log('Preloading location cache...');
+    try {
+        const locations = await getPhotoLocations();
+        console.log(`Preloaded ${locations.length} locations into cache.`);
+        return locations;
+    } catch (error) {
+        console.error('Error preloading location cache:', error);
+        return [];
     }
 }
 
 export async function GET() {
     try {
-        // Get photo locations
-        const locations = await getPhotoLocations();
+        // Add caching headers
+        const response = NextResponse.json(await getPhotoLocations());
 
-        // Create a response with the locations
-        const response = NextResponse.json(locations);
-
-        // Add cache control headers
-        response.headers.set('Cache-Control', 'public, max-age=3600'); // 1 hour
+        // Add cache control headers for browsers and CDNs
+        response.headers.set('Cache-Control', 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400');
 
         return response;
     } catch (error) {
         console.error('Error in photo-locations API route:', error);
         return NextResponse.json(
-            { error: 'Failed to fetch photo locations', message: error.message },
+            { error: 'Failed to fetch photo locations', details: error.message },
             { status: 500 }
         );
     }
