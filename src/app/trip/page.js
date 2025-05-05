@@ -437,7 +437,7 @@ export default function TripPage() {
 
             <div className="container mx-auto px-4 py-8">
                 <div className="flex flex-col md:flex-row justify-between items-center mb-8">
-                    <h1 className="text-3xl md:text-4xl font-bold">My Travel Journeys</h1>
+                    <h1 className="text-3xl md:text-4xl font-bold text-gray-800">My Travel Journeys</h1>
                     <div className="flex space-x-4 mt-4 md:mt-0">
                         <button
                             onClick={navigateToHome}
@@ -456,7 +456,7 @@ export default function TripPage() {
 
                 <div className="w-24 h-1 bg-gray-800 mb-8 hidden md:block"></div>
 
-                <p className="text-lg leading-relaxed mb-8 max-w-3xl">
+                <p className="text-lg leading-relaxed mb-8 max-w-3xl text-gray-800">
                     Follow my journey across different destinations, with various modes of transportation highlighted by
                     different colored lines.
                     Each trip tells a unique story of exploration and adventure.
@@ -464,7 +464,7 @@ export default function TripPage() {
 
                 {/* Filters */}
                 <div className="bg-white p-4 rounded-lg shadow-md mb-8">
-                    <h2 className="text-xl font-semibold mb-4">Filter Trips</h2>
+                    <h2 className="text-xl font-semibold mb-4 text-gray-800">Filter Trips</h2>
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         {/* Region Filter */}
                         <div>
@@ -668,7 +668,7 @@ export default function TripPage() {
                                     <div key={index} className="border-l-4 pl-4" style={{borderColor: segment.color}}>
                                         <div className="flex items-center gap-2">
                                             <span className="text-xl">{transportIcons[segment.transport] || ''}</span>
-                                            <h4 className="font-medium">{segment.from.name} to {segment.to.name}</h4>
+                                            <h4 className="font-medium text-gray-600">{segment.from.name} to {segment.to.name}</h4>
                                         </div>
                                         <p className="text-gray-600 mt-1">{segment.description}</p>
                                     </div>
