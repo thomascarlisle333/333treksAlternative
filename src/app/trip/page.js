@@ -637,12 +637,12 @@ export default function TripPage() {
 
                         {/* Legend */}
                         <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-                            <h3 className="font-semibold mb-2">Transportation Methods:</h3>
+                            <h3 className="font-semibold mb-2 text-gray-800">Transportation Methods:</h3>
                             <div className="flex flex-wrap gap-4">
                                 {Array.from(new Set(selectedTrip.segments.map(s => s.transport))).map(transport => (
                                     <div key={transport} className="flex items-center">
                                         <div
-                                            className="w-6 h-2 mr-2"
+                                            className="w-6 h-2 mr-2 text-gray-800"
                                             style={{
                                                 backgroundColor: selectedTrip.segments.find(s => s.transport === transport).color
                                             }}
@@ -656,13 +656,13 @@ export default function TripPage() {
                         </div>
 
                         {/* Map */}
-                        <div className="h-96 w-full rounded-lg overflow-hidden shadow-lg mb-8">
+                        <div className="h-96 w-full rounded-lg overflow-hidden shadow-lg mb-8 text-gray-800">
                             <TripMap trip={selectedTrip}/>
                         </div>
 
                         {/* Trip details */}
                         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-                            <h3 className="text-xl font-semibold mb-4">Journey Details</h3>
+                            <h3 className="text-xl font-semibold mb-4 text-gray-800">Journey Details</h3>
                             <div className="space-y-4">
                                 {selectedTrip.segments.map((segment, index) => (
                                     <div key={index} className="border-l-4 pl-4" style={{borderColor: segment.color}}>
@@ -727,7 +727,7 @@ export default function TripPage() {
                         {/* Related Trips */}
                         {relatedTrips.length > 0 && (
                             <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-                                <h3 className="text-xl font-semibold mb-4">Related Trips</h3>
+                                <h3 className="text-xl font-semibold mb-4 text-gray-800">Related Trips</h3>
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     {relatedTrips.map(trip => (
                                         <div
