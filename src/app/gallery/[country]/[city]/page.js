@@ -2,12 +2,12 @@
 
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 export default function CityGalleryPage() {
   const params = useParams();
   const { country, city } = params;
+  const router = useRouter();
 
   const [images, setImages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -42,6 +42,16 @@ export default function CityGalleryPage() {
     }
   }, [country, city]);
 
+  const handleBackToCountry = () => {
+    // Navigate back to the gallery with the country selected
+    router.push('/gallery');
+
+    // Store the country in sessionStorage so the gallery page can show it
+    if (country) {
+      sessionStorage.setItem('selectedCountry', country);
+    }
+  };
+
   if (loading) {
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-gray-100">
@@ -61,33 +71,30 @@ export default function CityGalleryPage() {
   return (
       <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
         <div className="container mx-auto px-4 py-8 relative">
-          {/* Navigation buttons in the upper left */}
-          <div className="absolute top-4 left-4 flex">
-            <Link href="/">
-              <button className="mr-4 px-4 py-2 bg-gray-900 hover:bg-gray-600 text-white rounded-lg transition-colors">
-                Home
-              </button>
-            </Link>
-            <Link href="/gallery">
-              <button className="mr-4 px-4 py-2 bg-gray-900 hover:bg-gray-600 text-white rounded-lg transition-colors">
-                Gallery
-              </button>
-            </Link>
+          {/* Back to Cities button in the top left */}
+          <div className="absolute top-4 left-4">
+            <button
+                onClick={handleBackToCountry}
+                className="px-4 py-2 bg-gray-900 hover:bg-gray-600 rounded-lg transition-colors text-white"
+            >
+              ← Back to Cities
+            </button>
           </div>
 
           <h1 className="text-3xl font-bold mb-2 text-center pt-12 text-gray-800">{city}</h1>
           <h2 className="text-xl mb-8 text-center text-gray-600">{country}</h2>
 
-          {/* Image grid */}
+          {/* Image grid with fixed aspect ratio containers */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {images.map((image) => (
                 <div key={image.name} className="transform transition-transform hover:scale-105">
-                  <div className="relative h-64 rounded-lg overflow-hidden shadow-lg">
+                  {/* Using a 3:2 aspect ratio container (pb-[66.67%]) */}
+                  <div className="relative w-full pb-[66.67%] rounded-lg overflow-hidden shadow-lg">
                     <Image
                         src={image.url}
                         alt={`${city} - ${image.name}`}
                         fill
-                        style={{ objectFit: 'cover' }}
+                        style={{ objectFit: 'contain' }}
                         sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
                         unoptimized={true}
                     />
