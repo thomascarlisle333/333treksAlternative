@@ -6,7 +6,6 @@ import { BlobServiceClient } from '@azure/storage-blob';
 
 // Azure Storage account connection string - stored in environment variables
 const connectionString = process.env.AZURE_STORAGE_CONNECTION_STRING;
-const storageAccountName = '333treksphotos';
 const containerName = 'photos';
 const basePath = 'Final';
 
@@ -15,8 +14,8 @@ const CACHE_DIR_PATH = path.join(process.cwd(), 'data');
 const LOCATIONS_CACHE_PATH = path.join(CACHE_DIR_PATH, 'photo-locations.json');
 const LAST_UPDATED_PATH = path.join(CACHE_DIR_PATH, 'locations-last-updated.txt');
 
-// Cache expiration time (in milliseconds) - set to 7 days
-const CACHE_EXPIRATION = 30 * 24 * 60 * 60 * 1000;
+// Cache expiration time (in milliseconds) - extend to 30 days
+const CACHE_EXPIRATION = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
 
 // Create a BlobServiceClient
 let blobServiceClient, containerClient;
@@ -168,8 +167,7 @@ async function saveLocationsToCache(locations) {
     }
 }
 
-// Get all photos and their GPS data from Azure Blob Storage
-// This is your original working function but with added caching
+// Modified getPhotoLocations function with improved efficiency
 async function getPhotoLocations() {
     // Try to load from cache first
     if (await isCacheValid()) {
@@ -207,8 +205,8 @@ async function getPhotoLocations() {
             }
         }
 
-        // Process each country
-        for (const country of Array.from(countries)) {
+        // Process each country - use Promise.all for parallel processing
+        const countryPromises = Array.from(countries).map(async (country) => {
             // Get all cities in this country
             const cities = new Set();
             const cityBlobsIterator = containerClient.listBlobsByHierarchy('/', {
@@ -227,12 +225,13 @@ async function getPhotoLocations() {
                 }
             }
 
-            // Process each city
-            for (const city of Array.from(cities)) {
+            // Process each city in parallel
+            const cityPromises = Array.from(cities).map(async (city) => {
                 // Get all photos in this city
                 const photoFiles = [];
                 const photoBlobsIterator = containerClient.listBlobsFlat({
-                    prefix: `${basePath}/${country}/${city}/`
+                    prefix: `${basePath}/${country}/${city}/`,
+                    maxResults: 10 // Limit to 10 photos per city to improve performance
                 });
 
                 for await (const blob of photoBlobsIterator) {
@@ -244,7 +243,7 @@ async function getPhotoLocations() {
                     }
                 }
 
-                if (photoFiles.length === 0) continue;
+                if (photoFiles.length === 0) return null;
 
                 // Check if we have cached coordinates for this location
                 const locationKey = `${country}-${city}`;
@@ -253,28 +252,25 @@ async function getPhotoLocations() {
                 if (coordinatesCache.has(locationKey)) {
                     coordinates = coordinatesCache.get(locationKey);
                 } else {
-                    // Try to extract GPS data from photos
-                    let gpsFound = false;
-
-                    for (const photoPath of photoFiles.slice(0, 5)) { // Check only first 5 photos for efficiency
-                        if (gpsFound) break;
-
-                        const blobClient = containerClient.getBlobClient(photoPath);
+                    // Try to extract GPS data from photos - only check the first photo
+                    if (photoFiles.length > 0) {
+                        const blobClient = containerClient.getBlobClient(photoFiles[0]);
                         const gpsCoordinates = await extractGPSFromBlob(blobClient);
 
                         if (gpsCoordinates) {
                             coordinates = gpsCoordinates;
-                            gpsFound = true;
-
-                            // Save to cache
                             coordinatesCache.set(locationKey, coordinates);
+                        } else {
+                            // If no GPS data found, use a fallback
+                            coordinates = getDefaultCoordinatesForCountry(country);
+                            coordinatesCache.set(locationKey, {
+                                ...coordinates,
+                                isDefault: true
+                            });
                         }
-                    }
-
-                    // If no GPS data found in any photo, use a fallback
-                    if (!gpsFound) {
+                    } else {
+                        // Fallback if somehow we have a city with no photos
                         coordinates = getDefaultCoordinatesForCountry(country);
-                        // Store fallback in cache but mark it
                         coordinatesCache.set(locationKey, {
                             ...coordinates,
                             isDefault: true
@@ -282,31 +278,59 @@ async function getPhotoLocations() {
                     }
                 }
 
-                locations.push({
+                return {
                     country,
                     city,
                     latitude: coordinates.latitude,
                     longitude: coordinates.longitude,
                     photoCount: photoFiles.length,
                     isDefaultLocation: coordinates.isDefault || false
-                });
-            }
-        }
+                };
+            });
+
+            // Wait for all cities to process and filter out null results
+            const cityResults = await Promise.all(cityPromises);
+            return cityResults.filter(result => result !== null);
+        });
+
+        // Wait for all countries to process
+        const countryResults = await Promise.all(countryPromises);
+
+        // Flatten the array of arrays into a single array of locations
+        const allLocations = countryResults.flat();
 
         // Save to cache for future use
-        await saveLocationsToCache(locations);
+        await saveLocationsToCache(allLocations);
 
-        return locations;
+        return allLocations;
     } catch (error) {
         console.error('Error getting photo locations:', error);
         return [];
     }
 }
 
-export async function GET() {
+// Function to preload cache - called during build time
+export async function preloadLocationCache() {
+    console.log('Preloading location cache...');
     try {
         const locations = await getPhotoLocations();
-        return NextResponse.json(locations);
+        console.log(`Preloaded ${locations.length} locations into cache.`);
+        return locations;
+    } catch (error) {
+        console.error('Error preloading location cache:', error);
+        return [];
+    }
+}
+
+export async function GET() {
+    try {
+        // Add caching headers
+        const response = NextResponse.json(await getPhotoLocations());
+
+        // Add cache control headers for browsers and CDNs
+        response.headers.set('Cache-Control', 'public, max-age=86400, s-maxage=604800, stale-while-revalidate=86400');
+
+        return response;
     } catch (error) {
         console.error('Error in photo-locations API route:', error);
         return NextResponse.json(
