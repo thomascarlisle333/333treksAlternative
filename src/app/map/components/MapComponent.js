@@ -12,6 +12,9 @@ export default function MapComponent({ locations }) {
 
     // Fix Leaflet icon issues on client-side only
     useEffect(() => {
+        // Only run in browser environment
+        if (typeof window === 'undefined') return;
+
         // Fix Leaflet icon issues
         delete L.Icon.Default.prototype._getIconUrl;
         L.Icon.Default.mergeOptions({
@@ -28,6 +31,8 @@ export default function MapComponent({ locations }) {
         iconSize: [25, 41],
         iconAnchor: [12, 41],
         popupAnchor: [1, -34],
+        shadowUrl: '/marker-shadow.png',
+        shadowSize: [41, 41]
     });
 
     // Group locations by country for better UX with many markers
@@ -45,26 +50,17 @@ export default function MapComponent({ locations }) {
             return [20, 0]; // Default center
         }
 
-        // Filter out default locations (they might skew the center)
-        const validLocations = locations.filter(loc => !loc.isDefaultLocation);
+        // Calculate average lat/long for all locations
+        const totalLat = locations.reduce((sum, loc) => sum + loc.latitude, 0);
+        const totalLng = locations.reduce((sum, loc) => sum + loc.longitude, 0);
 
-        if (validLocations.length === 0) {
-            return [20, 0]; // Default center if no valid locations
-        }
-
-        // Calculate average lat/long for real GPS locations
-        const totalLat = validLocations.reduce((sum, loc) => sum + loc.latitude, 0);
-        const totalLng = validLocations.reduce((sum, loc) => sum + loc.longitude, 0);
-
-        return [totalLat / validLocations.length, totalLng / validLocations.length];
+        return [totalLat / locations.length, totalLng / locations.length];
     };
 
     // Determine appropriate zoom level
     const calculateZoom = () => {
         if (!locations || locations.length === 0) return 2;
 
-        // More precise zoom calculation could be implemented here
-        // For now, simple heuristic based on number of countries
         const countryCount = Object.keys(groupedLocations).length;
 
         if (countryCount === 1) return 5; // Single country - zoom closer
