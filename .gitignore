@@ -46,3 +46,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+#data
+data/locations-last-updated.txt
+data/photo-locations.json
